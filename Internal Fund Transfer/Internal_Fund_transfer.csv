@@ -1,0 +1,2653 @@
+"Module","Submodule","Test Case #","Scenario","Precondition","Test Data","Test steps","Expected Result","Labels","Priority","Automation Status"
+"Internal Fund Transfer","API Validation","IFT-API-001","Verify API validation for missing mandatory fields","1. Valid API token available
+2. IFT feature enabled for country","Source merchant: MER_12345
+Destination merchant: MER_67890
+Amount: 45.00
+
+Test variations:
+a) Missing source_merchant_id
+b) Missing destination_merchant_id
+c) Missing amount
+d) amount = 0
+e) amount = -100","1. Prepare API request with valid authentication token
+2. Create request payload missing source_merchant_id: {""destination_merchant_id"": ""MER_67890"", ""amount"": ""45.00""}
+3. Send POST request to /api/v1/internal-fund-transfer
+4. Verify response status and message
+5. Query [table]
+6. Repeat for each variation","Response for each variation:
+a) 400 Bad Request - ""source_merchant_id is required""
+b) 400 Bad Request - ""destination_merchant_id is required""
+c) 400 Bad Request - ""amount is required""
+d) 400 Bad Request - ""amount must be greater than 0""
+e) 400 Bad Request - ""amount must be positive""","API Validation","Critical","Not Automated"
+"Internal Fund Transfer","API Validation","IFT-API-002","Verify API handles invalid data types and formats","1. Valid [table] configured
+2. Valid API token","Test data variations:
+a) amount = ""abc"" (non-numeric)
+b) amount = 100.999 (3 decimal places)
+c) amount = 999999999999.99 (exceeds limit)
+d) source_merchant_id = ""<script>alert(1)</script>"" (XSS)
+e) Content-Type: text/plain (wrong header)","1. Send POST request with amount=""abc""
+2. Verify rejection with proper error message
+3. Send request with 3 decimal places
+4. Send request with XSS attempt in merchant_id
+5. Send request without proper Content-Type header
+6. Verify no records created in database for any variation","Expected responses:
+a) 400 - ""amount must be numeric""
+b) 400 - ""amount must have maximum 2 decimal places""
+c) 400 - ""amount exceeds maximum allowed value""
+d) 400 - ""invalid merchant_id format"" (sanitized, no script executed)
+e) 400 - ""Content-Type must be application/json""
+
+Database verification:
+- Query:No Entry Created in Datman_internal_transfer
+- Input sanitization verified","API Validation","Critical","Not Automated"
+"Internal Fund Transfer","Security","IFT-SEC-001","Verify authentication and authorization mechanisms","1. Multiple API tokens available (valid, expired, invalid, limited permissions)
+2. Multiple [table] in system","Test scenarios:
+a) No Authorization header
+b) Invalid token: ""Bearer invalid_xyz123""
+c) Expired token: ""Bearer expired_token_abc""
+d) Valid token but user tries to transfer from unauthorized merchant
+e) Token without IFT permission","1. Send POST /ift without Authorization header
+2. Send with invalid token
+3. Send with expired token (token_expiry < CURRENT_TIMESTAMP)
+4. Authenticate as Merchant_A, try to transfer from Merchant_B account
+5. Use token with read-only permissions
+6. For each scenario check response and database
+7. Check security audit logs","Expected results:
+a) 401 Unauthorized - ""Authentication token required""
+b) 401 Unauthorized - ""Invalid authentication token""
+c) 401 Unauthorized - ""Token has expired""
+d) 403 Forbidden - ""Not authorized to access merchant MER_12345""
+e) 403 Forbidden - ""Insufficient permissions for internal fund transfer""
+
+Database verification:
+
+- Verify no payment records created","Security","Critical","Not Automated"
+"Internal Fund Transfer","Country Configuration","IFT-CTRY-001","Verify country-level IFT configuration validations","1. Multiple [table] configured with different settings
+2. Test [table] set up in each country
+
+Country configurations:
+- UK (country_id=1): internal_transfer_enabled=1, max_internal_transfer_limit=10000.00
+- USA (country_id=2): internal_transfer_enabled=0, max_internal_transfer_limit=5000.00
+- AU (country_id=3): internal_transfer_enabled=1, max_internal_transfer_limit=NULL","Test [DB record verified]
+USA: MER_USA_001 (source), MER_USA_002 (dest)
+AU: MER_AU_001 (source), MER_AU_002 (dest)
+
+Test scenarios:
+a) UK to UK: amount=45.00 (valid, under limit)
+b) UK to UK: amount=48.00 (boundary, equals limit)
+c) UK to UK: amount=49.00 (exceeds limit)
+d) USA to USA: amount=40.00 (IFT disabled)
+e) AU to AU: amount=40.00 (no limit configured)
+f) UK to USA: amount=45.00 (different [table])","For each scenario:
+1. Verify country configuration: [removed]
+2. Send POST /ift request
+3. Check API response
+4. Query [table]
+5. Check the record for successful transfers
+
+Steps for scenario (c):
+1. Verify: [removed]
+2. POST {""source_merchant_id"": ""MER_UK_001"", ""destination_merchant_id"": ""MER_UK_002"", ""amount"": ""49.00""}
+3. Verify response and database","Expected results:
+a) 200 OK - Transfer SUCCESS
+   [DB record verified]
+   
+b) 200 OK - Transfer SUCCESS (boundary accepted)
+   [DB record verified]
+   
+c) 400 Bad Request - ""Amount 49.00 exceeds maximum transfer limit 48.00 for this country""
+   [DB record verified]
+   
+d) 403 Forbidden - ""Internal fund transfer not enabled for this country""
+   [DB record verified]
+   
+e) 403 Forbidden - ""Internal transfer limit not configured for this country""
+   No record in [table]
+   
+f) 400 Bad Request - ""Source and destination [table] must belong to same country""
+   [DB record verified]
+
+Database queries for validation:
+Entries created in Datman_internal_tranfer table and no entries created for the same.","Country Validation","Critical","Not Automated"
+"Internal Fund Transfer","Merchant Configuration","IFT-MERCH-001","Verify merchant-level IFT sender and receiver configuration","[table] setup:
+1. MER_SEND_ONLY: internal_transfer_sender=1, internal_transfer_receiver=0, status='active'
+2. MER_RECEIVE_ONLY: internal_transfer_sender=0, internal_transfer_receiver=1, status='active'
+3. MER_BOTH: internal_transfer_sender=1, internal_transfer_receiver=1, status='active'
+4. MER_NEITHER: internal_transfer_sender=0, internal_transfer_receiver=0, status='active'
+5. MER_INACTIVE: internal_transfer_sender=1, internal_transfer_receiver=1, status='inactive'
+All in same country with IFT enabled","Test scenarios with all [table] having sufficient balance (10000.00 each):
+
+a) MER_SEND_ONLY → MER_RECEIVE_ONLY (amount: 40.00) - Valid
+b) MER_RECEIVE_ONLY → MER_SEND_ONLY (amount: 45.00) - Invalid sender
+c) MER_SEND_ONLY → MER_NEITHER (amount: 45.00) - Invalid receiver
+d) MER_NEITHER → MER_RECEIVE_ONLY (amount: 45.00) - Invalid sender
+e) MER_BOTH → MER_BOTH (amount: 45.00) - Valid
+f) MER_BOTH → MER_INACTIVE (amount: 40.00) - Inactive destination
+g) MER_INACTIVE → MER_BOTH (amount: 40.00) - Inactive source
+h) MER_BOTH → MER_BOTH (same merchant) - Same merchant error","For each scenario:
+1. Pre-check: [removed]
+2. Send POST /ift request
+3. Record transaction_id from response
+4. Check [DB record verified]
+5. Check the record for successful cases
+6. Verify webhook triggered
+7. Verify balances updated
+
+Detailed steps for scenario (a):
+3. GET current balances: [removed]
+4. POST request
+5. Wait for processing (monitor status)
+6. Query final state","Expected results:
+
+a) 200 OK - Transfer SUCCESS
+   [DB record verified]
+   [table] (2 records):
+   - payment_id=PAY_1, merchant_id='MER_SEND_ONLY', payment_provider_id=23, transaction_method_id=10, transaction_mode_id=3, amount=-40.00, merchant_id='MER_RECEIVE_ONLY', payment_provider_id=23, transaction_method_id=10, transaction_mode_id=3, amount=+1000.00, 
+   
+b) 403 Forbidden - ""Source merchant not authorized to send funds""
+   [DB record verified]
+   [DB record verified]
+   
+c) 403 Forbidden - ""Destination merchant not authorized to receive funds""
+   [DB record verified]
+   
+d) 403 Forbidden - ""Source merchant not authorized to send funds""
+   [DB record verified]
+   
+e) 200 OK - Transfer SUCCESS
+   Both [table] records created with correct constants
+   
+f) 403 Forbidden - ""Destination merchant is not active""
+   [DB record verified]
+   
+g) 403 Forbidden - ""Source merchant is not active""
+   [DB record verified]
+   
+h) 400 Bad Request - ""Source and destination [table] cannot be same""
+   No [table] record created
+
+Database verification queries:","Merchant Validation","Critical","Not Automated"
+"Internal Fund Transfer","Balance Validation","IFT-BAL-001","Verify balance sufficiency checks for all balance types","Setup [table] with specific balances:
+1. MER_ADYEN_LOW: balance_adyen=50.00, balance_rbs=0.00
+2. MER_ADYEN_HIGH: balance_adyen=45.00, balance_rbs=0.00
+3. MER_RBS_LOW: balance_adyen=0.00, balance_rbs=75.00
+4. MER_RBS_HIGH: balance_adyen=0.00, balance_rbs=8000.00
+5. MER_BOTH: balance_adyen=3000.00, balance_rbs=45.00
+6. MER_ZERO: balance_adyen=0.00, balance_rbs=0.00
+All [table] in same country, all flags enabled","Test scenarios:
+
+a) MER_ADYEN_LOW → MER_ADYEN_HIGH, amount=40.00 (insufficient Adyen)
+b) MER_ADYEN_LOW → MER_ADYEN_HIGH, amount=50.00 (exact Adyen balance)
+c) MER_RBS_LOW → MER_RBS_HIGH, amount=150.00 (insufficient RBS)
+d) MER_RBS_LOW → MER_RBS_HIGH, amount=75.00 (exact RBS balance)
+e) MER_ADYEN_HIGH → MER_BOTH, amount=45.00 (sufficient, partial)
+f) MER_BOTH → MER_RBS_HIGH, amount=4000.00 (using exact RBS balance)
+g) MER_ZERO → MER_ADYEN_HIGH, amount=<dynamic_amount> (zero balance source)
+h) MER_ADYEN_HIGH → MER_ZERO, amount=40.00 (transfer to zero balance merchant)","For each scenario:
+1. Pre-query balances: [removed]
+2. Record initial balances
+3. Determine which balance will be used (Adyen or RBS for source/destination)
+4. Send POST /ift request
+5. Wait for status update (poll [table].status)
+6. Query final balances
+7. Verify [table] records
+8. Calculate expected final balances
+9. Verify webhook triggered with correct status
+
+Detailed for scenario (b):
+2. POST {""source_merchant_id"": ""MER_ADYEN_LOW"", ""destination_merchant_id"": ""MER_ADYEN_HIGH"", ""amount"": ""45.00""}
+3. Monitor: [removed]
+4. Verify [table] created","Expected results:
+
+a) INSUFFICIENT BALANCE
+   API: 200 OK (request accepted)
+   [DB record verified]
+   [DB record verified]
+   Balances unchanged: MER_ADYEN_LOW=45.00, MER_ADYEN_HIGH=45.00
+   Webhook: triggered with status='FAILED'
+   
+b) EXACT BALANCE TRANSFER SUCCESS
+   API: 200 OK
+   [DB record verified]
+   [table] (2 records):
+     - merchant='MER_ADYEN_LOW', payment_provider_id=23, transaction_method_id=10, transaction_mode_id=3, amount=-50.00
+     - merchant='MER_ADYEN_HIGH', payment_provider_id=23, transaction_method_id=10, transaction_mode_id=3, amount=+50.00
+   Final balances: MER_ADYEN_LOW=0.00, MER_ADYEN_HIGH=5050.00
+   Webhook: status='SUCCESS'
+   
+c) INSUFFICIENT BALANCE
+   [DB record verified]
+   [DB record verified]
+   Balances unchanged: MER_RBS_LOW=75.00
+   
+d) EXACT BALANCE TRANSFER SUCCESS
+   [table] (2 records with method_id=32 for RBS):
+     - merchant='MER_RBS_LOW', payment_provider_id=23, transaction_method_id=32, transaction_mode_id=3, amount=-75.00
+     - merchant='MER_RBS_HIGH', payment_provider_id=23, transaction_method_id=32, transaction_mode_id=3, amount=+75.00
+   Final balances: MER_RBS_LOW=0.00, MER_RBS_HIGH=8075.00
+   
+e) PARTIAL TRANSFER SUCCESS
+   Final balances: MER_ADYEN_HIGH=2500.00, MER_BOTH Adyen=5500.00
+   
+f) CROSS-BALANCE SUCCESS (Adyen→RBS)
+   [table] use transaction_mode_id=4 (through Liable Account)
+   Source record: method_id=10 (Adyen), amount=-4000.00
+   Dest record: method_id=32 (RBS), amount=+4000.00
+   Final: MER_BOTH Adyen=3000.00 (unchanged), RBS=0.00; MER_RBS_HIGH RBS=12000.00
+   
+g) ZERO BALANCE FAILURE
+   [DB record verified]
+   
+h) TRANSFER TO ZERO SUCCESS
+   MER_ZERO balance increases from 0.00 to 40.00
+
+Database validation queries:","Balance Validation","Critical","Not Automated"
+"Internal Fund Transfer","Case 1: Adyen to Adyen","IFT-CASE1-001","Verify Adyen to Adyen direct transfer with all database validations","Pre-setup:
+1. Source merchant: MER_ADYEN_SRC
+   - merchant_id: MER_ADYEN_SRC
+   - country_id: 1 (UK)
+   - balance_adyen: 45.00
+   - balance_rbs: 0.00
+   - internal_transfer_sender: 1
+   - internal_transfer_receiver: 1
+   - status: active
+
+2. Destination merchant: MER_ADYEN_DEST
+   - merchant_id: MER_ADYEN_DEST
+   - country_id: 1 (UK)
+   - balance_adyen: 45.00
+   - balance_rbs: 0.00
+   - internal_transfer_sender: 1
+   - internal_transfer_receiver: 1
+   - status: active
+
+3. Country config: internal_transfer_enabled=1, max_limit=10000.00
+4. Webhook URL configured: https://webhook.example.com/ift","Transfer request:
+{
+  ""source_merchant_id"": ""MER_ADYEN_SRC"",
+  ""destination_merchant_id"": ""MER_ADYEN_DEST"",
+  ""amount"": ""45.00"",
+  ""reference"": ""Test Adyen to Adyen transfer"",
+}
+
+Expected database constants for Adyen→Adyen:
+- payment_provider_id: 23 (Internal Fund Transfer)
+- transaction_method_id: 10 (Adyen balance - receivable/payable)
+- transaction_mode_id: 3 (Direct transfer, no Liable Account)","PRE-EXECUTION CHECKS:
+1. Verify source merchant config:
+   Expected: country_id=1, sender=1, status=active, balance_adyen=45.00
+
+2. Verify destination merchant config - same query for MER_ADYEN_DEST
+   Expected: country_id=1, receiver=1, status=active, balance_adyen=45.00
+
+3. Verify country settings:
+   Expected: enabled=1, max_limit=10000.00
+
+EXECUTION STEPS:
+4. Record timestamp: test_start_time = NOW()
+
+5. Send POST request to /api/v1/internal-fund-transfer with authentication
+
+6. Capture response and extract IFT ID
+
+7. Poll for completion:
+   Wait until status = 'SUCCESS' or 'FAILED' (max 30 seconds)
+
+POST-EXECUTION VALIDATION:
+
+8. Verify [table] record:
+9. Verify [table] (should have 2 records):
+10. Verify source merchant payment record:
+11. Verify destination merchant payment record:
+12. Verify updated balances:
+13. Verify webhook triggered:
+14. Verify sum of amounts = 0:
+    Expected: 0.00","EXPECTED RESULTS:
+
+API Response:
+- HTTP Status: 200 OK
+- Response body: {""Id"": ""12345"", ""status"": ""PENDING"", ""message"": ""Transfer initiated successfully""}
+
+Table: [table]
+- id: 12345
+- source_merchant_id: MER_ADYEN_SRC
+- destination_merchant_id: MER_ADYEN_DEST
+- amount: 45.00
+- currency: GBP
+- status: SUCCESS
+- failure_reason: NULL
+- -: TEST-ADYEN-001
+- created_at: <timestamp>
+- updated_at: <timestamp after completion>
+- completed_at: <timestamp>
+
+Table: [table] (Record 1 - Source Debit)
+- payment_id: <auto_generated>
+- merchant_id: MER_ADYEN_SRC
+- payment_provider_id: 23 ← CRITICAL: Must be 23 (IFT constant)
+- transaction_method_id: 10 ← CRITICAL: Must be 10 (Adyen balance)
+- transaction_mode_id: 3 ← CRITICAL: Must be 3 (Direct, no Liable Account)
+- amount: -1500.00 ← CRITICAL: Negative for debit
+- balance_after_transaction: 3500.00
+- ift_reference: 12345
+- transaction_type: INTERNAL_FUND_TRANSFER
+- created_at: <timestamp>
+- processed_at: <timestamp>
+
+Table: [table] (Record 2 - Destination Credit)
+- payment_id: <auto_generated>
+- merchant_id: MER_ADYEN_DEST
+- payment_provider_id: 23 ← CRITICAL: Must be 23 (IFT constant)
+- transaction_method_id: 10 ← CRITICAL: Must be 10 (Adyen balance)
+- transaction_mode_id: 3 ← CRITICAL: Must be 3 (Direct transfer)
+- amount: +1500.00 ← CRITICAL: Positive for credit
+- balance_after_transaction: 3500.00
+- ift_reference: 12345
+- transaction_type: INTERNAL_FUND_TRANSFER
+- created_at: <timestamp>
+- processed_at: <timestamp>
+
+Table: [table] (Updated)
+- MER_ADYEN_SRC: balance_adyen: 3500.00 (decreased from 45.00)
+- MER_ADYEN_DEST: balance_adyen: 3500.00 (increased from 45.00)
+- last_updated: <timestamp>
+
+Table: [table] (Webhook)
+- detail_id: <auto_generated>
+- internal_transfer_id: 12345
+- webhook_url: https://webhook.example.com/ift
+- webhook_payload: {""Id"":""12345"",""status"":""SUCCESS"",""amount"":1500.00}
+- http_status_code: 200
+- response_body: {""received"": true}
+- retry_count: 0
+- triggered_at: <timestamp>
+
+CRITICAL VALIDATIONS:
+✓ Both payment records have payment_provider_id = 23
+✓ Both payment records have transaction_method_id = 10 (Adyen)
+✓ Both payment records have transaction_mode_id = 3 (Direct)
+✓ Sum of amounts in [table] = 0.00
+✓ Source balance decreased by 45.00
+✓ Destination balance increased by 45.00
+✓ Webhook triggered with http_status_code >= 200
+✓ No records in [table] with status=FAILED
+✓ IFT status transitioned: PENDING → PROCESSING → SUCCESS","Case 1: Adyen→Adyen","Critical","Not Automated"
+"Internal Fund Transfer","Case 2: RBS to Adyen","IFT-CASE2-001","Verify RBS to Adyen cross-balance transfer through Datman Liable Account","Pre-setup:
+1. Source merchant: MER_RBS_SRC
+   - merchant_id: MER_RBS_SRC
+   - country_id: 1 (UK)
+   - balance_adyen: 0.00
+   - balance_rbs: 45.00 ← Using RBS balance
+   - internal_transfer_sender: 1
+   - status: active
+
+2. Destination merchant: MER_ADYEN_DEST2
+   - merchant_id: MER_ADYEN_DEST2
+   - country_id: 1 (UK)
+   - balance_adyen: 45.00 ← Receiving to Adyen
+   - balance_rbs: 0.00
+   - internal_transfer_receiver: 1
+   - status: active
+
+3. Country config: internal_transfer_enabled=1, max_limit=10000.00
+4. Webhook configured","Transfer request:
+{
+  ""source_merchant_id"": ""MER_RBS_SRC"",
+  ""destination_merchant_id"": ""MER_ADYEN_DEST2"",
+  ""amount"": ""45.00"",
+  ""reference"": ""RBS to Adyen cross-balance"",
+}
+
+CRITICAL DATABASE CONSTANTS for RBS→Adyen:
+- payment_provider_id: 23 (Internal Fund Transfer)
+- transaction_method_id for SOURCE: 32 ← CRITICAL: 32 = Internal fund Transfer Payable (RBS balance impact)
+- transaction_method_id for DESTINATION: 10 ← CRITICAL: 10 = Adyen balance
+- transaction_mode_id: 4 ← CRITICAL: 4 = Transfer through Datman Liable Account (cross-balance)
+
+Key difference from Case 1:
+- Mode = 4 (not 3) because funds move through Datman Liable Account when crossing balance types
+- Source uses method_id = 32 (RBS/Payable)
+- Destination uses method_id = 10 (Adyen)","PRE-EXECUTION CHECKS:
+1. Verify source RBS balance:
+   Expected: 45.00
+
+2. Verify destination Adyen balance:
+   Expected: 45.00
+
+3. Verify Datman Liable Account balance (if tracked):
+EXECUTION:
+4. Record timestamp: test_start_time = NOW()
+
+5. Send POST request to /api/v1/internal-fund-transfer
+
+6. Capture IFT ID from response
+
+7. Monitor status transitions:
+POST-EXECUTION VALIDATION:
+
+8. Query main IFT record:
+9. Query SOURCE payment record (RBS debit):
+10. Query DESTINATION payment record (Adyen credit):
+11. Verify balance updates:
+12. Verify Datman Liable Account was used (if separate tracking exists):
+13. Verify webhook:
+14. Validate transaction integrity:
+      (
+      (","EXPECTED RESULTS:
+
+API Response:
+- HTTP Status: 200 OK
+- Response: {""Id"": ""IFT_23456"", ""status"": ""PENDING""}
+
+Table: [table]
+- id: IFT_23456
+- source_merchant_id: MER_RBS_SRC
+- destination_merchant_id: MER_ADYEN_DEST2
+- amount: 45.00
+- status: SUCCESS
+- created_at: <timestamp>
+- updated_at: <completion_timestamp>
+
+Table: [table] (SOURCE - RBS Debit)
+- payment_id: PAY_5001
+- merchant_id: MER_RBS_SRC
+- payment_provider_id: 23 ← VERIFY: Must be 23
+- transaction_method_id: 32 ← CRITICAL: Must be 32 (RBS/Payable, not 10)
+- transaction_mode_id: 4 ← CRITICAL: Must be 4 (through Liable Account, not 3)
+- amount: -45000.00 ← Negative (debit from RBS)
+- balance_type: RBS
+- balance_after_transaction: 45.00 (4000.00 - 45.00)
+- ift_reference: IFT_23456
+- created_at: <timestamp>
+
+Table: [table] (DESTINATION - Adyen Credit)
+- payment_id: PAY_5002
+- merchant_id: MER_ADYEN_DEST2
+- payment_provider_id: 23 ← VERIFY: Must be 23
+- transaction_method_id: 10 ← CRITICAL: Must be 10 (Adyen, not 32)
+- transaction_mode_id: 4 ← CRITICAL: Must be 4 (through Liable Account)
+- amount: +2000.00 ← Positive (credit to Adyen)
+- balance_type: ADYEN
+- balance_after_transaction: 3500.00 (1500.00 + 45.00)
+- ift_reference: IFT_23456
+- created_at: <timestamp>
+
+Table: [table] (Updated)
+- MER_RBS_SRC: 
+  * balance_adyen: 0.00 (unchanged)
+  * balance_rbs: 45.00 (decreased from 45.00) ← CRITICAL VERIFICATION
+  * last_updated: <timestamp>
+  
+- MER_ADYEN_DEST2:
+  * balance_adyen: 3500.00 (increased from 45.00) ← CRITICAL VERIFICATION
+  * balance_rbs: 0.00 (unchanged)
+  * last_updated: <timestamp>
+
+Table: [table]
+- internal_transfer_id: IFT_23456
+- webhook_payload includes: balance_types (source=RBS, dest=Adyen)
+- http_status_code: 200
+- triggered_at: <timestamp>
+
+CRITICAL VALIDATIONS for RBS→Adyen:
+✓ SOURCE payment has transaction_method_id = 32 (RBS/Payable)
+✓ DESTINATION payment has transaction_method_id = 10 (Adyen)
+✓ BOTH [table] have transaction_mode_id = 4 (Liable Account used)
+✓ BOTH [table] have payment_provider_id = 23
+✓ Source RBS balance decreased by 45.00
+✓ Destination Adyen balance increased by 45.00
+✓ Source Adyen balance unchanged (0.00)
+✓ Destination RBS balance unchanged (0.00)
+✓ Sum of amounts = 0.00
+✓ Status = SUCCESS
+✓ Webhook triggered
+
+EXPECTED SQL VALIDATION RESULTS:
+Result should show:
+Row 1: method_id=32, mode_id=4, amount=-45.00
+Row 2: method_id=10, mode_id=4, amount=+2000.00","Case 2: RBS→Adyen","Critical","Not Automated"
+"Internal Fund Transfer","Case 3: RBS to RBS","IFT-CASE3-001","Verify RBS to RBS direct transfer (same balance type)","Pre-setup:
+1. Source merchant: MER_RBS_SRC2
+   - merchant_id: MER_RBS_SRC2
+   - country_id: 1 (UK)
+   - balance_adyen: 0.00
+   - balance_rbs: 6000.00 ← Using RBS
+   - internal_transfer_sender: 1
+   - status: active
+
+2. Destination merchant: MER_RBS_DEST
+   - merchant_id: MER_RBS_DEST
+   - country_id: 1 (UK)
+   - balance_adyen: 0.00
+   - balance_rbs: 45.00 ← Receiving to RBS
+   - internal_transfer_receiver: 1
+   - status: active
+
+3. Country config validated","Transfer request:
+{
+  ""source_merchant_id"": ""MER_RBS_SRC2"",
+  ""destination_merchant_id"": ""MER_RBS_DEST"",
+  ""amount"": ""45.00"",
+  ""reference"": ""RBS to RBS same balance"",
+}
+
+DATABASE CONSTANTS for RBS→RBS:
+- payment_provider_id: 23 (IFT)
+- transaction_method_id: 32 ← CRITICAL: Both source AND destination use 32 (RBS/Payable)
+- transaction_mode_id: 3 ← CRITICAL: Mode 3 (Direct transfer, NO Liable Account)
+
+Key characteristics:
+- Both balances are RBS type = Direct transfer (mode 3, not 4)
+- Both [table] use method_id = 32
+- Simpler flow than cross-balance (no Liable Account)","EXECUTION STEPS:
+
+1. Pre-check balances:
+   Expected: MER_RBS_SRC2=6000.00, MER_RBS_DEST=45.00
+
+2. Send POST /ift request
+
+3. Monitor completion:
+4. Query [table] records:
+5. Verify final balances:
+6. Validate constants:
+7. Check webhook:","EXPECTED RESULTS:
+
+API Response:
+- HTTP 200 OK
+- {""Id"": ""IFT_34567"", ""status"": ""PENDING""}
+
+Table: [table]
+- id: IFT_34567
+- source_merchant_id: MER_RBS_SRC2
+- destination_merchant_id: MER_RBS_DEST
+- amount: 45.00
+- status: SUCCESS
+
+Table: [table] (SOURCE - RBS Debit)
+- merchant_id: MER_RBS_SRC2
+- payment_provider_id: 23 ← VERIFY: Must be 23
+- transaction_method_id: 32 ← CRITICAL: Must be 32 (RBS)
+- transaction_mode_id: 3 ← CRITICAL: Must be 3 (Direct, not 4)
+- amount: -45500.00
+- balance_type: RBS
+- balance_after_transaction: 3500.00 (6000.00 - 45.00)
+- ift_reference: IFT_34567
+
+Table: [table] (DESTINATION - RBS Credit)
+- merchant_id: MER_RBS_DEST
+- payment_provider_id: 23 ← VERIFY: Must be 23
+- transaction_method_id: 32 ← CRITICAL: Must be 32 (RBS, same as source)
+- transaction_mode_id: 3 ← CRITICAL: Must be 3 (Direct)
+- amount: +2500.00
+- balance_type: RBS
+- balance_after_transaction: 5500.00 (3000.00 + 45.00)
+- ift_reference: IFT_34567
+
+Table: [table]
+- MER_RBS_SRC2: balance_rbs: 3500.00 (decreased)
+- MER_RBS_DEST: balance_rbs: 5500.00 (increased)
+
+CRITICAL VALIDATIONS for RBS→RBS:
+✓ BOTH [table] have transaction_method_id = 32 (RBS)
+✓ BOTH [table] have transaction_mode_id = 3 (Direct, no Liable Account)
+✓ BOTH [table] have payment_provider_id = 23
+✓ Source RBS balance: 6000.00 → 3500.00 (decreased by 45.00)
+✓ Destination RBS balance: 45.00 → 5500.00 (increased by 45.00)
+✓ Sum of amounts = 0.00
+✓ No Liable Account involved (mode=3 confirms this)
+
+SQL VALIDATION QUERY:
+  payment_provider_id, 
+  transaction_method_id, 
+  transaction_mode_id, 
+  amount 
+FROM [table] 
+WHERE ift_reference='IFT_34567' 
+ORDER BY amount;
+
+Expected result:
+provider=23, method=32, mode=3, amount=-45.00
+provider=23, method=32, mode=3, amount=+2500.00","Case 3: RBS→RBS","Critical","Not Automated"
+"Internal Fund Transfer","Case 4: Adyen to RBS","IFT-CASE4-001","Verify Adyen to RBS cross-balance transfer through Datman Liable Account","Pre-setup:
+1. Source merchant: MER_ADYEN_SRC2
+   - merchant_id: MER_ADYEN_SRC2
+   - country_id: 1 (UK)
+   - balance_adyen: 7000.00 ← Using Adyen
+   - balance_rbs: 0.00
+   - internal_transfer_sender: 1
+   - status: active
+
+2. Destination merchant: MER_RBS_DEST2
+   - merchant_id: MER_RBS_DEST2
+   - country_id: 1 (UK)
+   - balance_adyen: 0.00
+   - balance_rbs: 45.00 ← Receiving to RBS
+   - internal_transfer_receiver: 1
+   - status: active","Transfer request:
+{
+  ""source_merchant_id"": ""MER_ADYEN_SRC2"",
+  ""destination_merchant_id"": ""MER_RBS_DEST2"",
+  ""amount"": ""45.00"",
+  ""reference"": ""Adyen to RBS cross-balance"",
+}
+
+DATABASE CONSTANTS for Adyen→RBS:
+- payment_provider_id: 23 (IFT)
+- transaction_method_id for SOURCE: 10 ← CRITICAL: 10 = Adyen balance
+- transaction_method_id for DESTINATION: 32 ← CRITICAL: 32 = RBS/Payable balance
+- transaction_mode_id: 4 ← CRITICAL: 4 = Through Datman Liable Account (cross-balance)
+
+This is the inverse of Case 2","EXECUTION & VALIDATION:
+
+1. Verify pre-state:
+2. Execute IFT
+
+3. Query completed transfer:
+4. Verify SOURCE payment (Adyen debit):
+5. Verify DESTINATION payment (RBS credit):
+6. Check final balances:
+7. Validate method and mode:","EXPECTED RESULTS:
+
+Table: [table] (SOURCE - Adyen Debit)
+- merchant_id: MER_ADYEN_SRC2
+- payment_provider_id: 23
+- transaction_method_id: 10 ← CRITICAL: Adyen (not 32)
+- transaction_mode_id: 4 ← CRITICAL: Through Liable Account
+- amount: -3000.00
+- balance_after_transaction: 45.00 (48.00 - <dynamic_amount>.00)
+- ift_reference: IFT_45678
+
+Table: [table] (DESTINATION - RBS Credit)
+- merchant_id: MER_RBS_DEST2
+- payment_provider_id: 23
+- transaction_method_id: 32 ← CRITICAL: RBS/Payable (not 10)
+- transaction_mode_id: 4 ← CRITICAL: Through Liable Account
+- amount: +3000.00
+- balance_after_transaction: 5500.00 (2500.00 + 45.00)
+- ift_reference: IFT_45678
+
+Table: [table]
+- MER_ADYEN_SRC2:
+  * balance_adyen: 45.00 (decreased from 7000.00)
+  * balance_rbs: 0.00 (unchanged)
+  
+- MER_RBS_DEST2:
+  * balance_adyen: 0.00 (unchanged)
+  * balance_rbs: 5500.00 (increased from 45.00)
+
+CRITICAL VALIDATIONS for Adyen→RBS:
+✓ SOURCE: method_id=10 (Adyen), mode_id=4 (Liable Account)
+✓ DESTINATION: method_id=32 (RBS), mode_id=4 (Liable Account)
+✓ Both have provider_id=23
+✓ Source Adyen decreased by 45.00
+✓ Destination RBS increased by 45.00
+✓ Sum of amounts = 0.00
+✓ Mode = 4 confirms Liable Account used for cross-balance","Case 4: Adyen→RBS","Critical","Not Automated"
+"Internal Fund Transfer","Webhook Integration","IFT-WEBHOOK-001","Verify webhook trigger and payload for all statuses","Setup:
+1. Webhook endpoint configured: https://webhook-test.example.com/ift/notifications
+2. Multiple merchant pairs for different scenarios
+3. Mock webhook server to capture requests","Test scenarios:
+a) Successful IFT (Adyen→Adyen, 40.00)
+b) Failed IFT due to insufficient balance
+c) Failed IFT due to validation error
+d) Webhook endpoint returns 200
+e) Webhook endpoint returns 500 (verify IFT still succeeds)
+f) Webhook endpoint timeout
+g) Invalid webhook URL","For each scenario:
+1. Configure webhook URL in system
+2. Execute IFT request
+3. Monitor webhook delivery
+4. Query [table]
+5. Verify webhook payload contents
+6. Check retry mechanism (if applicable)
+
+Detailed for scenario (a):
+1. Setup webhook: [removed]
+2. Execute successful IFT
+3. Wait for webhook trigger
+4. Query: [removed]
+5. Verify payload contents
+6. Check webhook server logs for received request","EXPECTED WEBHOOK BEHAVIOR:
+
+Scenario (a) - SUCCESS webhook:
+[DB record verified]
+- webhook_url: https://webhook-test.example.com/ift/notifications
+- http_method: POST
+- webhook_payload: 
+  {
+    ""event"": ""internal_fund_transfer.completed"",
+    ""Id"": ""12345"",
+    ""status"": ""SUCCESS"",
+    ""source_merchant_id"": ""MER_ADYEN_SRC"",
+    ""destination_merchant_id"": ""MER_ADYEN_DEST"",
+    ""amount"": 40.00,
+    ""currency"": ""GBP"",
+    ""balance_types"": {""source"": ""ADYEN"", ""destination"": ""ADYEN""},
+    ""transaction_details"": {
+      ""payment_provider_id"": 23,
+      ""transaction_method_id"": 10,
+      ""transaction_mode_id"": 3
+    },
+    ""created_at"": ""2025-01-12T10:30:00Z"",
+    ""completed_at"": ""2025-01-12T10:30:05Z""
+  }
+- http_status_code: 200
+- response_body: {""received"": true, ""processed"": true}
+- retry_count: 0
+- triggered_at: <timestamp>
+- completed_at: <timestamp>
+
+Scenario (b) - FAILED webhook:
+webhook_payload:
+  {
+    ""event"": ""internal_fund_transfer.failed"",
+    ""Id"": ""IFT_12346"",
+    ""status"": ""FAILED"",
+    ""failure_reason"": ""INSUFFICIENT_BALANCE"",
+    ""amount_requested"": 45.00,
+    ""available_balance"": 40.00,
+    ""source_merchant_id"": ""MER_LOW_BAL"",
+    ""failed_at"": ""2025-01-12T10:31:00Z""
+  }
+
+Scenario (e) - Webhook fails but IFT succeeds:
+- [table].status: SUCCESS (IFT not affected)
+- [table].http_status_code: 500
+- [table].retry_count: 3 (retried)
+- IFT completion not blocked by webhook failure
+
+CRITICAL VALIDATIONS:
+✓ Webhook triggered immediately after IFT completion
+✓ Webhook payload includes all transaction details
+✓ http_status_code recorded (200, 201, 204, 4xx, 5xx)
+✓ Webhook failure does NOT affect IFT success
+✓ Retry mechanism activated for failed webhooks
+✓ All webhook attempts logged in details table
+✓ Webhook payload includes database constants (provider=23, method, mode)","Webhook","Critical","Not Automated"
+"Internal Fund Transfer","Mixed Balance Scenarios","IFT-MIX-001","Verify IFT behavior when merchant has both Adyen and RBS balances","Setup:
+1. MER_MIXED_1: balance_adyen=3000.00, balance_rbs=5000.00
+2. MER_MIXED_2: balance_adyen=45.00, balance_rbs=45.00
+3. MER_ADYEN_ONLY: balance_adyen=6000.00, balance_rbs=0.00
+4. MER_RBS_ONLY: balance_adyen=0.00, balance_rbs=7000.00
+All in same country","Test scenarios to determine which balance is used:
+
+a) Mixed source → Mixed destination
+   - MER_MIXED_1 → MER_MIXED_2, amount=45.00
+   - Question: Which balance type is used?
+
+b) Mixed source → Adyen-only destination
+   - MER_MIXED_1 → MER_ADYEN_ONLY, amount=40.00
+
+c) Mixed source → RBS-only destination
+   - MER_MIXED_1 → MER_RBS_ONLY, amount=1200.00
+
+d) Adyen-only → Mixed destination
+   - MER_ADYEN_ONLY → MER_MIXED_2, amount=800.00
+
+e) RBS-only → Mixed destination
+   - MER_RBS_ONLY → MER_MIXED_2, amount=900.00
+
+f) Transfer exceeding one balance but within total
+   - MER_MIXED_1 (Adyen=3000, RBS=5000) → dest
+   - Amount=4000.00 (exceeds Adyen but within RBS)","EXECUTION STEPS:
+
+Pre-execution analysis:
+1. Query system business rules:
+   (to understand which balance type takes precedence)
+
+2. Document initial balances:
+     merchant_id,
+     balance_adyen,
+     balance_rbs,
+     (balance_adyen + balance_rbs) as total_balance
+   FROM [table]
+   WHERE merchant_id IN ('MER_MIXED_1', 'MER_MIXED_2', 'MER_ADYEN_ONLY', 'MER_RBS_ONLY')
+
+Scenario (a) - Mixed to Mixed:
+1. POST /ift {
+     source: MER_MIXED_1,
+     dest: MER_MIXED_2,
+     amount: 45.00,
+     key: MIX-001
+   }
+
+2. Wait for completion
+
+3. Query payment records to determine balance type used:
+     p.merchant_id,
+     p.transaction_method_id,
+     p.transaction_mode_id,
+     p.amount,
+     CASE 
+       WHEN p.transaction_method_id = 10 THEN 'ADYEN'
+       WHEN p.transaction_method_id = 32 THEN 'RBS'
+     END as balance_type_used
+   FROM [table] p
+   WHERE p.ift_reference = (
+   ORDER BY p.amount
+
+4. Verify which balance was debited/credited:
+     merchant_id,
+     balance_adyen,
+     balance_rbs
+   FROM [table]
+   WHERE merchant_id IN ('MER_MIXED_1', 'MER_MIXED_2')
+
+Scenario (c) - Mixed to RBS-only:
+1. Execute transfer
+2. Check if destination receiving to RBS forces source to use specific balance
+3. Query [table] for transaction_method_id pattern
+
+Scenario (f) - Amount exceeds one balance:
+1. Verify MER_MIXED_1: Adyen=3000, RBS=5000
+2. POST /ift {amount: 45.00}
+3. Check if:
+   - Transfer fails (cannot use Adyen, insufficient)
+   - Transfer succeeds using RBS (sufficient)
+   - System splits across both balances (unlikely)
+
+4. Query: 
+     ift.status,
+     ift.failure_reason,
+     COUNT(p.payment_id) as payment_count
+   FROM [table] ift
+   LEFT JOIN [table] p ON p.ift_reference = ift.id
+   WHERE ift.- = 'MIX-006'
+   GROUP BY ift.id","EXPECTED RESULTS:
+
+Business Rule Discovery:
+The tests will reveal the system's balance selection logic:
+
+Hypothesis 1: Destination determines balance type
+- If dest has only Adyen → source uses Adyen
+- If dest has only RBS → source uses RBS
+- If dest has both → use Adyen (default priority)
+
+Hypothesis 2: Source's primary balance used
+- System has configured primary balance per merchant
+- Always uses primary regardless of destination
+
+Hypothesis 3: Largest balance used
+- Automatically selects balance with sufficient funds
+
+EXPECTED for Scenario (a) - Mixed to Mixed:
+
+If rule is ""Adyen priority"":
+[table] records:
+- Source: transaction_method_id=10, amount=-45.00
+- Dest: transaction_method_id=10, amount=+1500.00
+- transaction_mode_id=3 (same type, direct)
+
+Final balances:
+- MER_MIXED_1: balance_adyen=1500.00 (3000-1500), balance_rbs=5000.00 (unchanged)
+- MER_MIXED_2: balance_adyen=3500.00 (2000+1500), balance_rbs=45.00 (unchanged)
+
+If rule is ""RBS priority"":
+[table] records:
+- transaction_method_id=32 for both
+- Final: MER_MIXED_1 RBS=3500.00, MER_MIXED_2 RBS=5500.00
+
+EXPECTED for Scenario (c) - Mixed to RBS-only:
+
+If destination balance type determines source:
+[table] records:
+- Source: transaction_method_id=32 (RBS), amount=-1200.00
+- Dest: transaction_method_id=32 (RBS), amount=+1200.00
+- transaction_mode_id=3 (both RBS, direct)
+
+Database verification:
+  mb.merchant_id,
+  mb.balance_adyen,
+  mb.balance_rbs,
+  CASE 
+    WHEN mb.merchant_id = 'MER_MIXED_1' THEN 45.00 - (
+    ELSE NULL
+  END as calculated_rbs_balance
+FROM [table] mb
+WHERE mb.merchant_id = 'MER_MIXED_1'
+
+Expected: calculated_rbs_balance = actual balance_rbs
+
+EXPECTED for Scenario (f) - Amount exceeds Adyen:
+
+Option A - Uses RBS (sufficient):
+- status: SUCCESS
+- Source payment: transaction_method_id=32, amount=-4000.00
+- MER_MIXED_1: balance_adyen=3000 (unchanged), balance_rbs=1000 (5000-4000)
+
+Option B - Fails (cannot use multiple balances):
+- status: FAILED
+- failure_reason: INSUFFICIENT_BALANCE (because Adyen=3000 < 4000)
+- Alternative message: INSUFFICIENT_BALANCE_ADYEN
+- No payment records created
+
+Query to determine actual behavior:
+  ift.id,
+  ift.amount,
+  ift.status,
+  ift.failure_reason,
+  p.transaction_method_id,
+  p.amount as payment_amount
+FROM [table] ift
+LEFT JOIN [table] p ON p.ift_reference = ift.id
+WHERE ift.- = 'MIX-006'
+
+DOCUMENTATION OF ACTUAL BEHAVIOR:
+After test execution, document:
+
+1. Balance Selection Rules:
+   ""When merchant has both Adyen and RBS balances, system uses [ADYEN/RBS/DESTINATION_DRIVEN/CONFIGURABLE] balance""
+
+2. Insufficient Single Balance Handling:
+   ""If transfer amount exceeds one balance type but total is sufficient, system [USES_OTHER_BALANCE / FAILS_TRANSFER / SPLITS_ACROSS_BOTH]""
+
+3. Cross-Balance Mode Selection:
+   ""transaction_mode_id = 4 is used when [DOCUMENT_RULE]""
+   ""transaction_mode_id = 3 is used when [DOCUMENT_RULE]""
+
+4. Database Validation:
+CRITICAL VALIDATIONS:
+✓ Consistent balance selection logic across all scenarios
+✓ Never uses balance with insufficient funds
+✓ transaction_method_id correctly reflects balance type used
+✓ transaction_mode_id correctly reflects cross-balance vs direct
+✓ Only one balance type debited per merchant per transfer
+✓ Balance selection documented and reproducible
+✓ System behavior matches documented business rules","Mixed Balances","High","Not Automated"
+"Internal Fund Transfer","Large Volume Testing","IFT-VOLUME-001","Verify system handles high volume of IFT transactions with data integrity","Setup:
+1. 50 source [table] (MER_VOL_SRC_001 to MER_VOL_SRC_050)
+   - Each with balance_adyen=50000.00
+2. 50 destination [table] (MER_VOL_DEST_001 to MER_VOL_DEST_050)
+   - Each with balance_adyen=10000.00
+3. All in same country, all flags enabled
+4. Webhook endpoint configured
+5. Database connection pool configured","Volume test scenarios:
+
+Test 1: Sequential 100 transactions
+- Execute 100 IFTs sequentially
+- Each: 45.00 transfer
+- Monitor system performance
+
+Test 2: Burst load (50 concurrent)
+- Send 50 IFT requests simultaneously
+- Each from different source merchant
+- Monitor completion time
+
+Test 3: Sustained load (500 over 10 minutes)
+- 500 transfers at rate of ~1 per second
+- Monitor system stability
+
+Test 4: Mixed scenarios under load
+- 200 Adyen→Adyen
+- 100 RBS→Adyen
+- 100 RBS→RBS
+- 100 Adyen→RBS
+- All within 5 minutes","","User should able to see the number of IFT is happening without any issue. The API should not be failing. There should be matching entry in the [table]. And should be trigerring number of webhooks the number of IFT is been created","Volume Testing","High","Not Automated"
+"Internal Fund Transfer","Failure Recovery","IFT-FAIL-001","Verify system recovery and data consistency after various failure scenarios","Setup:
+1. Source: MER_FAIL_SRC (balance_adyen=10000.00, balance_rbs=8000.00)
+2. Destination: MER_FAIL_DEST (balance_adyen=45.00, balance_rbs=45.00)
+3. Test environment with ability to simulate failures","Failure scenarios to test:
+
+a) Database connection lost during processing
+b) Application crash after IFT created but before [table]
+c) Database rollback due to constraint violation
+d) Webhook endpoint unreachable
+e) Timeout during balance update
+f) Network interruption mid-transaction
+g) Insufficient balance discovered during processing (race condition)
+h) Duplicate payment record insertion attempt","EXECUTION STEPS:
+
+Scenario (a) - Database connection lost:
+1. Setup: Configure database connection timeout = 5 seconds
+
+2. Start IFT:
+   POST /ift {
+     source: MER_FAIL_SRC,
+     dest: MER_FAIL_DEST,
+     amount: 45.00,
+     key: FAIL-DB-001
+   }
+
+3. Monitor status:
+4. Simulate database failure:
+   - At PROCESSING status, kill database connection
+   - Wait 10 seconds
+   - Restore database connection
+
+5. Check IFT status after recovery:
+     id,
+     status,
+     failure_reason,
+     created_at,
+     updated_at,
+     completed_at
+   FROM [table]
+   WHERE -='FAIL-DB-001'
+
+6. Check if processing resumed or marked failed:
+7. Check balances:
+8. Verify no partial state:
+   -- If status=FAILED, no [table] should exist
+   -- If status=SUCCESS, exactly 2 [table] should exist
+   -- No middle ground
+
+Scenario (b) - Application crash after IFT created:
+1. Create IFT (reaches PENDING status)
+2. Record IFT ID
+3. Simulate application crash (kill application process)
+4. Verify database state:
+   Expected: status=PENDING (not PROCESSING yet)
+
+5. Restart application
+6. Check if recovery mechanism processes pending IFTs:
+   -- Query for IFTs stuck in PENDING for >1 minute
+     id,
+     status,
+     created_at,
+     TIMESTAMPDIFF(MINUTE, created_at, NOW()) as minutes_pending
+   FROM [table]
+   WHERE status='PENDING' 
+   AND TIMESTAMPDIFF(MINUTE, created_at, NOW()) > 1
+
+7. Verify recovery:
+   - Either automatic processing resumes
+   - Or manual intervention required
+   - Document recovery procedure
+
+Scenario (c) - Database constraint violation:
+1. Attempt to create IFT that would violate constraint (e.g., negative balance)
+
+2. Manually create conflicting state:
+3. Try to create payment record:
+   -- Should be prevented by CHECK constraint: balance_adyen >= 0
+
+4. Verify rollback:
+   Expected: 0 (transaction rolled back)
+
+5. Verify IFT marked as failed:
+   Expected: status=FAILED
+
+Scenario (d) - Webhook unreachable:
+1. Configure webhook URL to unreachable endpoint
+2. Execute successful IFT
+3. Verify IFT still completes:
+   Expected: SUCCESS (webhook failure doesn't affect IFT)
+
+4. Check webhook retry mechanism:
+     internal_transfer_id,
+     http_status_code,
+     retry_count,
+     last_retry_at,
+     next_retry_at
+   FROM [table]
+   WHERE internal_transfer_id=(
+
+Scenario (g) - Race condition on balance:
+1. Setup: Source balance = 40.00
+2. Thread 1: IFT for 800.00
+3. Thread 2: IFT for 800.00 (simultaneous)
+4. Both pass initial validation (balance sufficient)
+5. Monitor which succeeds and which fails:
+
+Query:
+  -,
+  status,
+  failure_reason,
+  created_at,
+  updated_at,
+  TIMESTAMPDIFF(MILLISECOND, created_at, updated_at) as processing_time_ms
+FROM [table]
+WHERE - IN ('FAIL-RACE-T1', 'FAIL-RACE-T2')
+ORDER BY created_at
+
+Expected: First completes SUCCESS, second fails INSUFFICIENT_BALANCE","EXPECTED RESULTS:
+
+Scenario (a) - Database connection lost:
+
+Option 1 - Transaction rollback (expected):
+- IFT status: FAILED
+- failure_reason: 'DATABASE_CONNECTION_ERROR' or 'PROCESSING_ERROR'
+- [DB record verified]
+- Source balance: 48.00 (unchanged)
+- Dest balance: 45.00 (unchanged)
+- Data consistency: ✓ MAINTAINED
+
+Option 2 - Hung transaction (problematic):
+- IFT status: PROCESSING (stuck)
+- [DB record verified]
+- Requires manual intervention or recovery job
+
+Recovery mechanism verification:
+  id,
+  status,
+  TIMESTAMPDIFF(MINUTE, updated_at, NOW()) as stuck_minutes
+FROM [table]
+WHERE status='PROCESSING'
+AND TIMESTAMPDIFF(MINUTE, updated_at, NOW()) > 5
+
+If any found: Recovery job should:
+1. Investigate state
+2. Roll back if incomplete
+3. Mark as FAILED with reason
+4. Alert monitoring system
+
+Scenario (b) - Application crash:
+
+Expected database state:
+- [DB record verified]
+- [DB record verified]
+- [DB record verified]
+
+After restart, recovery job should:
+1. Query: [removed]
+2. For each: Resume processing or mark as FAILED if too old
+3. Log recovery action
+
+Recovery query:
+  id,
+  -,
+  created_at,
+  CASE 
+    WHEN TIMESTAMPDIFF(MINUTE, created_at, NOW()) > 10 THEN 'MARK_FAILED'
+    ELSE 'RETRY_PROCESSING'
+  END as recovery_action
+FROM [table]
+WHERE status IN ('PENDING', 'PROCESSING')
+AND completed_at IS NULL
+
+Scenario (c) - Constraint violation:
+
+Expected transaction behavior:
+START TRANSACTION;
+  UPDATE [table] SET balance = balance - 45.00 WHERE merchant_id='X';  -- Constraint fails
+  -- Entire transaction automatically rolled back by database
+ROLLBACK;  -- Or automatic rollback by database
+
+Database verification:
+  CONSTRAINT_NAME,
+  TABLE_NAME,
+  CONSTRAINT_TYPE
+FROM [table].TABLE_CONSTRAINTS
+WHERE TABLE_NAME IN ('[table]', '[table]')
+AND CONSTRAINT_TYPE='CHECK'
+
+Expected constraints:
+- CHECK (balance_adyen >= 0)
+- CHECK (balance_rbs >= 0)
+
+Application should catch exception:
+TRY:
+  Execute payment transaction
+CATCH ConstraintViolationException:
+Scenario (d) - Webhook unreachable:
+
+Expected IFT completion (webhook independent):
+[DB record verified]
+- status: SUCCESS ✓ (not affected by webhook)
+- completed_at: <timestamp>
+
+[DB record verified]
+- http_status_code: NULL or error code
+- retry_count: 3 (example: retried 3 times)
+- last_retry_at: <timestamp>
+- failure_message: 'Connection timeout' or 'Host unreachable'
+
+[table]:
+- 2 records created successfully
+- Balances updated correctly
+
+Webhook retry logic verification:
+  internal_transfer_id,
+  webhook_url,
+  retry_count,
+  http_status_code,
+  TIMESTAMPDIFF(MINUTE, triggered_at, last_retry_at) as retry_duration_minutes,
+  CASE 
+    WHEN retry_count >= 3 THEN 'MAX_RETRIES_REACHED'
+    WHEN http_status_code >= 200 AND http_status_code < 300 THEN 'SUCCESS'
+    ELSE 'RETRYING'
+  END as webhook_status
+FROM [table]
+WHERE internal_transfer_id='IFT_FAIL_WH_001'
+
+Scenario (g) - Race condition:
+
+Expected outcome (pessimistic locking):
+Thread 1 (created_at: T1):
+- Status: SUCCESS
+- Amount: 800.00
+- [DB record verified]
+- Source balance: 200.00 (1000-800)
+
+Thread 2 (created_at: T1 + 5ms):
+- Status: FAILED
+- failure_reason: INSUFFICIENT_BALANCE
+- Amount: 800.00
+- [DB record verified]
+- Balance unchanged (already 200.00 after Thread 1)
+
+Database locking verification:
+  locked_table,
+  locked_index,
+  lock_type,
+  lock_mode,
+  lock_data
+FROM [table].data_locks
+WHERE locked_table LIKE '%[table]%'
+
+Expected: Row-level exclusive lock during balance update
+
+SQL pattern used (expected):
+UPDATE [table] SET balance_adyen = balance_adyen - 800 WHERE merchant_id='X';
+COMMIT;
+-- Lock released
+
+CRITICAL VALIDATIONS FOR ALL SCENARIOS:
+✓ No partial states (either fully success or fully failed)
+✓ Balances never negative
+✓ Either 0 or 2 payment records per IFT (never 1)
+✓ Sum of all [table] for an IFT = 0.00
+✓ IFT status reflects actual completion state
+✓ Failed IFTs have meaningful failure_reason
+✓ Webhook failures don't block IFT completion
+✓ Recovery mechanisms documented and tested
+✓ Database constraints enforced
+✓ Transactions atomic (all-or-nothing)
+✓ No orphaned records after failures
+✓ System can recover from all failure types
+
+Comprehensive integrity check query:
+  'Orphaned [table]' as check_type,
+  COUNT(*) as count,
+  CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END as result
+FROM [table] 
+WHERE ift_reference NOT IN (
+
+UNION ALL
+
+  'Successful IFT without [table]',
+  COUNT(*),
+  CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END
+FROM [table] 
+WHERE status='SUCCESS' 
+AND id NOT IN (
+
+UNION ALL
+
+  'IFT with wrong payment count',
+  COUNT(*),
+  CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END
+FROM (
+  'Negative balances',
+  COUNT(*),
+  CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END
+FROM [table]
+WHERE balance_adyen < 0 OR balance_rbs < 0
+
+UNION ALL
+
+  'IFT [table] not summing to zero',
+  COUNT(*),
+  CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END
+FROM (","Failure Recovery","Critical","Not Automated"
+"Internal Fund Transfer","IFT Reversal/Refund","IFT-REFUND-001","Verify Internal Fund Transfer reversal mechanism and balance restoration","Setup:
+1. Source: MER_REV_SRC (balance_adyen=10000.00)
+2. Destination: MER_REV_DEST (balance_adyen=45.00)
+3. Original IFT completed successfully
+4. Reversal API endpoint available","Test scenarios:
+
+a) Full reversal of completed IFT
+   - Original: SRC→DEST, 45.00
+   - Reversal: Full 45.00 back to SRC
+
+b) Partial reversal
+   - Original: 45.00 transferred
+   - Reversal: 45.00 back
+
+c) Reversal of cross-balance IFT (RBS→Adyen)
+   - Original: RBS→Adyen, 45.00
+   - Reversal: Adyen→RBS, 45.00
+
+d) Multiple reversals (if allowed)
+   - Reversal 1: 45.00
+   - Reversal 2: 300.00
+   - Total original: 45.00
+
+e) Reversal attempt after certain time period
+   - Original IFT: 48 hours ago
+   - Check if time-limited","EXECUTION STEPS:
+
+Setup Phase - Create original IFT:
+1. Pre-transfer state:
+   Expected: SRC=45.00, DEST=45.00
+
+2. Execute original IFT:
+   POST /ift {
+     source: MER_REV_SRC,
+     dest: MER_REV_DEST,
+     amount: 45.00,
+     key: REV-ORIGINAL-001
+   }
+
+3. Wait for completion and capture IFT ID:
+   Expected: status=SUCCESS
+   Capture: ORIGINAL_Id
+
+4. Verify post-transfer state:
+   Expected: SRC=8000.00, DEST=7000.00
+
+5. Query original payment records:
+     payment_id,
+     merchant_id,
+     payment_provider_id,
+     transaction_method_id,
+     transaction_mode_id,
+     amount,
+     ift_reference
+   FROM [table]
+   WHERE ift_reference = ORIGINAL_Id
+   ORDER BY amount
+   
+   Expected 2 records:
+   - SRC: provider=23, method=10, mode=3, amount=-45.00
+   - DEST: provider=23, method=10, mode=3, amount=+2000.00
+
+Scenario (a) - Full reversal execution:
+6. Initiate reversal:
+   POST /ift/reverse or POST /ift {
+     source: MER_REV_DEST,  ← Note: reversed
+     dest: MER_REV_SRC,
+     amount: 45.00,
+     original_ift_reference: ORIGINAL_Id,
+     reversal_reason: 'Test full reversal',
+     key: REV-REVERSE-001
+   }
+
+7. Capture reversal IFT ID:
+   Capture: REVERSAL_Id
+
+8. Verify reversal IFT record structure:
+     id,
+     source_merchant_id,
+     destination_merchant_id,
+     amount,
+     status,
+     transaction_type,
+     original_ift_reference,
+     reversal_reason,
+     is_reversal
+   FROM [table]
+   WHERE id = REVERSAL_Id
+
+9. Verify reversal payment records:
+     payment_id,
+     merchant_id,
+     payment_provider_id,
+     transaction_method_id,
+     transaction_mode_id,
+     amount,
+     ift_reference,
+     is_reversal,
+     original_payment_reference
+   FROM [table]
+   WHERE ift_reference = REVERSAL_Id
+   ORDER BY amount
+
+10. Check final balances:
+    Expected: SRC=45.00 (restored), DEST=45.00 (restored)
+
+11. Verify complete audit trail:
+      ift1.id as original_ift,
+      ift1.amount as original_amount,
+      ift1.status as original_status,
+      ift2.id as reversal_ift,
+      ift2.amount as reversal_amount,
+      ift2.status as reversal_status,
+      ift2.original_ift_reference
+    FROM [table] ift1
+    LEFT JOIN [table] ift2 ON ift2.original_ift_reference = ift1.id
+    WHERE ift1.id = ORIGINAL_Id
+
+Scenario (b) - Partial reversal:
+12. Execute partial reversal of 45.00 (from 45.00 original)
+13. Verify balances show partial restoration:
+    - If original: SRC 10000→7000 (3000 transferred)
+    - After partial reversal: SRC=8500 (1500 back), DEST=5500 (1500 less)
+
+Scenario (c) - Cross-balance reversal:
+14. Original: MER_RBS_SRC (RBS balance) → MER_ADYEN_DEST (Adyen balance), 45.00
+15. Reversal: Should reverse the balance types
+16. Check payment records for reversal:
+    Expected:
+    - Source (now DEST): method=10 (receiving back to Adyen from original dest)
+    - Dest (now SRC): method=32 (debiting from RBS of original source)
+    - Mode=4 (cross-balance, through Liable Account)
+
+Scenario (d) - Multiple reversals:
+17. First reversal: 45.00
+18. Second reversal: 300.00
+19. Query all reversals linked to original:
+20. Verify cumulative reversal amount doesn't exceed original:
+      original.amount as original_amount,
+      SUM(reversal.amount) as total_reversed,
+      original.amount - SUM(reversal.amount) as remaining_reversible
+    FROM [table] original
+    LEFT JOIN [table] reversal ON reversal.original_ift_reference = original.id
+    WHERE original.id = ORIGINAL_Id
+    GROUP BY original.id
+
+Scenario (e) - Time-limited reversal:
+21. Attempt reversal of IFT created >48 hours ago
+22. Expected: Rejection if time limit enforced
+23. Query to check:
+      id,
+      created_at,
+      TIMESTAMPDIFF(HOUR, created_at, NOW()) as hours_elapsed,
+      CASE 
+        WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) <= 48 THEN 'REVERSIBLE'
+        ELSE 'TOO_OLD'
+      END as reversal_eligibility
+    FROM [table]
+    WHERE id = ORIGINAL_Id","EXPECTED RESULTS:
+
+Scenario (a) - Full reversal SUCCESS:
+
+API Response:
+- HTTP 200 OK
+- Body: {
+    ""reversal_Id"": ""IFT_REV_001"",
+    ""original_Id"": ""12345"",
+    ""amount"": 45.00,
+    ""status"": ""PENDING"",
+    ""type"": ""REVERSAL""
+  }
+
+Table: [table] (Reversal record)
+- id: IFT_REV_001
+- source_merchant_id: MER_REV_DEST ← Reversed
+- destination_merchant_id: MER_REV_SRC ← Reversed
+- amount: 45.00
+- status: SUCCESS
+- transaction_type: 'REVERSAL' or 'REFUND'
+- original_ift_reference: 12345 ← Links back to original
+- reversal_reason: 'Test full reversal'
+- is_reversal: TRUE (or 1)
+- created_at: <timestamp>
+
+Table: [table] (Reversal payment records - 2 records)
+Record 1 - Debit from original destination:
+- payment_id: PAY_REV_001
+- merchant_id: MER_REV_DEST ← Debiting from who received originally
+- payment_provider_id: 23
+- transaction_method_id: 10 (Adyen)
+- transaction_mode_id: 3 (direct, same as original)
+- amount: -45000.00 ← Negative (debit from previous recipient)
+- ift_reference: IFT_REV_001
+- is_reversal: TRUE
+- original_payment_reference: <original credit payment_id>
+
+Record 2 - Credit back to original source:
+- payment_id: PAY_REV_002
+- merchant_id: MER_REV_SRC ← Crediting back to original sender
+- payment_provider_id: 23
+- transaction_method_id: 10 (Adyen)
+- transaction_mode_id: 3
+- amount: +2000.00 ← Positive (credit back)
+- ift_reference: IFT_REV_001
+- is_reversal: TRUE
+- original_payment_reference: <original debit payment_id>
+
+Table: [table] (Restored)
+- MER_REV_SRC: balance_adyen: 48.00 ✓ (restored to original)
+- MER_REV_DEST: balance_adyen: 45.00 ✓ (restored to original)
+
+Balance verification query:
+  'Balance restoration check' as verification,
+  original_src_balance + ift_amount as expected_src,
+  current_src_balance as actual_src,
+  CASE WHEN original_src_balance + ift_amount = current_src_balance THEN 'PASS' ELSE 'FAIL' END as src_check,
+  original_dest_balance - ift_amount as expected_dest,
+  current_dest_balance as actual_dest,
+  CASE WHEN original_dest_balance - ift_amount = current_dest_balance THEN 'PASS' ELSE 'FAIL' END as dest_check
+FROM (
+    48.00 as original_src_balance,
+    45.00 as original_dest_balance,
+    (
+    (
+    (
+) balances
+
+Audit trail verification:
+  ift.id,
+  ift.-,
+  ift.transaction_type,
+  ift.amount,
+  ift.status,
+  ift.created_at,
+  COUNT(p.payment_id) as payment_count,
+  SUM(p.amount) as payment_sum
+FROM [table] ift
+LEFT JOIN [table] p ON p.ift_reference = ift.id
+WHERE ift.id IN (ORIGINAL_Id, REVERSAL_Id)
+  OR ift.original_ift_reference = ORIGINAL_Id
+GROUP BY ift.id
+ORDER BY ift.created_at
+
+Expected:
+Row 1 (Original): type=TRANSFER, amount=2000, status=SUCCESS, payment_count=2, payment_sum=0.00
+Row 2 (Reversal): type=REVERSAL, amount=2000, status=SUCCESS, payment_count=2, payment_sum=0.00
+
+Scenario (b) - Partial reversal:
+
+Expected partial restoration:
+- Original transfer: 45.00 (SRC: 10000→7000, DEST: 5000→8000)
+- Partial reversal: 45.00
+- Final balances: SRC=8500.00, DEST=6500.00
+
+[DB record verified]
+- partial_reversal: TRUE
+
+Query remaining reversible amount:
+  ift.id as original_ift,
+  ift.amount as original_amount,
+  COALESCE(SUM(rev.amount), 0) as total_reversed,
+  ift.amount - COALESCE(SUM(rev.amount), 0) as remaining_reversible,
+  CASE 
+    WHEN ift.amount - COALESCE(SUM(rev.amount), 0) > 0 THEN 'PARTIAL_REVERSAL_POSSIBLE'
+    ELSE 'FULLY_REVERSED'
+  END as reversal_status
+FROM [table] ift
+LEFT JOIN [table] rev ON rev.original_ift_reference = ift.id AND rev.status='SUCCESS'
+WHERE ift.id = ORIGINAL_Id
+GROUP BY ift.id
+
+Scenario (c) - Cross-balance reversal:
+
+Original IFT:
+- Source (RBS) → Destination (Adyen)
+- Source payment: method=32, mode=4, amount=-45.00
+- Dest payment: method=10, mode=4, amount=+2500.00
+
+Reversal IFT (reversed direction AND balance types):
+- Source (Adyen - original dest) → Destination (RBS - original source)
+- Source payment: method=10, mode=4, amount=-45.00 (debit Adyen)
+- Dest payment: method=32, mode=4, amount=+2500.00 (credit RBS)
+
+Critical: Balance types reverse correctly:
+✓ Original source RBS depleted → Reversal restores RBS
+✓ Original dest Adyen increased → Reversal depletes Adyen
+✓ Mode=4 maintained (cross-balance through Liable Account)
+
+Scenario (d) - Multiple reversals:
+
+Cumulative reversal validation:
+  original.id,
+  original.amount as original_amount,
+  GROUP_CONCAT(reversal.id ORDER BY reversal.created_at) as reversal_ids,
+  GROUP_CONCAT(reversal.amount ORDER BY reversal.created_at) as reversal_amounts,
+  SUM(reversal.amount) as total_reversed,
+  original.amount - SUM(reversal.amount) as remaining
+FROM [table] original
+JOIN [table] reversal ON reversal.original_ift_reference = original.id
+WHERE original.id = ORIGINAL_Id
+GROUP BY original.id
+
+Expected result:
+- original_amount: 45.00
+- reversal_ids: 'IFT_REV_1,IFT_REV_2'
+- reversal_amounts: '500.00,300.00'
+- total_reversed: 800.00
+- remaining: 2200.00
+
+Business rule enforcement:
+If attempting third reversal of 2300.00:
+Expected: REJECTED - exceeds remaining reversible amount
+
+Error: {
+  ""error"": ""REVERSAL_AMOUNT_EXCEEDS_REMAINING"",
+  ""original_amount"": 45.00,
+  ""already_reversed"": 800.00,
+  ""remaining_reversible"": 2200.00,
+  ""requested_reversal"": 2300.00
+}
+
+Scenario (e) - Time-limited reversal:
+
+If time limit = 48 hours:
+Original IFT created: 2025-01-10 10:00:00
+Reversal attempt: 2025-01-13 11:00:00 (>48 hours)
+
+Expected response:
+HTTP 400 Bad Request
+{
+  ""error"": ""REVERSAL_TIME_LIMIT_EXCEEDED"",
+  ""original_Id"": ""12345"",
+  ""original_created_at"": ""2025-01-10T10:00:00Z"",
+  ""hours_elapsed"": 73,
+  ""max_reversal_window_hours"": 48,
+  ""message"": ""Reversals must be initiated within 48 hours of original transfer""
+}
+
+No [table] record created for rejected reversal
+
+CRITICAL VALIDATIONS:
+✓ Reversal IFT has original_ift_reference linking back
+✓ Reversal uses reversed merchant direction (dest becomes source)
+✓ Reversal payment records have is_reversal flag
+✓ Balance restoration accurate (original balances restored for full reversal)
+✓ Partial reversals tracked correctly
+✓ Multiple reversals cumulative amount ≤ original amount
+✓ Cross-balance reversals use correct method_ids
+✓ Time limits enforced if configured
+✓ All reversal transactions have payment_provider_id=23
+✓ Sum of reversal [table] = 0.00
+✓ Audit trail complete and traceable
+✓ Webhook triggered for reversal with reversal context","IFT Reversal","High","Not Automated"
+"Internal Fund Transfer","Payout Routing","IFT-ROUTE-001","Verify UK merchant internal fund transfer routes to Auto-Withdrawal flow","1. UK merchant configured (country_code='GB', country_id=1)
+2. Internal fund transfer enabled for UK
+3. Auto-Withdrawal feature enabled
+4. Test merchant: MER_UK_001 with balance=5000.00","Source: MER_UK_001 (UK merchant)
+Destination: MER_UK_002 (UK merchant)
+Amount: 40.00
+Country: UK (country_id=1)
+Expected routing: Auto-Withdrawal
+Expected identifiers:
+- transaction_method_id = 32 (INTERNAL_FUND_TRANSFER_PAYABLE)
+- payment_provider_id = 23 (INTERNAL_FUND_TRANSFER)","1. Verify merchant country: [removed]
+2. Execute internal fund transfer API request
+3. Verify [table] record created
+4. Query [table]: [removed]
+5. Verify payment record has transaction_method_id=32 AND payment_provider_id=23
+6. Check [DB record verified]
+7. Verify auto-withdrawal state machine picked up the transaction
+8. Check [DB record verified]","✓ Internal fund transfer created successfully
+✓ [DB record verified]
+
+Payment record verification:
+Expected values:
+- transaction_method_id = 32
+- payment_provider_id = 23
+- amount = -1000.00 (debit from source)
+
+Auto-Withdrawal routing:
+Expected: 1 record with status='PENDING'
+
+Tipalti verification:
+Expected: 0 (not routed to Tipalti)
+
+✓ UK merchant payout routed to Auto-Withdrawal flow
+✓ Not routed to Tipalti flow
+✓ Correct transaction method and payment provider identifiers applied","Payout Routing","Critical","Not Automated"
+"Internal Fund Transfer","Payout Routing","IFT-ROUTE-002","Verify Non-UK merchant internal fund transfer routes to Tipalti flow","1. Non-UK merchant configured (country_code='US', country_id=2)
+2. Internal fund transfer enabled for country
+3. Tipalti integration enabled
+4. Test merchant: MER_US_001 with balance=8000.00","Source: MER_US_001 (US merchant)
+Destination: MER_US_002 (US merchant)
+Amount: 45.00
+Country: USA (country_id=2)
+Expected routing: Tipalti
+Expected identifiers:
+- transaction_method_id = 32 (INTERNAL_FUND_TRANSFER_PAYABLE)
+- payment_provider_id = 23 (INTERNAL_FUND_TRANSFER)","1. Verify merchant country: [removed]
+2. Execute internal fund transfer API request
+3. Verify [table] record created with status='SUCCESS'
+4. Query [table]: [removed]
+5. Verify payment has transaction_method_id=32 AND payment_provider_id=23
+6. Check [DB record verified]
+7. Verify Tipalti processor picked up transaction
+8. Check [DB record verified]","✓ Internal fund transfer created successfully
+✓ [DB record verified]
+
+Payment record verification:
+Expected values:
+- transaction_method_id = 32
+- payment_provider_id = 23
+- amount = -2000.00
+
+Tipalti routing:
+Expected: 1 record with status='QUEUED' or 'PENDING'
+
+Auto-Withdrawal verification:
+Expected: 0 (not routed to Auto-Withdrawal)
+
+✓ Non-UK (US) merchant payout routed to Tipalti flow
+✓ Not routed to Auto-Withdrawal flow
+✓ Correct identifiers applied","Payout Routing","Critical","Not Automated"
+"Internal Fund Transfer","Payout Routing","IFT-ROUTE-003","Verify multiple country routing scenarios in batch processing","1. [table] from multiple [table] configured
+2. UK: MER_UK_001, MER_UK_002
+3. US: MER_US_001, MER_US_002
+4. AU: MER_AU_001, MER_AU_002
+5. CA: MER_CA_001, MER_CA_002
+6. All [table] have sufficient balance (10000.00 each)","Test batch with 6 internal fund transfers:
+Transfer 1: MER_UK_001 → MER_UK_002, 45.00 (UK, Auto-Withdrawal)
+Transfer 2: MER_US_001 → MER_US_002, 40.00 (US, Tipalti)
+Transfer 3: MER_UK_003 → MER_UK_004, 300.00 (UK, Auto-Withdrawal)
+Transfer 4: MER_AU_001 → MER_AU_002, 40.00 (AU, Tipalti)
+Transfer 5: MER_CA_001 → MER_CA_002, 600.00 (CA, Tipalti)
+Transfer 6: MER_UK_005 → MER_UK_006, 450.00 (UK, Auto-Withdrawal)
+
+All using:
+- transaction_method_id = 32
+- payment_provider_id = 23","1. Execute all 6 internal fund transfers via API
+2. Wait for processing completion (check status)
+3. Query all payment records: [removed]
+4. For UK [DB record verified]
+5. Verify UK [table] in [table]
+6. For Non-UK [DB record verified]
+7. Verify Non-UK [table] in [table]
+8. Cross-check no routing errors","UK transfers (3 total):
+✓ Transfer 1, 3, 6 routed to Auto-Withdrawal
+Expected: 3 records
+
+Non-UK transfers (3 total):
+✓ Transfer 2, 4, 5 routed to Tipalti
+Expected: 3 records
+
+Routing validation query:
+Expected:
+UK (country_id=1): auto_withdrawal_count=3, tipalti_count=0
+US (country_id=2): auto_withdrawal_count=0, tipalti_count=1
+AU (country_id=3): auto_withdrawal_count=0, tipalti_count=1
+CA (country_id=4): auto_withdrawal_count=0, tipalti_count=1
+
+✓ All UK payouts routed correctly to Auto-Withdrawal
+✓ All Non-UK payouts routed correctly to Tipalti
+✓ No cross-contamination between routing systems","Payout Routing","High","Not Automated"
+"Internal Fund Transfer","Transaction Identifiers","IFT-IDENT-001","Verify transaction_method_id=32 is applied for all internal fund transfer payables","1. Multiple [table] configured across [table]
+2. Internal fund transfer enabled
+3. Previous IFT transactions may have different transaction_method_id","1. UK merchant: MER_UK_001 → MER_UK_002, 45.00
+2. US merchant: MER_US_001 → MER_US_002, 40.00
+3. AU merchant: MER_AU_001 → MER_AU_002, 1200.00
+4. UK merchant: MER_UK_003 → MER_UK_004, 300.00
+5. CA merchant: MER_CA_001 → MER_CA_002, 900.00
+
+All should have transaction_method_id = 32","1. Check transaction_method 
+2. Expected: id=32, name='INTERNAL_FUND_TRANSFER_PAYABLE'
+3. Execute 5 internal fund transfers
+5. Verify all debit transactions have transaction_method_id=32
+6. Check if any transaction has incorrect method_id: [removed]
+7. Verify consistency across [table]","Transaction Method verification:
+Expected: id=32, name='INTERNAL_FUND_TRANSFER_PAYABLE', code='IFT_PAYABLE'
+
+All payment records must have transaction_method_id=32:
+Expected for all 5 records:
+✓ transaction_method_id = 32
+
+Validation query (should return 0):
+Expected: 0
+
+✓ All internal fund transfer payable transactions use transaction_method_id=32
+✓ Consistent across all [table] (UK and Non-UK)
+✓ No legacy or incorrect method IDs applied","Transaction Identifiers","Critical","Not Automated"
+"Internal Fund Transfer","Transaction Identifiers","IFT-IDENT-002","Verify payment_provider_id=23 is applied for all internal fund transfers","1. Multiple [table] configured
+2. Internal fund transfer enabled
+3. Other payment providers exist (Adyen, Cardstream, RBS)","1. MER_UK_001 → MER_UK_002: 40.00
+2. MER_US_001 → MER_US_002: 45.00
+3. MER_AU_001 → MER_AU_002: 40.00
+
+All should use payment_provider_id = 23 (INTERNAL_FUND_TRANSFER)
+
+For comparison, regular transactions may use:
+- payment_provider_id = 1 (Adyen)
+- payment_provider_id = 2 (Cardstream)
+- payment_provider_id = 5 (RBS)","1. Check payment_provider configuration: [removed]
+2. Expected: id=23, name='INTERNAL_FUND_TRANSFER'
+3. Execute 3 internal fund transfers
+4. Query all [DB record verified]
+5. Verify both debit and credit records have payment_provider_id=23
+6. Check for incorrect provider ID: [removed]
+7. Compare with regular payment transactions to ensure IFT uses distinct provider","All payment records (debit and credit) must have payment_provider_id=23:
+Expected for all 6 records (3 debits + 3 credits):
+✓ payment_provider_id = 23
+
+Validation query (should return 0):
+Expected: 0
+
+Comparison with other payment types:
+Should show:
+- payment_provider_id=23: IFT transactions only
+- payment_provider_id=1,2,5: Regular transactions
+
+✓ All internal fund transfer transactions use payment_provider_id=23
+✓ IFT clearly distinguished from other payment providers
+✓ Consistent for both debit and credit entries","Transaction Identifiers","Critical","Not Automated"
+"Internal Fund Transfer","Auto-Withdrawal Integration","IFT-AUTO-001","Verify Auto-Withdrawal state machine picks up UK IFT payable transactions","1. UK merchant configured with Auto-Withdrawal enabled
+2. Auto-Withdrawal state machine running
+3. Internal fund transfer enabled for UK","Merchant: MER_UK_TEST_001 (UK, country_id=1)
+Balance: 45.00
+Transfer amount: 45.00
+Destination: MER_UK_TEST_002
+
+Expected flow:
+1. IFT creates payment with transaction_method_id=32, payment_provider_id=23
+2. Auto-Withdrawal state machine detects payment
+3. Payment moves through Auto-Withdrawal states
+4. Payout processed via Auto-Withdrawal flow","1. Verify Auto-Withdrawal configuration for merchant: [removed]
+2. Execute internal fund transfer
+3. Capture payment_id from [table]
+4. Monitor [DB record verified]
+5. Check state transitions: [removed]
+6. Verify final payout: [removed]
+7. Check the record should be empty for this payment_id
+8. Verify merchant balance updated","Payment creation:
+Expected: ✓ transaction_method_id = 32, ✓ payment_provider_id = 23
+
+Auto-Withdrawal queue entry:
+Expected: 1 record with status='PENDING' or 'PROCESSING'
+
+State machine progression:
+Expected states: QUEUED → PENDING → PROCESSING → COMPLETED
+
+Final payout verification:
+Expected: 1 record with status='COMPLETED', amount=45.00
+
+Tipalti exclusion (should return 0):
+Expected: 0
+
+✓ UK IFT payable picked up by Auto-Withdrawal state machine
+✓ Payment processed through Auto-Withdrawal flow
+✓ Not sent to Tipalti
+✓ Correct identifiers used throughout","Auto-Withdrawal Integration","Critical","Not Automated"
+"Internal Fund Transfer","Tipalti Integration","IFT-TIP-001","Verify Tipalti processor picks up Non-UK IFT payable transactions","1. Non-UK merchant configured (US, AU, CA, etc.)
+2. Tipalti integration enabled
+3. Internal fund transfer enabled for country","Test [DB record verified]
+2. MER_AU_TEST_001 (AU, country_id=3), balance=7000.00
+3. MER_CA_TEST_001 (CA, country_id=4), balance=5500.00
+
+Transfers:
+1. US: 45.00
+2. AU: 45.00
+3. CA: 1800.00
+
+Expected: All route to Tipalti, none to Auto-Withdrawal","1. Verify Tipalti configuration: [removed]
+2. Execute 3 internal fund transfers for different Non-UK [table]
+3. For each transfer, capture payment_id from [table]
+4. Check [DB record verified]
+5. Verify Tipalti processing status
+6. Check [DB record verified]
+7. Verify Tipalti batch file generation includes these transactions
+8. Check payout completion status","Payment creation verification (all 3):
+Expected for each: ✓ transaction_method_id = 32, ✓ payment_provider_id = 23
+
+Tipalti queue entries:
+Expected: 3 records (US: status='QUEUED', AU: status='QUEUED', CA: status='QUEUED')
+
+Auto-Withdrawal exclusion:
+Expected: 0
+
+Tipalti batch verification:
+✓ All Non-UK IFT payables routed to Tipalti
+✓ None routed to Auto-Withdrawal
+✓ Tipalti processor successfully picked up transactions
+✓ Batch processing initiated","Tipalti Integration","Critical","Not Automated"
+"Internal Fund Transfer","Routing Validation","IFT-ROUTE-004","Verify no cross-contamination between Auto-Withdrawal and Tipalti routing","1. Both UK and Non-UK [table] configured
+2. Both Auto-Withdrawal and Tipalti systems active
+3. High transaction volume for testing","- 10 UK [table] (should route to Auto-Withdrawal)
+- 10 Non-UK [table] from various [table] (should route to Tipalti)
+
+Monitor both queues to ensure:
+- UK transactions ONLY in [table]
+- Non-UK transactions ONLY in [table]
+- No transaction appears in both queues
+- No transaction missing from expected queue","1. Prepare 20 test [table] (10 UK, 10 Non-UK)
+2. Execute 20 internal fund transfers simultaneously
+3. Wait for routing completion (30 seconds)
+4. Query cross-contamination: [removed]
+5. Identify any routing errors
+6. Check for orphaned [table] (not in either queue)
+7. Verify state machine logs for both systems","Complete routing validation:
+Expected for UK:
+✓ total_payments = 10, ✓ auto_withdrawal_routed = 10, ✓ tipalti_routed = 0, ✓ both_queues = 0, ✓ neither_queue = 0
+
+Expected for Non-UK (various [table]):
+✓ total_payments = 10, ✓ auto_withdrawal_routed = 0, ✓ tipalti_routed = 10, ✓ both_queues = 0, ✓ neither_queue = 0
+
+Critical validation (must be 0):
+Expected: 0
+
+✓ No transaction in both queues simultaneously
+✓ No orphaned transactions (missing from both queues)
+✓ 100% correct routing based on country
+✓ Clear separation between Auto-Withdrawal and Tipalti flows","Routing Validation","Critical","Not Automated"
+"Internal Fund Transfer","Error Handling","IFT-ROUTE-005","Verify routing handles edge cases and error scenarios for IFT payables","1. Various merchant configurations (active, inactive, missing country)
+2. System configurations (Auto-Withdrawal disabled, Tipalti disabled)
+3. Database constraints and race conditions","Test scenarios:
+1. UK merchant with Auto-Withdrawal disabled → Should fail or use fallback
+2. Non-UK merchant with Tipalti disabled → Should fail or use fallback
+3. Merchant with NULL country_id → Should fail validation
+4. Merchant in newly added country without routing config → Should fail
+5. IFT transaction with missing transaction_method_id → Should fail
+6. IFT transaction with missing payment_provider_id → Should fail
+7. Routing during system maintenance (queue temporarily unavailable)","For each scenario:
+1. Setup precondition (disable feature, set NULL country, etc.)
+2. Attempt internal fund transfer
+3. Check the record status
+4. Verify payment record creation or rejection
+5. Check routing queue status
+6. Verify error logging: [removed]
+7. Verify notification/alert triggered
+8. Check merchant balance (should not be deducted if routing fails)
+
+Detailed steps for Scenario 1:
+1. UPDATE [table] SET auto_withdrawal_enabled=0 WHERE merchant_id='MER_UK_001'
+2. POST internal fund transfer request
+3. Monitor routing outcome","Scenario 1 - UK merchant, Auto-Withdrawal disabled:
+✓ IFT status='FAILED' or status='PENDING_MANUAL_REVIEW'
+✓ Error: ""Auto-Withdrawal not enabled for merchant""
+✓ payment created but not routed, ✓ Manual intervention required
+
+Scenario 2 - Non-UK merchant, Tipalti disabled:
+✓ IFT status='FAILED' or 'PENDING_MANUAL_REVIEW'
+✓ Error: ""Tipalti integration not enabled for country""
+✓ Payment not routed to Tipalti, ✓ Alert triggered
+
+Scenario 3 - NULL country_id:
+✓ IFT status='FAILED', ✓ Error: ""Unable to determine merchant country""
+✓ No payment record created, ✓ Validation fails early
+
+Scenario 4 - Unknown country routing:
+✓ IFT status='FAILED', ✓ Error: ""Payout routing not configured for country XYZ""
+✓ No routing attempted
+
+Scenario 5 - Missing transaction_method_id:
+✓ Payment creation fails, ✓ Error: ""transaction_method_id is required""
+✓ Database constraint violation prevented
+
+Scenario 6 - Missing payment_provider_id:
+✓ Payment creation fails, ✓ Error: ""payment_provider_id is required""
+✓ Referential integrity maintained
+
+Scenario 7 - Queue unavailable:
+✓ IFT status='RETRY' or 'PENDING', ✓ Retry mechanism engaged
+✓ Transaction eventually processes when queue available
+
+Error logging verification:
+✓ All failures properly logged
+✓ Merchant balances protected (no deduction on routing failure)
+✓ Graceful degradation implemented
+✓ Clear error messages for troubleshooting","Error Handling","High","Not Automated"
+"Internal Fund Transfer","Integration Verification","IFT-INTG-001","End-to-end verification of IFT payable routing with complete payout cycle","1. Complete system setup (UK and Non-UK [table])
+2. Auto-Withdrawal and Tipalti both operational
+3. All integration points active (webhooks, notifications, balance updates)","Complete test flow:
+UK Flow (Auto-Withdrawal):
+- Source: MER_UK_E2E_001, Balance: 48.00
+- Destination: MER_UK_E2E_002, Balance: 45.00
+- Amount: 45.00
+
+Non-UK Flow (Tipalti):
+- Source: MER_US_E2E_001, Balance: 15000.00
+- Destination: MER_US_E2E_002, Balance: 45.00
+- Amount: 45.00
+
+Track complete lifecycle:
+IFT initiation → Payment creation → Queue routing → Payout processing → Balance update → Webhook notification → Completion","UK Flow Steps:
+1. Record initial balances for both [table]
+2. Execute IFT API request
+3. Verify [table] created
+4. Check the record: transaction_method_id=32, payment_provider_id=23
+5. Verify [table] entry
+6. Monitor Auto-Withdrawal state machine: [removed]
+7. Wait for payout completion
+8. Verify balance updates: [removed]
+9. Check webhook delivery: [removed]
+10. Verify final IFT status='COMPLETED'
+
+Non-UK Flow Steps:
+1-4. Same as UK flow
+5. Verify [table] entry
+6. Monitor Tipalti batch processing
+7. Check Tipalti API response
+8-10. Same as UK flow","Expected UK Flow Results:
+Initial state: MER_UK_E2E_001: balance=10000.00, MER_UK_E2E_002: balance=2000.00
+After IFT completion: MER_UK_E2E_001: balance=7000.00 (deducted 45.00), MER_UK_E2E_002: balance=5000.00 (credited 45.00)
+
+Routing verification:
+✓ [DB record verified]
+✓ [DB record verified]
+✓ Auto-Withdrawal state progression: QUEUED → PENDING → PROCESSING → COMPLETED
+
+Expected Non-UK Flow Results:
+Initial state: MER_US_E2E_001: balance=15000.00, MER_US_E2E_002: balance=3000.00
+After IFT completion: MER_US_E2E_001: balance=11000.00 (deducted 45.00), MER_US_E2E_002: balance=7000.00 (credited 45.00)
+
+Routing verification:
+✓ [DB record verified]
+✓ [DB record verified]
+✓ Tipalti batch processed successfully
+
+Combined verification:
+✓ Complete end-to-end flow validated
+✓ Correct routing based on country
+✓ Balance updates accurate
+✓ Webhooks delivered successfully
+✓ All components integrated properly","Integration Testing","Critical","Not Automated"
+"Edining Internal Fund Transfer","Country Level Toggle","EDINING-IFT-001","Verify IFT fails when country-level toggle is disabled","1. Country table has internal_transfer_enabled = 0
+2. Valid Edining [table] configured
+3. Valid API token available","Source merchant: EDINING_MER_SRC (customer_type='EDININGEXPRESS')
+Destination merchant: EDINING_MER_DEST (customer_type='EDININGEXPRESS')
+Country: internal_transfer_enabled = 0
+Both [table] in same country","1. Verify country configuration: 
+   Expected: internal_transfer_enabled = 0
+2. Send POST /api/v1/internal-fund-transfer with valid source and destination merchant IDs
+3. Check API response status and message
+4. Query [table] for record creation
+5. Verify no payment records created","Response:
+- HTTP 403 Forbidden OR 400 Bad Request
+- Error message: ""Internal fund transfer not enabled for this country""
+
+Database verification:
+- [DB record verified]
+- [table]: 0 records created
+- Merchant balances unchanged
+
+IFT should be failed as the IFT is disabled in country","Configuration","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Merchant Level Toggle","EDINING-IFT-002","Verify IFT fails when both sender and receiver toggles are disabled","1. Source merchant: internal_transfer_sender = 0
+2. Destination merchant: internal_transfer_receiver = 0
+3. Country-level IFT enabled
+4. Both [table] customer_type='EDININGEXPRESS'","Source merchant: EDINING_SENDER_OFF (internal_transfer_sender=0, customer_type='EDININGEXPRESS')
+Destination merchant: EDINING_RECEIVER_OFF (internal_transfer_receiver=0, customer_type='EDININGEXPRESS')
+Both [table] in same country with IFT enabled","1. Verify merchant configuration:
+   Expected: internal_transfer_sender=0, internal_transfer_receiver=0
+2. Send POST /api/v1/internal-fund-transfer
+3. Verify API response
+4. Check the record
+5. Verify no payment records created","Response:
+- HTTP 403 Forbidden
+- Error message: ""Source merchant not authorized to send funds"" OR ""Destination merchant not authorized to receive funds""
+
+Database verification:
+- [DB record verified]
+- [table]: 0 records created
+- Merchant balances unchanged
+
+IFT should be failed as the IFT is disabled in Merchant","Configuration","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Country Level Toggle","EDINING-IFT-003","Verify IFT succeeds when country-level toggle is enabled","1. Country table has internal_transfer_enabled = 1
+2. Valid Edining [table] with sender/receiver enabled
+3. Sufficient balance in source merchant
+4. Valid API token available","Source merchant: EDINING_MER_SRC (customer_type='EDININGEXPRESS', internal_transfer_sender=1)
+Destination merchant: EDINING_MER_DEST (customer_type='EDININGEXPRESS', internal_transfer_receiver=1)
+Country: internal_transfer_enabled = 1
+Both [table] in same country","1. Verify country configuration:
+   Expected: internal_transfer_enabled = 1
+2. Verify merchant permissions enabled
+3. Send POST /api/v1/internal-fund-transfer
+4. Check API response for success
+5. Query [table]
+6. Verify transfer_type_id = 1 (Adyen → Adyen)
+7. Check the record for 2 records
+8. Verify balance updates","Response:
+- HTTP 200 OK
+- Transaction ID returned
+- status: SUCCESS
+
+Database verification:
+- [DB record verified]
+- [table]: 2 records created (1 debit, 1 credit) with payment_provider_id=23
+- Balances updated correctly
+
+IFT should be Successful as the IFT is Enabled in country","Configuration","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Merchant Level Toggle","EDINING-IFT-004","Verify IFT succeeds when sender disabled but receiver enabled","1. Source merchant: internal_transfer_sender = 0
+2. Destination merchant: internal_transfer_receiver = 1
+3. Country-level IFT enabled
+4. Both [table] customer_type='EDININGEXPRESS'","Source merchant: EDINING_SENDER_OFF (internal_transfer_sender=0, customer_type='EDININGEXPRESS')
+Destination merchant: EDINING_RECEIVER_ON (internal_transfer_receiver=1, customer_type='EDININGEXPRESS')
+Country: internal_transfer_enabled = 1
+Both [table] in same country","1. Verify merchant configuration:
+   Expected: source internal_transfer_sender=0, destination internal_transfer_receiver=1
+2. Send POST /api/v1/internal-fund-transfer
+3. Verify API response
+4. Check the record
+5. Check transfer_type_id
+6. Verify [table] and balances","Response:
+- HTTP 403 Forbidden (sender check should fail first) OR
+- HTTP 200 OK (if receiver permission is primary check)
+
+Expected based on business logic:
+If sender permission checked first:
+- [DB record verified]
+
+If receiver permission is sufficient:
+- [DB record verified]
+- [DB record verified]
+
+IFT should be Successful as the IFT is Enabled in country (if receiver toggle is primary)","Configuration","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Configuration Validation","EDINING-IFT-005","Verify successful insert of valid reseller configuration","1. Database access available
+2. customer_type exists in [table]
+3. transfer_type_id exists in datman_internal_transfer_types table","Configuration data:
+customer_type: 'EDININGEXPRESS'
+transfer_type_id: 1
+
+Prerequisites verification:","1. Execute INSERT statement:
+2. Verify record inserted successfully
+3. Query to confirm:
+4. Verify created_at timestamp populated
+5. Check if this is the only record for EDININGEXPRESS (avoid duplicates)","Expected result:
+- INSERT successful
+- Query returns exactly 1 record
+- Fields populated:
+  * id: auto-generated
+  * customer_type: 'EDININGEXPRESS'
+  * transfer_type_id: 1
+  * created_at: current timestamp
+
+Record inserted with created_at timestamp
+
+Configuration ready for use in IFT routing logic","Configuration","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Configuration Validation","EDINING-IFT-006","Verify handling of invalid customer_type during configuration insert","1. Database access available
+2. customer_type 'INVALIDTYPE' does not exist in [table]","Configuration data:
+customer_type: 'INVALIDTYPE'
+transfer_type_id: 1
+
+Verification:","1. Attempt INSERT statement:
+2. Check if foreign key constraint exists on customer_type
+3. Verify response/error message
+4. Query [table] to confirm no record created
+5. If no constraint, verify runtime behavior when IFT attempted with this config","Expected behavior:
+
+If foreign key constraint exists:
+- INSERT fails with constraint violation error
+- Error message: Foreign key constraint violation
+- No record in [table]
+
+If no foreign key constraint:
+- INSERT succeeds (poor schema design)
+- Runtime validation should reject IFT requests
+- Error: ""customer_type not found"" when transfer attempted
+
+Config rejected or ignored safely
+
+Best practice: Foreign key constraint should prevent invalid customer_type","Configuration","High","Not Automated"
+"Internal Fund Transfer - Edining","Configuration Validation","EDINING-IFT-007","Verify handling of invalid transfer_type_id during configuration insert","1. Database access available
+2. transfer_type_id 99 does not exist in datman_internal_transfer_types table","Configuration data:
+customer_type: 'EDININGEXPRESS'
+transfer_type_id: 99
+
+Verification:
+- Valid transfer_type_ids are: 1, 2, 3, 4","1. Attempt INSERT statement:
+2. Check if foreign key constraint exists on transfer_type_id
+3. Verify response/error message
+4. Query [table] to confirm no record created
+5. If no constraint, verify runtime behavior when IFT attempted","Expected behavior:
+
+If foreign key constraint exists:
+- INSERT fails with constraint violation error
+- Error message: Foreign key constraint on transfer_type_id
+- No record in [table]
+
+If no foreign key constraint:
+- INSERT succeeds
+- Runtime error when transfer attempted
+- Error: ""Invalid transfer_type_id configured for customer_type""
+
+Recommendation: Add foreign key constraint to prevent invalid transfer_type_id values","Configuration","High","Not Automated"
+"Internal Fund Transfer - Edining","Configuration Validation","EDINING-IFT-008","Verify duplicate configuration handling for same customer_type and transfer_type_id","1. Database already has configuration: customer_type='EDININGEXPRESS', transfer_type_id=1
+2. Attempting to insert same combination again","Configuration data:
+First record: customer_type='EDININGEXPRESS', transfer_type_id=1 (already exists)
+Duplicate attempt: customer_type='EDININGEXPRESS', transfer_type_id=1
+
+Check existing record:","1. Insert first record (if not exists):
+2. Attempt duplicate insert:
+3. Verify response/behavior
+4. Query total records:
+5. Verify no ambiguous routing can occur","Expected behavior:
+
+If unique constraint exists on (customer_type, transfer_type_id):
+- Second INSERT fails
+- Error: Duplicate key violation
+- Only 1 record exists in table
+
+If no unique constraint:
+- Second INSERT succeeds (creates duplicate)
+- 2 records with same customer_type and transfer_type_id
+- Potential ambiguous routing issue
+
+No ambiguous routing
+
+Recommendation: 
+- Add unique constraint on (customer_type, transfer_type_id)
+- OR use INSERT IGNORE / ON DUPLICATE KEY UPDATE
+- Ensures one transfer_type per customer_type","Configuration","High","Not Automated"
+"Internal Fund Transfer - Edining","Transfer Type Routing","EDINING-IFT-009","Verify DATMAN customer type routes to Adyen → Adyen transfer","1. customer_type = DATMAN configuration exists
+2. [table] has entry with customer_type='DATMAN' and transfer_type_id=1
+3. Both [table] using Adyen payment provider","Source merchant: DATMAN_MER_001 (customer_type='DATMAN', payment_provider_id=23)
+Destination merchant: DATMAN_MER_002 (customer_type='DATMAN', payment_provider_id=23)
+Configuration: customer_type='DATMAN', transfer_type_id=1
+Transfer type: Adyen → Adyen","1. Verify configuration exists:
+   Expected: transfer_type_id = 1
+2. Verify merchant payment providers:
+   Expected: Both have payment_provider_id = 23
+3. Trigger internal transfer via API
+4. Check the record:
+5. Verify [table] has payment_provider_id = 23 for both records","Expected result:
+- HTTP 200 OK
+- [DB record verified]
+- Transfer flow: Adyen → Adyen
+- [table]: Both records have payment_provider_id = 23
+
+Transfer routed Adyen → Adyen
+
+Configuration-driven routing working correctly for DATMAN customer type","Transfer Type","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Transfer Type Routing","EDINING-IFT-010","Verify DATMAN customer type routes to Datman → Adyen transfer","1. customer_type = DATMAN configuration exists with transfer_type_id = 2
+2. Source merchant using Datman provider
+3. Destination merchant using Adyen provider","Source merchant: DATMAN_MER_DATMAN (customer_type='DATMAN', payment_provider_id=<datman_provider_id>)
+Destination merchant: DATMAN_MER_ADYEN (customer_type='DATMAN', payment_provider_id=23)
+Configuration: customer_type='DATMAN', transfer_type_id=2
+Transfer type: Datman → Adyen","1. Verify configuration:
+   Expected: Record exists
+2. Verify merchant payment providers:
+   Expected: Source ≠ 23, Destination = 23
+3. Trigger internal transfer
+4. Verify transfer_type_id in [table]
+5. Check payment records have correct provider IDs","Expected result:
+- HTTP 200 OK
+- [DB record verified]
+- Transfer flow: Datman → Adyen
+- [table]: 
+  * Source payment: payment_provider_id = <datman_provider_id>
+  * Destination payment: payment_provider_id = 23
+
+Transfer routed Datman → Adyen
+
+Cross-provider transfer handled correctly based on configuration","Transfer Type","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Transfer Type Routing","EDINING-IFT-011","Verify DATMAN customer type routes to Datman → Datman transfer","1. customer_type = DATMAN configuration exists with transfer_type_id = 3
+2. Both [table] using Datman payment provider","Source merchant: DATMAN_MER_SRC (customer_type='DATMAN', payment_provider_id=<datman_provider_id>)
+Destination merchant: DATMAN_MER_DEST (customer_type='DATMAN', payment_provider_id=<datman_provider_id>)
+Configuration: customer_type='DATMAN', transfer_type_id=3
+Transfer type: Datman → Datman","1. Verify configuration:
+   Expected: Record exists
+2. Verify both [table] use same Datman provider:
+   Expected: Both have same Datman payment_provider_id (not 23)
+3. Trigger internal transfer
+4. Verify transfer_type_id = 3 in [table]
+5. Check payment records","Expected result:
+- HTTP 200 OK
+- [DB record verified]
+- Transfer flow: Datman → Datman
+- [table]: Both records have same Datman payment_provider_id
+
+Internal Datman transfer successful
+
+Same-provider transfer within Datman network working correctly","Transfer Type","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Transfer Type Routing","EDINING-IFT-012","Verify DATMAN customer type routes to Adyen → Datman transfer","1. customer_type = DATMAN configuration exists with transfer_type_id = 4
+2. Source merchant using Adyen provider
+3. Destination merchant using Datman provider","Source merchant: DATMAN_MER_ADYEN (customer_type='DATMAN', payment_provider_id=23)
+Destination merchant: DATMAN_MER_DATMAN (customer_type='DATMAN', payment_provider_id=<datman_provider_id>)
+Configuration: customer_type='DATMAN', transfer_type_id=4
+Transfer type: Adyen → Datman","1. Verify configuration:
+   Expected: Record exists
+2. Verify merchant payment providers:
+   Expected: Source = 23, Destination ≠ 23
+3. Trigger internal transfer
+4. Verify transfer_type_id = 4 in [table]
+5. Verify payment records have correct providers","Expected result:
+- HTTP 200 OK
+- [DB record verified]
+- Transfer flow: Adyen → Datman
+- [table]:
+  * Source payment: payment_provider_id = 23 (Adyen)
+  * Destination payment: payment_provider_id = <datman_provider_id>
+
+Transfer routed Adyen → Datman
+
+Reverse cross-provider transfer working correctly","Transfer Type","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Transfer Type Routing","EDINING-IFT-013","Verify EDININGEXPRESS customer type uses Adyen → Adyen flow only","1. customer_type = EDININGEXPRESS configuration exists
+2. [table] has entry: customer_type='EDININGEXPRESS', transfer_type_id=1
+3. Both [table] using Adyen-HF provider","Source merchant: EDINING_SRC (customer_type='EDININGEXPRESS', payment_provider_id=23)
+Destination merchant: EDINING_DEST (customer_type='EDININGEXPRESS', payment_provider_id=23)
+Configuration: customer_type='EDININGEXPRESS', transfer_type_id=1
+Transfer type: Adyen → Adyen only","1. Verify configuration:
+   Expected: transfer_type_id = 1 (only this entry should exist)
+2. Verify both [table] use Adyen:
+   Expected: Both have payment_provider_id = 23
+3. Trigger internal transfer
+4. Verify transfer routing and transfer_type_id used:
+5. Verify payment records","Expected result:
+- HTTP 200 OK
+- [DB record verified]
+- Transfer flow: Adyen → Adyen
+- [table]: Both records have payment_provider_id = 23
+
+Adyen → Adyen flow used
+
+EDININGEXPRESS restricted to Adyen-HF transfers only
+No other transfer types supported for this customer type","Transfer Type","Critical","Not Automated"
+"Internal Fund Transfer - Edining","Legacy Behavior","EDINING-IFT-014","Verify legacy behavior for customer type without configuration - FASTFOOD","1. No configuration row exists in [table] for customer_type='FASTFOOD'
+2. FASTFOOD [table] exist in system
+3. System should handle missing configuration gracefully","Source merchant: FASTFOOD_MER_001 (customer_type='FASTFOOD')
+Destination merchant: FASTFOOD_MER_002 (customer_type='FASTFOOD')
+Configuration check: No entry for FASTFOOD in [table]","1. Verify no configuration exists:
+   Expected: 0 rows
+2. Verify [table] exist and are valid:
+   Expected: [table] exist
+3. Trigger internal transfer request
+4. Check system behavior when configuration is missing
+5. Verify error handling or fallback to legacy behavior","Expected result:
+
+Option 1 - Configuration required:
+- HTTP 400 Bad Request OR 500 Internal Server Error
+- Error message: ""No transfer configuration found for customer type FASTFOOD""
+- No [table] record created
+- No payment records created
+
+Option 2 - Legacy fallback:
+- System uses default/legacy transfer logic
+- Transfer may be blocked if no default behavior defined
+- No transfer happens
+
+Legacy behavior applied - No transfer happens
+
+System should either:
+- Require configuration for all customer types, OR
+- Have explicit legacy/default behavior documented
+
+Recommendation: All active customer types should have configuration entry","Legacy","High","Not Automated"
+"Internal Fund Transfer","Balance Retrieval","IFT-BAL-002","Verify Adyen balance retrieval failure using amount 1111 returns ""Balance cannot be retrieved now, please try again later""","Pre-setup:
+1. Source merchant: <source_mid> with internal_transfer_sender=1, status=active
+2. Destination merchant: <destination_mid> with internal_transfer_receiver=1, status=active
+3. Both merchants in same country with IFT enabled
+4. Adyen Get Balance API fails when amount=1111 (test environment trigger)
+5. Webhook URL configured for both merchants","source_mid: <source_mid>
+destination_mid: <destination_mid>
+amount: 1111 (special value that simulates Adyen balance API failure)
+third_party_reference: <third_party_reference>
+order_ref: <order_ref>
+description: <description>
+request_id: <auto-generated UUID per request>","PRE-EXECUTION:
+1. Verify <source_mid> is active with sender flag enabled
+2. Verify <destination_mid> is active with receiver flag enabled
+3. Confirm webhook URL is configured
+
+EXECUTION:
+4. Record test_start_time = NOW()
+5. Send POST /api/v1/internal-fund-transfer with amount=1111
+6. Capture IFT ID and request_id from response
+
+POST-EXECUTION VALIDATION:
+7. Query datman_internal_transfers using captured IFT ID
+8. Verify status = FAILED
+9. Verify transfer_type_id = NULL
+10. Verify reason_code = 9
+11. Verify transfer_category_code = 2
+12. Verify source_payment_id = NULL
+13. Verify destination_payment_id = NULL
+14. Verify <source_mid> balance unchanged
+15. Verify <destination_mid> balance unchanged
+16. Verify webhook triggered with status = FAILED","API Response:
+- Transfer status: FAILED
+- failure_reason: ""Balance cannot be retrieved now, please try again later""
+
+DB Validation (datman_internal_transfers):
+- source_mid: <source_mid>
+- destination_mid: <destination_mid>
+- request_id: <auto-generated UUID — unique per request>
+- status: FAILED
+- transfer_type_id: NULL
+- source_payment_id: NULL
+- destination_payment_id: NULL
+- transfer_category_code: 2
+- reason_code: 9
+- amount: 1111
+
+Balance Validation:
+- <source_mid> balance: unchanged
+- <destination_mid> balance: unchanged
+
+Webhook:
+- Webhook triggered with status = FAILED
+- Payload contains failure_reason: ""Balance cannot be retrieved now, please try again later""
+
+CRITICAL: Must NOT return ""Insufficient Funds""
+CRITICAL: No payment records created in payments table","Balance Retrieval","Critical","Not Automated"
+"Internal Fund Transfer","Balance Retrieval","IFT-BAL-003","Verify successful IFT completes with correct DB entries, payment records, and webhook","Pre-setup:
+1. Source merchant: <source_mid>
+   - balance_adyen: greater than transfer amount
+   - internal_transfer_sender: 1
+   - status: active
+2. Destination merchant: <destination_mid>
+   - internal_transfer_receiver: 1
+   - status: active
+3. Both merchants in same country with IFT enabled
+4. Webhook URL configured
+5. Transfer amount must be less than <source_mid> available balance
+6. Amount must not be 1111","source_mid: <source_mid>
+destination_mid: <destination_mid>
+amount: <amount_less_than_source_balance> (must not equal 1111)
+third_party_reference: <third_party_reference>
+order_ref: <unique_order_ref>
+description: <description>
+request_id: <auto-generated UUID per request>","PRE-EXECUTION:
+1. Query <source_mid> current balance — record value
+2. Query <destination_mid> current balance — record value
+3. Verify IFT enabled, sender/receiver flags active
+
+EXECUTION:
+4. Record test_start_time = NOW()
+5. Send POST /api/v1/internal-fund-transfer
+6. Capture IFT ID and request_id from response
+7. Poll datman_internal_transfers.status until SUCCESS or FAILED (max 30s)
+
+POST-EXECUTION VALIDATION:
+8. Verify status = SUCCESS
+9. Verify transfer_type_id = 1
+10. Verify source_payment_id is populated (not NULL)
+11. Verify destination_payment_id is populated (not NULL)
+12. Verify transfer_category_code = 2
+13. Verify reason_code = NULL
+14. Verify <source_mid> balance decreased by transfer amount
+15. Verify <destination_mid> balance increased by transfer amount
+16. Verify webhook triggered with status = SUCCESS","API Response:
+- HTTP 200 OK
+- status: SUCCESS
+
+DB Validation (datman_internal_transfers):
+- source_mid: <source_mid>
+- destination_mid: <destination_mid>
+- request_id: <auto-generated UUID — unique per request>
+- status: SUCCESS
+- transfer_type_id: 1
+- source_payment_id: <populated>
+- destination_payment_id: <populated>
+- transfer_category_code: 2
+- reason_code: NULL
+
+Balance Validation:
+- <source_mid> balance: decreased by transfer amount
+- <destination_mid> balance: increased by transfer amount
+- Sum of debit + credit payment records = 0
+
+Webhook:
+- Webhook triggered with status = SUCCESS
+- Payload contains correct IFT ID, amount, <source_mid>, <destination_mid>
+
+CRITICAL: source_payment_id and destination_payment_id must both be populated
+CRITICAL: reason_code must be NULL on SUCCESS","Balance Retrieval","Critical","Not Automated"
+"Internal Fund Transfer","Balance Retrieval","IFT-BAL-004","Verify insufficient funds failure returns correct error and reason_code=1, distinct from balance retrieval failure","Pre-setup:
+1. Source merchant: <source_mid>
+   - balance_adyen: less than transfer amount
+   - internal_transfer_sender: 1
+   - status: active
+2. Destination merchant: <destination_mid>
+   - internal_transfer_receiver: 1
+   - status: active
+3. Both merchants in same country with IFT enabled
+4. Transfer amount must be strictly greater than <source_mid> available balance
+5. Amount must not be 1111
+6. Webhook URL configured","source_mid: <source_mid>
+destination_mid: <destination_mid>
+amount: <amount_greater_than_source_balance> (must not equal 1111)
+third_party_reference: <third_party_reference>
+order_ref: <unique_order_ref>
+description: <description>
+request_id: <auto-generated UUID per request>","PRE-EXECUTION:
+1. Query <source_mid> current balance — record value
+2. Confirm transfer amount is strictly greater than available balance
+3. Verify both merchants active with correct flags
+
+EXECUTION:
+4. Record test_start_time = NOW()
+5. Send POST /api/v1/internal-fund-transfer
+6. Capture IFT ID and request_id from response
+
+POST-EXECUTION VALIDATION:
+7. Query datman_internal_transfers using captured IFT ID
+8. Verify status = FAILED
+9. Verify transfer_type_id = NULL
+10. Verify reason_code = 1
+11. Verify transfer_category_code = 7
+12. Verify source_payment_id = NULL
+13. Verify destination_payment_id = NULL
+14. Verify <source_mid> balance unchanged
+15. Verify <destination_mid> balance unchanged
+16. Verify webhook triggered with status = FAILED
+17. Confirm failure_reason is ""Insufficient Funds"" — NOT ""Balance cannot be retrieved now...""","API Response:
+- Transfer status: FAILED
+- failure_reason: ""Insufficient Funds""
+
+DB Validation (datman_internal_transfers):
+- source_mid: <source_mid>
+- destination_mid: <destination_mid>
+- request_id: <auto-generated UUID — unique per request>
+- status: FAILED
+- transfer_type_id: NULL
+- source_payment_id: NULL
+- destination_payment_id: NULL
+- transfer_category_code: 7
+- reason_code: 1
+
+Balance Validation:
+- <source_mid> balance: unchanged
+- <destination_mid> balance: unchanged
+
+Webhook:
+- Webhook triggered with status = FAILED
+- Payload contains failure_reason: ""Insufficient Funds""
+
+CRITICAL: reason_code must be 1 — not 9
+CRITICAL: transfer_category_code must be 7 — not 2
+CRITICAL: Must NOT return ""Balance cannot be retrieved now, please try again later""","Balance Retrieval","Critical","Not Automated"
+"Internal Fund Transfer","Balance Retrieval","IFT-BAL-005","Verify reason_code and transfer_category_code correctly differentiate balance retrieval failure (reason_code=9) from insufficient funds (reason_code=1)","Pre-setup:
+1. Two separate merchant pairs configured in test environment:
+   a) Balance retrieval failure pair: <source_mid_A>, <destination_mid_A>
+      - source balance sufficient but amount=1111 triggers API failure
+   b) Insufficient funds pair: <source_mid_B>, <destination_mid_B>
+      - source balance < transfer amount
+2. All merchants active with correct sender/receiver flags
+3. Webhook URL configured for all merchants","Scenario A — Balance Retrieval Failure:
+  source_mid: <source_mid_A>
+  destination_mid: <destination_mid_A>
+  amount: 1111
+  request_id: <auto-generated UUID per request>
+  Expected: reason_code=9, transfer_category_code=2
+
+Scenario B — Insufficient Funds:
+  source_mid: <source_mid_B>
+  destination_mid: <destination_mid_B>
+  amount: <amount_greater_than_source_balance>
+  request_id: <auto-generated UUID per request>
+  Expected: reason_code=1, transfer_category_code=7","SCENARIO A — Balance Retrieval Failure:
+1. Send POST /api/v1/internal-fund-transfer with amount=1111 for <source_mid_A>
+2. Capture IFT ID and request_id
+3. Query datman_internal_transfers
+4. Verify reason_code = 9
+5. Verify transfer_category_code = 2
+6. Verify failure_reason = ""Balance cannot be retrieved now, please try again later""
+
+SCENARIO B — Insufficient Funds:
+7. Send POST /api/v1/internal-fund-transfer with amount > <source_mid_B> balance
+8. Capture IFT ID and request_id
+9. Query datman_internal_transfers
+10. Verify reason_code = 1
+11. Verify transfer_category_code = 7
+12. Verify failure_reason = ""Insufficient Funds""
+
+COMPARISON:
+13. Confirm each request_id is unique and auto-generated
+14. Confirm webhook payloads contain correct distinct failure_reasons
+15. Confirm no cross-contamination between reason codes","Scenario A (Balance Retrieval Failure):
+- source_mid: <source_mid_A>
+- destination_mid: <destination_mid_A>
+- request_id: <auto-generated UUID — unique>
+- status: FAILED
+- reason_code: 9
+- transfer_category_code: 2
+- transfer_type_id: NULL
+- source_payment_id: NULL
+- destination_payment_id: NULL
+- Webhook: FAILED — ""Balance cannot be retrieved now, please try again later""
+
+Scenario B (Insufficient Funds):
+- source_mid: <source_mid_B>
+- destination_mid: <destination_mid_B>
+- request_id: <auto-generated UUID — unique>
+- status: FAILED
+- reason_code: 1
+- transfer_category_code: 7
+- transfer_type_id: NULL
+- source_payment_id: NULL
+- destination_payment_id: NULL
+- Webhook: FAILED — ""Insufficient Funds""
+
+CRITICAL: reason_code=9 must never appear for Insufficient Funds
+CRITICAL: reason_code=1 must never appear for Balance Retrieval failures
+CRITICAL: Each request_id must be unique and auto-generated per request","Balance Retrieval","Critical","Not Automated"
+"Internal Fund Transfer","Balance Retrieval","IFT-BAL-006","Verify webhook is triggered for all IFT outcomes: SUCCESS, Insufficient Funds failure, and Balance Retrieval failure","Pre-setup:
+1. Webhook URL configured for all test merchants
+2. Three merchant setups for three distinct outcomes:
+   a) Success: <source_mid_A> with balance > transfer amount
+   b) Insufficient Funds: <source_mid_B> with balance < transfer amount
+   c) Balance Retrieval Failure: <source_mid_C> with amount=1111
+3. Webhook capture tool available to inspect payloads
+4. All merchants active with correct sender/receiver flags","Scenario A — Success:
+  source_mid: <source_mid_A>
+  destination_mid: <destination_mid_A>
+  amount: <amount_less_than_source_balance>
+  request_id: <auto-generated UUID per request>
+  Expected webhook status: SUCCESS
+
+Scenario B — Insufficient Funds:
+  source_mid: <source_mid_B>
+  destination_mid: <destination_mid_B>
+  amount: <amount_greater_than_source_balance>
+  request_id: <auto-generated UUID per request>
+  Expected webhook status: FAILED, failure_reason: Insufficient Funds
+
+Scenario C — Balance Retrieval Failure:
+  source_mid: <source_mid_C>
+  destination_mid: <destination_mid_C>
+  amount: 1111
+  request_id: <auto-generated UUID per request>
+  Expected webhook status: FAILED, failure_reason: Balance cannot be retrieved now...","For each scenario (A, B, C):
+1. Ensure webhook URL is active and capture tool is ready
+2. Send POST /api/v1/internal-fund-transfer
+3. Capture IFT ID and request_id from response
+4. Wait for IFT to reach terminal status (SUCCESS or FAILED)
+5. Query datman_internal_transfers to confirm terminal status
+6. Check webhook capture tool for received payload
+7. Verify webhook was fired (not skipped)
+8. Verify webhook payload status matches IFT status
+9. Verify webhook payload failure_reason matches expected failure type
+10. Confirm webhook HTTP response logged in [table]","Scenario A — SUCCESS:
+- source_mid: <source_mid_A>, destination_mid: <destination_mid_A>
+- request_id: <auto-generated UUID — unique>
+- Webhook fired: YES
+- Webhook payload status: SUCCESS
+- failure_reason in payload: NULL / absent
+
+Scenario B — Insufficient Funds:
+- source_mid: <source_mid_B>, destination_mid: <destination_mid_B>
+- request_id: <auto-generated UUID — unique>
+- Webhook fired: YES
+- Webhook payload status: FAILED
+- failure_reason in payload: ""Insufficient Funds""
+
+Scenario C — Balance Retrieval Failure:
+- source_mid: <source_mid_C>, destination_mid: <destination_mid_C>
+- request_id: <auto-generated UUID — unique>
+- Webhook fired: YES
+- Webhook payload status: FAILED
+- failure_reason in payload: ""Balance cannot be retrieved now, please try again later""
+
+CRITICAL: Webhook must fire for ALL three outcomes — no scenario skipped
+CRITICAL: Each webhook payload must contain correct and distinct failure_reason
+CRITICAL: Each request_id must be unique and auto-generated per request","Balance Retrieval","Critical","Not Automated"

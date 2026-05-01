@@ -1,0 +1,654 @@
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Chargeback,End-to-End,CB-E2E,CB-E2E-001,Adyen Chargeback - Complete Flow (Chargeback → Reversed → Second Chargeback → Prearbitration Won),"- Merchant in UK (country_id: 1) configured
+- Customer has completed payment via any method
+- Payment successful (transaction_status_id: 1)
+- No refunds processed
+- Webhook endpoint configured","- Original payment: £100.00
+- Payment ID: Valid payment_id
+- pspReference: Adyen reference
+- merchantReference: Order reference
+- Customer email: customer@test.com
+- Country: UK (country_id: 1)","1. Process payment (any method: new card/saved/Google Pay/Apple Pay)
+2. Send Adyen webhook: eventCode = ""CHARGEBACK""
+3. Verify chargeback created
+4. Send webhook: eventCode = ""CHARGEBACK_REVERSED""
+5. Verify reversal processed
+6. Send webhook: eventCode = ""SECOND_CHARGEBACK""
+7. Verify second chargeback created
+8. Send webhook: eventCode = ""PREARBITRATION_WON""
+9. Verify prearbitration outcome
+10. Validate all emails sent","1. CHARGEBACK Event - SUCCESSFUL ✓
+
+Database - payments table (chargeback entry):
+-> transaction_status_id: 2 (failed/chargeback)
+-> transaction_mode_id: 5 (chargeback)
+-> gross: -£100.00 (negative amount)
+-> original_payment_id: Links to original payment
+-> psp_reference: Adyen chargeback reference
+
+Database - chargeback table:
+-> id: Generated
+-> payment_id: Original payment ID
+-> transaction_table: 'payments'
+-> date: Chargeback date
+-> reason: Chargeback reason from webhook
+-> outcome: 'Pending' or 'Open'
+-> customer_id: Customer ID
+
+Database - chargeback_events table:
+-> chargeback_id: Links to chargeback.id
+-> event_type_id: 1 (CHARGEBACK)
+-> psp_id: Adyen PSP ID
+-> amount: £100.00
+-> currency_code: GBP
+-> event_date: Event timestamp
+
+Email Sent:
+-> To: Merchant email
+-> Subject: ""Chargeback Alert - Order [ref]""
+-> Content: Chargeback details
+
+Customer Portal:
+-> Chargeback visible in dashboard
+-> Status: Open
+-> Amount: £100.00
+
+---
+
+2. CHARGEBACK_REVERSED Event - SUCCESSFUL ✓
+
+Database - chargeback_events table (new entry):
+-> chargeback_id: Same chargeback
+-> event_type_id: 2 (CHARGEBACK_REVERSED)
+-> amount: £100.00
+-> event_date: Reversal timestamp
+
+Database - chargeback table (updated):
+-> outcome: 'Reversed' or 'Won'
+-> comments: Updated with reversal info
+
+Email Sent:
+-> To: Merchant email
+-> Subject: ""Chargeback Reversed - Order [ref]""
+-> Content: Reversal notification
+
+Customer Portal:
+-> Status: Reversed
+-> Alert: Positive outcome shown
+
+---
+
+3. SECOND_CHARGEBACK Event - SUCCESSFUL ✓
+
+Database - payments table (new chargeback entry):
+-> transaction_status_id: 2
+-> transaction_mode_id: 5
+-> gross: -£100.00
+
+Database - chargeback table (new or updated):
+-> outcome: 'Second Chargeback'
+-> date: Updated
+
+Database - chargeback_events table (new entry):
+-> event_type_id: 3 (SECOND_CHARGEBACK)
+-> amount: £100.00
+
+Email Sent:
+-> To: Merchant email
+-> Subject: ""Second Chargeback - Order [ref]""
+-> Content: Second dispute notification
+
+---
+
+4. PREARBITRATION_WON Event - SUCCESSFUL ✓
+
+Database - chargeback_events table (new entry):
+-> event_type_id: 4 (PREARBITRATION_WON)
+-> amount: £100.00
+
+Database - chargeback table (updated):
+-> outcome: 'Won'
+-> comments: Prearbitration result
+
+Email Sent:
+-> To: Merchant email
+-> Subject: ""Prearbitration Won - Order [ref]""
+-> Content: Winning notification
+
+Customer Portal:
+-> Status: Won
+-> Outcome: Positive
+-> Timeline: All events visible
+
+5. All validations passed ✓",chargeback;end_to_end;webhook;adyen;email;positive_test,P1,
+Chargeback,Event Order,CB-ORDER,CB-ORD-001,Chargeback - Alternative Event Order (Chargeback → Second Chargeback → Prearbitration Won),"- Valid payment exists
+- No previous chargeback
+- Webhook configured","- Payment: £100.00
+- Events: CHARGEBACK → SECOND_CHARGEBACK → PREARBITRATION_WON
+- Skip: CHARGEBACK_REVERSED","1. Send webhook: CHARGEBACK
+2. Send webhook: SECOND_CHARGEBACK (skip reversal)
+3. Send webhook: PREARBITRATION_WON
+4. Verify all events recorded
+5. Validate final outcome","1. All events processed correctly ✓
+
+Database - chargeback_events table:
+-> 3 entries created
+-> Event sequence: 1 → 3 → 4
+-> No event_type_id: 2 (reversal skipped)
+
+Database - chargeback table:
+-> outcome: 'Won'
+-> All events linked
+
+2. System handles non-standard sequence ✓
+3. Final outcome correct ✓",chargeback;event_order;sequence;positive_test,P2,
+Chargeback,Event Order,CB-ORDER,CB-ORD-002,"Chargeback - Event Order (Chargeback → Prearbitration Won, No Second Chargeback)","- Valid payment exists
+- First chargeback resolved directly","- Payment: £100.00
+- Events: CHARGEBACK → PREARBITRATION_WON
+- Skip: SECOND_CHARGEBACK","1. Send webhook: CHARGEBACK
+2. Send webhook: PREARBITRATION_WON directly
+3. Verify outcome
+4. Check chargeback closed","1. Events processed ✓
+
+Database - chargeback_events table:
+-> 2 entries only
+-> event_type_id: 1, 4
+
+Database - chargeback table:
+-> outcome: 'Won'
+-> No second chargeback recorded
+
+2. Direct resolution handled ✓",chargeback;event_order;direct_win;positive_test,P2,
+Chargeback,Refund Integration,CB-REFUND,CB-REF-001,Chargeback - Processing after Full Refund,"- Original payment: £100.00
+- Full refund already processed
+- Refund completed successfully","- Original payment: £100.00
+- Refund processed: £100.00
+- Chargeback amount: £100.00","1. Verify refund exists (gross: -£100.00)
+2. Send chargeback webhook
+3. Verify chargeback is rejected/blocked
+4. Check validation logic","1. Chargeback REJECTED/BLOCKED ✓
+
+Response:
+-> Error: ""Cannot process chargeback - payment already refunded""
+-> Chargeback webhook rejected
+-> Status: 400 Bad Request or appropriate error code
+
+Database - payments table:
+-> Original: £100.00
+-> Refund: -£100.00
+-> No chargeback entry created
+
+Database - chargeback table:
+-> No chargeback entry created
+
+Log:
+-> Chargeback attempt logged with rejection reason
+-> Error: ""Chargeback blocked - refund already processed""
+
+2. System prevents duplicate processing ✓",chargeback;refund;after_refund;edge_case;negative_test,P1,
+Chargeback,Refund Integration,CB-REFUND,CB-REF-002,Refund - Processing after Chargeback,"- Original payment: £100.00
+- Chargeback already processed
+- Chargeback outcome: Open","- Original payment: £100.00
+- Chargeback processed: £100.00
+- Refund attempt: £100.00","1. Verify chargeback exists
+2. Attempt to process refund
+3. Verify refund is rejected/blocked
+4. Check blocking logic","1. Refund BLOCKED/REJECTED ✓
+
+Response:
+-> Error: ""Cannot refund - chargeback in progress""
+-> Refund rejected
+-> Status: 400 Bad Request or appropriate error code
+-> No payment entry created
+
+Database - payments table:
+-> Original: £100.00
+-> Chargeback: -£100.00
+-> No refund entry created
+
+Database - chargeback table:
+-> No changes made
+-> Status remains: Open
+
+Log:
+-> Refund attempt logged with rejection reason
+-> Error: ""Refund blocked - chargeback exists""
+
+Alert:
+-> Merchant notified of refund rejection
+-> Reason: Chargeback in progress
+
+2. System prevents double loss ✓",chargeback;refund;after_chargeback;validation;negative_test,P1,
+Chargeback,Refund Integration,CB-REFUND,CB-REF-003,Partial Refund - Processing after Chargeback,"- Original payment: £100.00
+- Chargeback: £100.00 (full)
+- Partial refund attempted: £50.00","- Original: £100.00
+- Chargeback: £100.00
+- Partial refund: £50.00","1. Process chargeback
+2. Attempt partial refund
+3. Verify refund is rejected/blocked","1. Partial refund BLOCKED/REJECTED ✓
+
+Response:
+-> Error: ""Cannot refund - chargeback in progress""
+-> Partial refund rejected
+-> Status: 400 Bad Request or appropriate error code
+-> No payment entry created
+
+Database - payments table:
+-> Original: £100.00
+-> Chargeback: -£100.00
+-> No refund entry created
+
+Database - chargeback table:
+-> amount: £100.00
+-> No changes made
+-> Status remains: Open
+
+Log:
+-> Partial refund attempt logged with rejection reason
+-> Error: ""Refund blocked - chargeback exists""
+
+Alert:
+-> Merchant notified of refund rejection
+-> Reason: Chargeback in progress (applies to full and partial refunds)
+
+2. System prevents refund after chargeback ✓",chargeback;partial_refund;validation;edge_case,P2,
+Chargeback,API Validation,CB-API,CB-API-001,Chargeback - Duplicate Webhook Handling (Same Event Multiple Times),"- Valid payment exists
+- First chargeback webhook received
+- Same webhook sent again","- Payment: £100.00
+- Webhook: CHARGEBACK
+- pspReference: Same reference
+- Sent: 3 times (duplicate)","1. Send CHARGEBACK webhook (1st time)
+2. Send same webhook again (2nd time)
+3. Send same webhook again (3rd time)
+4. Verify idempotency handling
+5. Check duplicate detection","1. First webhook SUCCESSFUL ✓
+
+Database - chargeback table:
+-> Chargeback created
+
+Database - chargeback_events table:
+-> 1 entry created
+
+---
+
+2. Second webhook HANDLED ✓
+
+Response:
+-> Status: ""Already processed""
+-> Message: ""Chargeback already exists""
+
+Database - chargeback_events table:
+-> Still only 1 entry (no duplicate)
+-> OR new entry with duplicate_flag
+
+Validation:
+-> pspReference checked
+-> Duplicate detected
+-> No duplicate chargeback created
+
+---
+
+3. Third webhook HANDLED ✓
+
+Same as second:
+-> Idempotency maintained
+-> No additional entries
+
+Email:
+-> Only 1 email sent (first time)
+-> No duplicate emails
+
+4. System prevents duplicate processing ✓",chargeback;api;duplicate;idempotency;webhook;negative_test,P1,
+Chargeback,API Validation,CB-API,CB-API-002,Chargeback - Rapid Event Sequence (Multiple Events in Quick Succession),"- Valid payment exists
+- Multiple webhooks sent rapidly
+- Test concurrency handling","- Payment: £100.00
+- Events sent rapidly:
+  1. CHARGEBACK
+  2. CHARGEBACK_REVERSED (1 sec later)
+  3. SECOND_CHARGEBACK (2 sec later)","1. Send CHARGEBACK webhook
+2. Immediately send CHARGEBACK_REVERSED (< 2 sec)
+3. Immediately send SECOND_CHARGEBACK (< 2 sec)
+4. Verify all processed correctly
+5. Check data consistency","1. All events processed ✓
+
+Database - chargeback_events table:
+-> 3 entries created
+-> Correct event_type_id for each
+-> Timestamps in sequence
+-> No race condition
+
+Database - chargeback table:
+-> Outcome reflects final event
+-> All events linked correctly
+
+Concurrency Handling:
+-> Database locking used
+-> No data corruption
+-> Events processed in order
+
+2. No data inconsistency ✓
+3. All emails sent ✓",chargeback;api;concurrency;rapid_events;positive_test,P1,
+Chargeback,API Validation,CB-API,CB-API-003,Chargeback - Invalid Webhook (Missing Required Fields),"- Webhook endpoint configured
+- Missing mandatory fields in payload","Payload (missing pspReference):
+{
+  ""eventCode"": ""CHARGEBACK"",
+  ""merchantReference"": ""ORD-123"",
+  ""amount"": {""value"": 10000, ""currency"": ""GBP""}
+  // pspReference missing
+}","1. Send invalid webhook payload
+2. System validates fields
+3. Verify error handling
+4. Check no chargeback created","1. Webhook REJECTED ✓
+
+Response:
+-> Status: 400 Bad Request
+-> Error: ""Missing required field: pspReference""
+-> Message: Clear validation error
+
+Database - chargeback table:
+-> No entry created
+
+Database - chargeback_events table:
+-> No entry created
+
+Log:
+-> Invalid webhook logged
+-> Error reason recorded
+
+2. Validation enforced ✓",chargeback;api;validation;missing_fields;negative_test,P2,
+Chargeback,Country Specific,CB-COUNTRY,CB-CTRY-001,"Chargeback - UK Merchant (country_id: 1, GBP)","- UK merchant (country_id: 1)
+- Currency: GBP
+- Payment processed in GBP","- Country: UK (country_id: 1)
+- Currency: GBP (£)
+- Payment: £100.00
+- Chargeback: £100.00","1. Process UK payment
+2. Send chargeback webhook (GBP)
+3. Verify currency handling
+4. Check email format","1. Chargeback processed ✓
+
+Database - chargeback table:
+-> payment_id: UK payment
+-> amount: £100.00
+-> customer_id: UK customer
+
+Database - chargeback_events table:
+-> currency_code: GBP
+-> amount: 100.00
+
+Email:
+-> Currency symbol: £
+-> Amount: £100.00
+-> UK contact info displayed
+
+2. UK-specific formatting applied ✓",chargeback;country;uk;gbp;positive_test,P1,
+Chargeback,Country Specific,CB-COUNTRY,CB-CTRY-002,"Chargeback - US Merchant (country_id: 7, USD)","- US merchant (country_id: 7)
+- Currency: USD
+- Payment processed in USD","- Country: US (country_id: 7)
+- Currency: USD ($)
+- Payment: $100.00
+- Chargeback: $100.00","1. Process US payment
+2. Send chargeback webhook (USD)
+3. Verify currency handling
+4. Check email format","1. Chargeback processed ✓
+
+Database - chargeback table:
+-> payment_id: US payment
+-> country: US
+
+Database - chargeback_events table:
+-> currency_code: USD
+-> amount: 100.00
+
+Email:
+-> Currency symbol: $
+-> Amount: $100.00
+-> US timezone considered
+
+2. US-specific formatting applied ✓",chargeback;country;us;usd;positive_test,P1,
+Chargeback,Country Specific,CB-COUNTRY,CB-CTRY-003,"Chargeback - Australian Merchant (country_id: 3, AUD)","- Australian merchant (country_id: 3)
+- Currency: AUD
+- Payment processed in AUD","- Country: Australia (country_id: 3)
+- Currency: AUD ($)
+- Payment: $100.00 AUD
+- Chargeback: $100.00 AUD","1. Process AU payment
+2. Send chargeback webhook (AUD)
+3. Verify currency handling
+4. Check email format","1. Chargeback processed ✓
+
+Database - chargeback_events table:
+-> currency_code: AUD
+-> amount: 100.00
+
+Email:
+-> Currency: AUD
+-> Amount: $100.00 AUD
+-> Australian timezone
+
+2. AU-specific formatting applied ✓",chargeback;country;australia;aud;positive_test,P1,
+Chargeback,Country Specific,CB-COUNTRY,CB-CTRY-004,"Chargeback - Multi-Currency Validation (GBP, USD, AUD)","- Merchant operates in multiple countries
+- Payments in different currencies
+- Chargebacks in respective currencies","- Payment 1: £100.00 (UK)
+- Payment 2: $100.00 (US)
+- Payment 3: $100.00 AUD (AU)
+- All chargebacked","1. Process 3 payments (different currencies)
+2. Send chargebacks for all 3
+3. Verify currency-specific handling
+4. Check all emails","1. All chargebacks processed ✓
+
+Database - chargeback_events table:
+-> Entry 1: currency_code: GBP
+-> Entry 2: currency_code: USD
+-> Entry 3: currency_code: AUD
+
+Emails:
+-> 3 separate emails
+-> Correct currency symbols
+-> Country-specific formatting
+
+2. Multi-currency supported ✓",chargeback;multi_currency;country;positive_test,P2,
+Chargeback,Validation,CB-VALID,CB-VAL-001,Chargeback - Invalid Payment Reference (Non-existent Payment),"- Webhook received
+- merchantReference does not exist
+- Invalid payment_id","- merchantReference: ""NON-EXISTENT-123""
+- pspReference: Valid Adyen reference
+- Amount: £100.00","1. Send chargeback webhook with invalid reference
+2. System validates payment existence
+3. Verify error handling
+4. Check no chargeback created","1. Chargeback REJECTED ✓
+
+Response:
+-> Error: ""Payment not found""
+-> Message: ""merchantReference NON-EXISTENT-123 does not exist""
+
+Database - chargeback table:
+-> No entry created
+
+Database - chargeback_events table:
+-> No entry created
+
+Log:
+-> Error logged
+-> Invalid reference recorded
+
+2. Payment validation enforced ✓",chargeback;validation;invalid_payment;negative_test,P2,
+Chargeback,Validation,CB-VALID,CB-VAL-002,Chargeback - Amount Mismatch (Chargeback > Original Payment),"- Original payment: £100.00
+- Chargeback amount: £150.00 (more than original)
+- Amount validation active","- Original payment: £100.00
+- Chargeback amount: £150.00
+- Mismatch: £50.00 extra","1. Send chargeback webhook with higher amount
+2. System validates amount
+3. Verify handling","Option A - Rejected:
+-> Error: ""Amount exceeds original payment""
+-> Chargeback rejected
+
+Option B - Accepted with warning:
+
+Database - chargeback table:
+-> amount: £150.00
+-> comments: ""Amount exceeds original (£100.00)""
+-> warning_flag: true
+
+Alert:
+-> Warning email sent
+-> Manual review required
+
+2. Amount mismatch detected ✓",chargeback;validation;amount_mismatch;negative_test,P2,
+Chargeback,Validation,CB-VALID,CB-VAL-003,Chargeback - On Failed Payment (transaction_status_id: 2),"- Payment exists but failed
+- transaction_status_id: 2 (failed)
+- Chargeback attempted on failed payment","- Payment: £100.00
+- Status: Failed (transaction_status_id: 2)
+- Chargeback: £100.00","1. Verify payment status is failed
+2. Send chargeback webhook
+3. Verify validation
+4. Check handling","1. Chargeback handled ✓
+
+Option A - Rejected:
+-> Error: ""Cannot chargeback failed payment""
+-> Chargeback rejected
+
+Option B - Logged with flag:
+
+Database - chargeback table:
+-> Created with warning
+-> comments: ""Chargeback on failed payment""
+-> outcome: 'Invalid'
+
+Alert:
+-> Warning: Unusual chargeback
+-> Manual review flagged
+
+2. Failed payment validation ✓",chargeback;validation;failed_payment;negative_test,P2,
+Chargeback,Email Validation,CB-EMAIL,CB-EML-001,Chargeback - Email Content Validation (All Event Types),"- Valid payment exists
+- Email system configured
+- Merchant email: merchant@test.com","- Payment: £100.00
+- Events: All 4 types
+- Merchant email: merchant@test.com","1. Send CHARGEBACK webhook
+2. Verify email sent and content
+3. Send CHARGEBACK_REVERSED
+4. Verify reversal email
+5. Send SECOND_CHARGEBACK
+6. Verify second email
+7. Send PREARBITRATION_WON
+8. Verify win email","1. CHARGEBACK Email ✓
+
+To: merchant@test.com
+Subject: ""Chargeback Alert - Order [ref]""
+Content:
+-> Chargeback amount: £100.00
+-> Order reference: [ref]
+-> Date: [date]
+-> Reason: [reason]
+-> Action required: Review and respond
+-> Link to Customer Portal
+
+---
+
+2. CHARGEBACK_REVERSED Email ✓
+
+Subject: ""Good News - Chargeback Reversed""
+Content:
+-> Original chargeback: £100.00
+-> Status: Reversed
+-> Funds recovered
+
+---
+
+3. SECOND_CHARGEBACK Email ✓
+
+Subject: ""Alert - Second Chargeback""
+Content:
+-> Previous chargeback reversed
+-> New chargeback: £100.00
+-> Urgent action required
+
+---
+
+4. PREARBITRATION_WON Email ✓
+
+Subject: ""Victory - Prearbitration Won""
+Content:
+-> Outcome: Won
+-> Amount retained: £100.00
+-> Dispute closed
+
+5. All emails sent correctly ✓",chargeback;email;content_validation;positive_test,P1,
+Chargeback,Customer Portal,CB-CP,CB-CP-001,Chargeback - Customer Portal Display Validation,"- Chargeback exists
+- Customer Portal access configured
+- Merchant logged in","- Chargeback: £100.00
+- Status: Open
+- Events: Multiple","1. Merchant logs into Customer Portal
+2. Navigate to Chargebacks section
+3. View chargeback details
+4. Verify all information displayed
+5. Check event timeline","1. Customer Portal display ✓
+
+Chargeback List:
+-> Order reference visible
+-> Amount: £100.00
+-> Status: Open/Reversed/Won
+-> Date: Displayed
+-> Customer info: Visible
+
+Detail View:
+-> Full chargeback details
+-> Original payment link
+-> Chargeback reason
+-> Amount disputed
+-> Current status
+
+Event Timeline:
+-> All events listed chronologically
+-> Event types: CHARGEBACK, REVERSED, etc.
+-> Dates/times for each
+-> Outcome status
+
+Actions:
+-> View payment details
+-> Download evidence
+-> Respond to chargeback (if applicable)
+
+2. All data displayed correctly ✓",chargeback;control_panel;ui;validation;positive_test,P1,
+Chargeback,Event Variations,CB-EVENT,CB-EVT-001,Chargeback - Prearbitration Lost (Merchant Loses Dispute),"- Chargeback exists
+- Second chargeback filed
+- Prearbitration result: Lost","- Payment: £100.00
+- Events: CHARGEBACK → SECOND_CHARGEBACK → PREARBITRATION_LOST","1. Process chargeback events
+2. Send PREARBITRATION_LOST webhook
+3. Verify outcome
+4. Check finalization","1. Prearbitration lost processed ✓
+
+Database - chargeback_events table:
+-> event_type_id: 5 (PREARBITRATION_LOST)
+-> amount: £100.00
+
+Database - chargeback table:
+-> outcome: 'Lost'
+-> comments: Prearbitration decision
+-> status: 'Closed'
+
+Email:
+-> Subject: ""Prearbitration Lost""
+-> Content: Loss notification
+-> Amount: £100.00 lost
+
+2. Negative outcome recorded ✓",chargeback;prearbitration;lost;negative_outcome;positive_test,P1,
+Chargeback,Amount Variations,CB-AMOUNT,CB-AMT-001,Chargeback - Partial Amount (Chargeback < Original Payment),"- Original payment: £100.00
+- Partial chargeback: £60.00
+- Customer disputes part of payment","- Original payment: £100.00
+- Chargeback amount: £60.00
+- Remaining: £40.00","1. Send partial chargeback webhook
+2. Verify amount handling
+3. Check partial flag","1. Partial chargeback processed ✓
+
+Database - payments table (chargeback):
+-> gross: -£60.00 (partial)
+-> original_payment_id: Links to £100.00 payment
+
+Database - chargeback table:
+-> amount: £60.00
+-> comments: ""Partial chargeback""
+-> partial_flag: true
+
+Email:
+-> Subject: ""Partial Chargeback - £60 of £100""
+-> Content: Partial amount notification
+
+2. Partial amount handled correctly ✓",chargeback;partial;amount_variation;positive_test,P2,

@@ -1,0 +1,2234 @@
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-001,Add Card - Cardstream 3DS card - Card added with three_ds_status = 0,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled for merchant
+
+- Customer account exists
+
+
+- Cardstream gateway configured
+
+- cardstream_store_id_enabled = 1
+
+- 3DS enabled for merchant""","""- Refer Git repository for Add card test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team for Stage key)
+
+- Country: UK (country_id: 1)
+
+- Currency: GBP
+
+- Customer ID: valid customer
+
+- 3DS Capable Card: 4929 4212 3460 0821 (Cardstream 3DS test card)
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Cardholder name: Test User
+
+- All mandatory fields""","""1. Open Add Card page using test script
+
+2. Verify page loads successfully
+
+3. Verify NO Google Pay or Apple Pay buttons (Add Card flow)
+
+4. Enter 3DS capable card details:
+   - Card: 4929 4212 3460 0821
+   - CVV: 356
+   - Expiry: 03/2030
+
+5. Enter billing address
+
+6. Submit card details
+
+7. NO 3DS challenge triggered at Add Card stage
+
+8. Verify redirect to success page
+
+9. Capture customer_id and card token
+
+10. Verify database entries
+
+11. Verify Cardstream dashboard
+
+12. Check three_ds_status value""","Database - master_token table:
+-> customer_id: provided customer ID
+-> scheme_name: 'visa'
+-> last_4_digit: '0821'
+-> expiry_date: 03
+-> three_ds_status: 0 ✓ (NOT yet authenticated)
+-> provider: Cardstream
+-> token (Cardstream token): Cardstream token
+-> customer_reference: Cardstream customer reference
+-> created_date: timestamp
+-> Token entry created
+-> token: Cardstream token
+-> token_type: 'recurring'
+-> Shopper reference created
+-> Card Reference Token stored
+-> Card details tokenized
+-> NO payment authorization yet
+-> Card ready for future payments
+-> 3DS capability: detected as 3DS card
+-> Value: 0 ✓
+-> Meaning: Card added but NOT 3DS authenticated
+-> Status will update to 1 on first successful 3DS payment
+-> Card is 3DS capable but not yet authenticated
+-> Card details encrypted
+-> Only token stored
+-> Full card number NOT stored
+-> CVV NOT stored
+-> PCI compliant storage
+-> Card ready for Express Pay
+-> Card ready for Saved Card payments
+-> Card ready for Wallet recharge
+-> First payment will trigger 3DS authentication
+-> After 3DS success: three_ds_status updates to 1
+-> Success message displayed
+-> Card visible in payment methods
+-> Can set as default card
+-> Can use immediately for payments
+-> three_ds_status = 0 is EXPECTED at Add Card stage
+-> 3DS authentication happens on FIRST PAYMENT
+-> After successful 3DS payment: status becomes 1
+-> Subsequent payments may bypass 3DS (SCA exemption)""",add_card_cardstream; 3ds_card; three_ds_status_0; card_tokenization; region_uk; currency_gbp; no_3ds_at_add,P1,
+Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-002,Add Card - Cardstream Non-3DS card - Card added with three_ds_status = 0,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Customer account exists
+
+- Non-3DS card support
+
+- Cardstream gateway configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid
+
+- Non-3DS Card: 4532 1100 0000 0001 (Cardstream standard Visa test card)
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- All mandatory fields""","""1. Open Add Card page
+
+2. Enter Non-3DS card: 4532 1100 0000 0001
+
+3. Enter CVV and expiry
+
+4. Enter billing address
+
+5. Submit card details
+
+6. NO 3DS challenge (Non-3DS card)
+
+7. Verify redirect to success
+
+8. Capture card token
+
+9. Check database entries
+
+10. Verify three_ds_status""","""1. Card added successfully
+Database - master_token table:
+-> customer_id: provided
+-> scheme_name: 'visa'
+-> last_4_digit: '0001'
+-> three_ds_status: 0 ✓
+-> token (Cardstream token): present
+Card behavior:
+-> Non-3DS card detected
+-> No 3DS capability
+-> three_ds_status = 0 ✓
+-> Will remain 0 even after payments
+-> Future payments: non-3DS flow
+Cardstream dashboard:
+-> Card tokenized
+-> Non-3DS card flagged
+-> No 3DS authentication required
+three_ds_status = 0 ✓ (expected for Non-3DS)
+Card ready for payments (non-3DS flow)""",add_card_cardstream; non_3ds_card; three_ds_status_0; card_tokenization; region_uk,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-001,Add Card - Cardstream card - Card added with three_ds_status = 0,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Cardstream integration configured
+
+- Customer account exists
+
+- cardstream_store_id_enabled = 1""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid
+
+- Cardstream Test Card: 4929 4212 3460 0821
+
+- CVV: 356
+
+- Expiry: 12/2030
+
+- All mandatory fields""","""1. Open Add Card page (Cardstream merchant)
+
+2. Enter Cardstream test card: 4929 4212 3460 0821
+
+3. Enter CVV: 356
+
+4. Enter expiry: 12/2030
+
+5. Enter billing address
+
+6. Submit card details
+
+7. Verify card tokenization with Cardstream
+
+8. Verify redirect to success
+
+9. Check database entries
+
+10. Verify three_ds_status""","""1. Card added successfully with Cardstream
+Database - master_token table:
+-> customer_id: provided
+-> scheme_name: 'visa'
+-> last_4_digit: '0821'
+-> three_ds_status: 0 ✓
+-> provider: 4 (Cardstream)
+-> token: Cardstream card token
+-> source_id: Cardstream source ID
+-> Card tokenized via Cardstream API
+-> Payment source created
+-> Card instrument stored
+Card behavior:
+-> Same as Cardstream: three_ds_status = 0 at Add Card
+-> 3DS triggered on first payment (if needed)
+-> Status updates to 1 after 3DS success
+Cardstream dashboard:
+-> Payment source visible
+-> Card token created
+-> Customer ID linked
+three_ds_status = 0 ✓ (expected)
+Ready for Cardstream payments""",add_card_cardstream; add_card_hf; three_ds_status_0; cardstream_com; card_tokenization; region_uk,P1,
+Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-003,Add Card + Express Pay Sale - 3DS authentication and three_ds_status update to 1,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Express Pay configured
+
+- 3DS enabled
+
+- Customer has NO saved cards initially
+
+- WALLET_RECHARGE_AGAINST_ORDER key support""","""- Refer Git repository for Add Card and Express Pay
+
+- Email: testing@datman.je
+
+- api_key: (QA team)
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid
+
+- 3DS Card: 4929 4212 3460 0821
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Express Pay amount: £50.00
+
+- Order details for Express Pay
+
+- All mandatory fields""","""PHASE 1 - ADD CARD:
+
+1. Open Add Card page
+
+2. Enter 3DS card: 4929 4212 3460 0821
+
+3. Complete Add Card process
+
+4. Verify card added with three_ds_status = 0
+
+5. Capture card token and customer_id
+
+6. Verify card visible in payment methods
+
+PHASE 2 - EXPRESS PAY WITH SAVED CARD:
+
+7. Initiate Express Pay transaction for £50.00
+
+8. Express Pay API selects saved card (just added)
+
+9. 3DS challenge triggered (FIRST payment with this card)
+
+10. Customer enters 3DS password: 'password'
+
+11. Complete 3DS authentication
+
+12. Payment authorizes successfully
+
+13. Verify payment successful
+
+14. Verify three_ds_status UPDATED to 1
+
+15. Check all database entries""","""PHASE 1 - ADD CARD (Initial):
+Card added successfully
+-> three_ds_status: 0 ✓
+-> card added but not authenticated
+PHASE 2 - EXPRESS PAY PAYMENT:
+Express Pay initiated with saved card
+3DS authentication flow:
+-> FIRST payment with this card
+-> 3DS challenge triggered
+-> Customer redirected to 3DS page
+-> Password entered: 'password'
+-> Authentication successful
+Database - master_token table:
+-> provider: Cardstream
+three_ds_status update logic:
+-> Before: 0 (card added, not authenticated)
+-> After 3DS success: 1 (card authenticated)
+-> Status persists for future payments
+-> Future payments may bypass 3DS (if rules allow)
+Express Pay validation:
+-> Saved card selected automatically
+-> 3DS triggered on first use
+-> Payment successful
+-> Card authenticated
+-> Status updated
+Cardstream dashboard:
+-> Express Pay transaction
+-> 3DS authenticated
+-> Card marked as authenticated
+webhook_log:
+-> payment_success notification
+-> Express Pay details
+-> 3DS authentication confirmed
+Future payments with this card:
+-> three_ds_status = 1 (already authenticated)
+-> May NOT require 3DS again (exemption rules)
+-> Lower friction for recurring payments
+-> SCA compliant""",add_card_express_pay; 3ds_authentication; three_ds_status_update; status_0_to_1; express_pay; saved_card; region_uk,P1,
+Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-004,Add Card + Saved Card Payment - 3DS authentication and three_ds_status update to 1,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Saved Card payment flow configured
+
+- 3DS enabled
+
+- Master token generation enabled
+
+- Customer has NO saved cards initially""","""- Refer Git repository for Add Card and Saved Card payment
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid
+
+- 3DS Card: 4929 4212 3460 0821
+
+- CVV: 356 (for Add Card)
+
+- Expiry: 03/2030
+
+- Saved Card Payment amount: £75.00
+
+- CVV: NOT required for saved card payment
+
+- Order details
+
+- All mandatory fields""","""PHASE 1 - ADD CARD:
+
+1. Open Add Card page
+
+2. Enter 3DS card details
+
+3. Complete Add Card
+
+4. Verify three_ds_status = 0
+
+5. Card saved with master token
+
+PHASE 2 - SAVED CARD PAYMENT:
+
+6. Open cardstream page
+
+7. Select saved card (just added)
+
+8. Initiate payment for £75.00
+
+9. NO CVV required (saved card)
+
+10. 3DS challenge triggered (first payment)
+
+11. Complete 3DS authentication
+
+12. Payment successful
+
+13. Verify three_ds_status updated to 1
+
+14. Verify master token active
+
+15. Check database validations""","""PHASE 1 - ADD CARD:
+Card added with master token
+-> three_ds_status: 0 ✓
+-> master_token: Cardstream token
+PHASE 2 - SAVED CARD PAYMENT:
+Saved card payment initiated
+3DS authentication:
+-> FIRST payment with saved card
+-> 3DS challenge triggered
+-> Authentication successful
+Database - master_token table:
+-> master_token_used: 1
+-> saved_card_payment: 1
+-> authentication_type: 'challenge'
+Master token validation:
+-> Token remains active
+-> Token now associated with 3DS authenticated card
+-> Can be reused for future payments
+-> May bypass 3DS on subsequent transactions
+Saved card flow benefits:
+-> No CVV required
+-> Master token used
+-> 3DS on first payment only
+-> Future payments: smoother (may skip 3DS)
+-> Enhanced security with 3DS
+Database - master_token (if used):
+-> token_id: master token reference
+-> last_used: timestamp
+Cardstream dashboard:
+-> Saved card payment
+-> 3DS authenticated
+-> Master token visible
+-> Recurring setup complete
+Future saved card payments:
+-> three_ds_status = 1
+-> May use frictionless 3DS or exempt
+-> Lower friction
+-> SCA compliant""",add_card_saved_card; 3ds_authentication; three_ds_status_update; master_token; saved_card_payment; status_0_to_1; region_uk,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-002,Add Card - Long Redirect URL (>600 characters) - Card added successfully,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Long URL handling configured
+
+- redirect_url > 600 characters
+
+- Customer account exists""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid
+
+- Valid card: 4532 1100 0000 0001
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- redirect_url: Long URL (>600 chars)
+  Example: https://merchant.com/payment/success?order_id=12345&customer_id=67890&session_token=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz... (continue to >600 chars)
+
+- All mandatory fields""","""1. Open Add Card page with long redirect URL
+
+2. Verify URL length > 600 characters
+
+3. Enter valid card details
+
+4. Submit card details
+
+5. Verify card tokenization successful
+
+6. Verify redirect to LONG URL
+
+7. Check URL handling
+
+8. Verify success page loads
+
+9. Verify all query parameters preserved
+
+10. Check database entries
+
+11. Verify no URL truncation""","""1. Card added successfully with long redirect URL
+URL handling:
+-> redirect_url length: >600 characters
+-> URL NOT truncated ✓
+-> All query parameters preserved ✓
+-> Redirect successful ✓
+-> No URL encoding issues
+-> Card added successfully
+-> three_ds_status: 0
+-> All card details stored
+Redirect validation:
+-> User redirected to long URL
+-> All parameters in URL intact:
+* order_id present
+* customer_id present
+* session_token present
+* All custom parameters preserved
+-> No truncation or data loss
+URL length validation:
+-> System handles URLs > 600 chars ✓
+-> No 414 error (URI Too Long)
+-> Browser handles long URL
+-> Backend processes correctly
+gateway_request_log:
+-> Add card request logged
+-> redirect_url stored (full length)
+-> Success status
+Success page:
+-> Loads correctly from long URL
+-> All parameters accessible
+-> JavaScript can read URL params
+-> No browser issues
+Edge case handling:
+-> Long URLs supported ✓
+-> No character limit issues
+-> URL encoding proper
+-> Query string intact
+Cardstream dashboard:
+-> Card tokenization successful
+-> No issues from long redirect URL
+Best practices validated:
+-> System supports long URLs
+-> No arbitrary length limits
+-> Proper URL encoding
+-> All data preserved
+Browser compatibility:
+-> Chrome: handles long URLs ✓
+-> Firefox: handles long URLs ✓
+-> Safari: handles long URLs ✓
+-> Edge: handles long URLs ✓""",add_card_long_url; long_redirect_url; url_handling; edge_case; region_uk,P2,
+Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-005,Add Card + Wallet Recharge - 3DS authentication and three_ds_status update to 1,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Wallet feature enabled for customer
+
+- Wallet recharge configured
+
+- 3DS enabled
+
+- WALLET_RECHARGE_AGAINST_ORDER key configured
+
+- Customer has wallet with balance""","""- Refer Git repository for Add Card and Wallet Recharge
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid with wallet
+
+- Current wallet balance: £10.00
+
+- 3DS Card: 4929 4212 3460 0821
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Wallet recharge amount: £50.00
+
+- Order amount: £60.00 (for context)
+
+- WALLET_RECHARGE_AGAINST_ORDER: enabled
+
+- All mandatory fields""","""PHASE 1 - ADD CARD:
+
+1. Open Add Card page
+
+2. Enter 3DS card: 4929 4212 3460 0821
+
+3. Complete Add Card process
+
+4. Verify card added with three_ds_status = 0
+
+5. Capture card token
+
+PHASE 2 - WALLET RECHARGE:
+
+6. Customer wallet balance: £10.00
+
+7. Order total: £60.00
+
+8. Insufficient wallet balance detected
+
+9. Initiate wallet recharge: £50.00
+
+10. System selects saved card (just added)
+
+11. 3DS challenge triggered (first payment)
+
+12. Customer enters 3DS password
+
+13. Complete 3DS authentication
+
+14. Wallet recharge successful: +£50.00
+
+15. New wallet balance: £60.00
+
+16. Verify three_ds_status updated to 1
+
+17. Check database entries""","""PHASE 1 - ADD CARD:
+Card added successfully
+-> three_ds_status: 0 ✓
+-> Card ready for wallet recharge
+PHASE 2 - WALLET RECHARGE:
+Wallet recharge flow:
+-> Current balance: £10.00
+-> Required: £60.00 (order amount)
+-> Shortage: £50.00
+-> Recharge initiated: £50.00
+3DS authentication:
+-> FIRST payment with this card
+-> 3DS challenge triggered
+-> Customer authenticated
+Database - master_token table:
+-> provider: Cardstream
+-> purpose: 'wallet_recharge'
+Database - wallet_transactions:
+-> transaction_type: 'recharge' or 'credit'
+-> amount: £50.00
+-> payment_id: [recharge payment_id]
+-> previous_balance: £10.00
+-> new_balance: £60.00
+-> recharge_successful: 1
+-> transaction_date: timestamp
+-> first_successful_payment: 'wallet_recharge'
+Database - wallet_balance (customer):
+-> Previous balance: £10.00
+-> Recharged: +£50.00
+-> wallet_active: 1
+Wallet recharge validation:
+-> Insufficient balance detected ✓
+-> Recharge amount calculated: £50.00 ✓
+-> Card charged: £50.00 ✓
+-> Wallet credited: £50.00 ✓
+-> Balance sufficient for order: £60.00 ✓
+three_ds_status update:
+-> Before recharge: 0
+-> After successful 3DS payment: 1 ✓
+-> Card now authenticated
+-> Future wallet recharges may skip 3DS
+Cardstream dashboard:
+-> Wallet recharge payment
+-> Amount: £50.00
+-> 3DS authenticated
+-> Purpose: Wallet top-up
+webhook_log:
+-> payment_success for wallet recharge
+-> Wallet balance updated
+Order flow completion:
+-> Wallet balance: £60.00
+-> Order amount: £60.00
+-> Sufficient balance ✓
+-> Can proceed with order using wallet
+Future wallet recharges:
+-> three_ds_status = 1 (authenticated)
+-> May use frictionless 3DS
+-> Or may be exempt from 3DS
+-> Smoother recharge experience""",add_card_wallet_recharge; 3ds_authentication; three_ds_status_update; wallet_recharge; status_0_to_1; saved_card; region_uk,P1,
+Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-006,Add Card + Express Pay Sale - Non-3DS flow (no Cardstream rule triggered),"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Express Pay configured
+
+- 3DS enabled BUT no rules triggered for this transaction
+
+- Low-risk transaction scenario
+
+- Cardstream 3DS rules configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid
+
+- 3DS Capable Card: 4929 4212 3460 0821
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Express Pay amount: £15.00 (low amount - may not trigger 3DS)
+
+- Transaction characteristics:
+  * Low value
+  * Trusted customer
+  * Low-risk merchant
+  * No fraud indicators
+
+- All mandatory fields""","""PHASE 1 - ADD CARD:
+
+1. Open Add Card page
+
+2. Enter 3DS capable card: 4929 4212 3460 0821
+
+3. Complete Add Card
+
+4. Verify three_ds_status = 0
+
+5. Card saved successfully
+
+PHASE 2 - EXPRESS PAY (LOW-RISK):
+
+6. Initiate Express Pay for £15.00 (low amount)
+
+7. System evaluates 3DS requirement:
+   - Cardstream 3DS rules
+   - Transaction risk scoring
+   - Amount threshold check
+   - Customer trust level
+
+8. NO 3DS challenge triggered (low risk)
+
+9. Payment proceeds as Non-3DS
+
+10. Payment authorizes successfully
+
+11. Verify payment successful
+
+12. Verify three_ds_status REMAINS 0
+
+13. Check database entries""","""PHASE 1 - ADD CARD:
+Card added with three_ds_status = 0
+PHASE 2 - EXPRESS PAY NON-3DS:
+Risk assessment by Cardstream:
+-> Transaction amount: £15.00 (low value)
+-> Customer: trusted/established
+-> Merchant: low-risk category
+-> Card: 3DS capable but NOT required
+-> Fraud indicators: none
+-> Risk score: LOW
+-> 3DS rule: NOT triggered ✓
+Non-3DS flow:
+-> NO 3DS challenge presented
+-> Standard authorization
+-> Frictionless experience
+-> No customer action needed
+-> Direct authorization
+Database - master_token table:
+-> provider: Cardstream
+-> three_ds_required: 0 ✓
+-> three_ds_exemption_applied: 1 (or similar flag)
+-> three_ds_status: 0 ✓ (REMAINS 0)
+-> Card NOT marked as 3DS authenticated
+-> Status unchanged
+three_ds_status logic:
+-> Before payment: 0
+-> After Non-3DS payment: STILL 0 ✓
+-> Reason: 3DS NOT performed
+-> Status only updates to 1 AFTER successful 3DS authentication
+-> Non-3DS payments do NOT update status
+Cardstream 3DS rules:
+-> Dynamic 3DS: enabled
+-> Rule evaluation:
+* Amount < £30: may skip 3DS
+* Trusted customer: may skip 3DS
+* Low-risk transaction: may skip 3DS
+* Result: 3DS NOT required ✓
+Transaction exemptions:
+-> Low-value exemption (under €30/£25-30)
+-> Trusted beneficiary exemption
+-> Transaction risk analysis (TRA)
+Cardstream dashboard:
+-> Express Pay transaction
+-> Amount: £15.00
+-> Transaction type: Non-3DS ✓
+-> No 3DS authentication
+-> Authorization: approved
+Important distinction:
+-> 3DS CAPABLE card used
+-> But 3DS NOT REQUIRED for this transaction
+-> Cardstream rules determine when 3DS is triggered
+-> Low-risk = no 3DS needed
+Future payments with this card:
+-> three_ds_status still 0
+-> If future payment triggers 3DS:
+* 3DS challenge will be presented
+* After success: status updates to 1
+-> If future payments remain low-risk:
+* May continue as non-3DS
+* Status remains 0
+SCA compliance:
+-> SCA exemptions applied
+-> Transaction within exemption thresholds
+-> Compliant with PSD2
+-> Issuer accepted exemption""",add_card_express_pay; non_3ds_flow; three_ds_status_0; low_risk_transaction; 3ds_exemption; cardstream_rules; region_uk,P1,
+Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-001,Add Card - Invalid Card Number Validation,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card validation configured
+
+- Customer account exists""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Customer ID: valid
+
+- Invalid Card Numbers:
+  * 1234 5678 9012 3456 (invalid format)
+  * 0000 0000 0000 0000 (all zeros)
+  * 1111 1111 1111 1111 (fails Luhn check)
+  * 4111 1111 1111 111 (too short)
+  * 4532 1100 0000 00011 (too long)
+
+- CVV: 356
+
+- Expiry: 03/2030""","""1. Open Add Card page
+
+2. Enter invalid card number: 1234 5678 9012 3456
+
+3. Enter valid CVV and expiry
+
+4. Enter billing address
+
+5. Submit card details
+
+6. Verify validation error
+
+7. Check error message
+
+8. Repeat with different invalid formats
+
+9. Verify no card saved
+
+10. Check database entries""","""1. Card addition FAILS - invalid card number
+Validation errors:
+-> ""Invalid card number""
+-> ""Please enter a valid card number""
+-> ""Card number format is incorrect""
+-> Client-side validation catches error
+Client-side validation:
+-> Luhn algorithm check fails
+-> Invalid length detected
+-> Invalid format detected
+-> Error shown before submission
+Server-side validation (if reached):
+-> HTTP 400 (Bad Request)
+-> Error: ""Invalid card number""
+-> Card validation failed
+-> No tokenization attempted
+-> NO entry created ✓
+-> Invalid card NOT saved
+-> Validation prevents storage
+Database - gateway_request_log:
+-> Request may be logged
+-> Validation error: Invalid card number
+-> No API call to Cardstream (if client-side caught)
+Error handling:
+-> Clear error message displayed
+-> User can correct and retry
+-> Input field highlighted
+Security validation:
+-> Prevents invalid data submission
+-> Luhn check working ✓
+-> Format validation working ✓
+-> Length validation working ✓
+User experience:
+-> Immediate feedback
+-> Clear error message
+-> Easy to correct
+-> No frustration
+Card formats tested:
+-> 1234 5678 9012 3456: Invalid format
+-> 0000 0000 0000 0000: Invalid (all zeros)
+-> 1111 1111 1111 1111: Fails Luhn check
+-> 4111 1111 1111 111: Too short (15 digits)
+-> 4532 1100 0000 00011: Too long (17 digits)
+-> All rejected ✓
+No card saved ✓
+Customer can retry with valid card""",add_card_validation; invalid_card_number; validation_error; luhn_check; error_handling; negative_test,P1,
+Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-002,Add Card - Invalid Expiry Date Validation,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Expiry validation configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Currency: GBP
+
+- Valid Card: 4532 1100 0000 0001
+
+- CVV: 356
+
+- Invalid Expiry Dates:
+  * 13/2030 (month > 12)
+  * 00/2030 (month = 0)
+  * 01/2020 (expired)
+  * 12/2015 (expired)
+  * 99/2030 (invalid month)""","""1. Open Add Card page
+
+2. Enter valid card: 4532 1100 0000 0001
+
+3. Enter invalid expiry: 13/2030
+
+4. Submit card details
+
+5. Verify validation error
+
+6. Test expired date: 01/2020
+
+7. Test invalid month: 00/2030
+
+8. Check error messages
+
+9. Verify no card saved""","""1. Card addition FAILS - invalid expiry
+Validation errors:
+Expiry 13/2030:
+-> ""Invalid expiry month""
+-> ""Month must be between 01 and 12""
+Expiry 01/2020:
+-> ""Card has expired""
+-> ""Please enter a future expiry date""
+Expiry 00/2030:
+-> ""Invalid month""
+-> ""Month cannot be 00""
+Client-side validation:
+-> Month range: 01-12
+-> Year: future date
+-> Current date comparison
+-> Format: MM/YYYY
+Server-side validation:
+-> HTTP 400 (Bad Request)
+-> ""Invalid expiry date""
+-> Expiry validation failed
+-> NO entry created ✓
+-> Invalid expiry NOT saved
+Error handling:
+-> Clear error messages
+-> Field highlighting
+-> User can correct
+-> Immediate feedback
+Expiry validation rules:
+-> Month: 01-12 only
+-> Not expired ✓
+-> Valid format: MM/YYYY
+All invalid expiries rejected ✓""",add_card_validation; invalid_expiry; expiry_validation; validation_error; negative_test,P1,
+Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-005,Add Card - Invalid Redirect URL Validation,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- redirect_url validation configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Valid card details
+
+- Invalid redirect_url:
+  * Not a valid URL format
+  * Missing protocol (http/https)
+  * Invalid characters
+  * Localhost/internal IP (if blocked)
+  * javascript: protocol (XSS attempt)""","""1. Prepare Add Card request
+
+2. Set redirect_url: ""not-a-url""
+
+3. Submit request
+
+4. Verify validation error
+
+5. Test: ""javascript:alert(1)""
+
+6. Test: ""file:///etc/passwd""
+
+7. Test: ""http://localhost""
+
+8. Check error responses""","""1. Add Card FAILS - invalid redirect URL
+Validation errors:
+""not-a-url"":
+-> ""Invalid redirect URL format""
+-> ""Must be valid HTTP/HTTPS URL""
+""javascript:alert(1)"":
+-> ""Invalid URL protocol""
+-> ""Only HTTP/HTTPS allowed""
+-> XSS attempt blocked ✓
+""file:///etc/passwd"":
+-> Security risk blocked ✓
+""http://localhost"" (if blocked):
+-> ""Internal URLs not allowed""
+-> ""Redirect must be public URL""
+URL validation rules:
+-> Must start with http:// or https://
+-> Valid domain format
+-> No javascript: protocol
+-> No file: protocol
+-> No data: protocol
+-> Public URLs only (if configured)
+Server-side validation:
+-> HTTP 400 (Bad Request)
+-> ""Invalid redirect_url""
+-> URL format validation
+-> Protocol validation
+Security validation:
+-> XSS prevention ✓
+-> Open redirect prevention
+-> Protocol whitelist enforced
+-> Dangerous protocols blocked
+Database - gateway_request_log:
+-> Invalid request logged
+-> Error: Invalid redirect URL
+-> Security incident flagged
+Error response:
+-> Clear error message
+-> Security details NOT exposed
+-> Generic message to client
+No card saved ✓
+Security incident logged
+All malicious URLs blocked ✓""",add_card_validation; invalid_redirect_url; url_validation; security_validation; xss_prevention; negative_test,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-003,Add Card - Redirect URL Exceeds Maximum Length (>2000 chars),"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Maximum URL length configured
+
+- URL length limit: typically 2000 chars""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Valid card details
+
+- redirect_url: >2000 characters
+  Example: https://merchant.com/success?param1=value1&param2=value2... (continue to >2000 chars)""","""1. Prepare Add Card request
+
+2. Generate redirect_url >2000 chars
+
+3. Include many query parameters
+
+4. Submit request
+
+5. Verify length validation
+
+6. Check error response
+
+7. Test boundary: exactly 2000 chars
+
+8. Test: 2001 chars (over limit)""","""1. Add Card FAILS - URL too long
+Validation error:
+-> ""redirect_url exceeds maximum length""
+-> ""URL must be less than 2000 characters""
+-> ""Please use shorter redirect URL""
+URL length validation:
+-> Maximum: 2000 characters (typical)
+-> Current length: >2000 characters
+-> Exceeds limit: REJECTED ✓
+Server-side validation:
+-> HTTP 400 (Bad Request)
+-> Error: ""redirect_url too long""
+-> Length: [actual length] > 2000
+Technical limits:
+-> HTTP URL length limits
+-> Browser limitations
+-> Server configuration
+-> Database field limits
+Boundary testing:
+-> 1999 chars: ACCEPTED ✓
+-> 2000 chars: ACCEPTED ✓
+-> 2001 chars: REJECTED ✓
+-> >2000 chars: REJECTED ✓
+Error response:
+-> Clear message
+-> Actual length shown (optional)
+-> Guidance provided
+Database - gateway_request_log:
+-> Invalid request logged
+-> Length recorded
+No card saved ✓
+Workaround suggestions:
+-> Use URL shortener
+-> Reduce query parameters
+-> Use session tokens instead
+-> Store data server-side
+Note: TC006 tested >600 chars (success)
+This test: >2000 chars (failure)
+Sweet spot: 600-2000 chars acceptable""",add_card_validation; url_too_long; length_validation; max_length_exceeded; negative_test,P2,
+Cardstream Add Card,Add Card - Multiple Cards,AC-MULTI,AC-MULTI-001,Add Card - Rate Limit Exceeded (Multiple Attempts Blocked),"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Rate limiting configured
+
+- Limit: 5 Add Card attempts per 10 minutes per customer""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Customer ID: valid
+
+- Valid card details
+
+- Attempt limit: 5 per 10 minutes
+
+- Test: 6+ attempts""","""1. Record customer_id and timestamp
+
+2. Attempt Add Card: 1st time
+
+3. Attempt Add Card: 2nd time
+
+4. Attempt Add Card: 3rd time
+
+5. Attempt Add Card: 4th time
+
+6. Attempt Add Card: 5th time (last allowed)
+
+7. Attempt Add Card: 6th time
+
+8. Verify rate limit error
+
+9. Check cooldown period
+
+10. Verify no card saved on 6th attempt""","""1. First 5 attempts: MAY succeed (if valid)
+6th attempt: BLOCKED - rate limit
+Rate limit error:
+-> ""Rate limit exceeded""
+-> ""Too many Add Card attempts""
+-> ""Please wait before trying again""
+-> HTTP 429 (Too Many Requests)
+Rate limit details:
+-> Limit: 5 attempts per 10 minutes
+-> Current: 6th attempt
+-> Exceeded by: 1
+-> Cooldown: 10 minutes from first attempt
+Response headers:
+-> X-RateLimit-Limit: 5
+-> X-RateLimit-Remaining: 0
+-> X-RateLimit-Reset: [timestamp]
+-> Retry-After: 600 (seconds)
+Database - rate_limit_tracking:
+Database - master_token table:
+-> customer_id: tracked
+-> attempt_count: 6
+-> first_attempt_time: timestamp
+-> last_attempt_time: timestamp
+-> window_expires: timestamp + 10 minutes
+-> status: 'blocked'
+Blocking behavior:
+-> 6th attempt blocked immediately
+-> No card processing
+-> No API call to Cardstream
+-> Error returned instantly
+Database - gateway_request_log:
+-> 6th attempt logged
+-> Error: Rate limit exceeded
+-> Customer_id recorded
+-> Timestamp recorded
+No card saved on 6th attempt ✓
+Customer notification:
+-> ""You have made too many Add Card attempts""
+-> ""Please wait 10 minutes and try again""
+-> Clear cooldown period shown
+Security benefit:
+-> Prevents brute force attacks
+-> Prevents card testing
+-> Protects against abuse
+-> DoS protection
+Cooldown window:
+-> Must wait 10 minutes from FIRST attempt
+-> After cooldown: counter resets
+-> Can attempt again after reset
+First 5 cards added (if valid) ✓
+6th blocked ✓""",add_card_rate_limit; rate_limit_exceeded; too_many_attempts; http_429; throttling; security_validation,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-006,Add Card - Rate Limit Retry Post Cooldown Window,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Rate limiting configured
+
+- Previous test: rate limit exceeded
+
+- Cooldown period: 10 minutes""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Customer ID: same as previous test
+
+- Valid card details
+
+- Previous: 6 attempts (blocked at 6th)
+
+- Current: Post cooldown retry""","""1. Wait for cooldown window to expire (10 minutes)
+
+2. OR simulate time passage
+
+3. Check rate limit status
+
+4. Verify counter reset
+
+5. Attempt Add Card (7th attempt, 1st after reset)
+
+6. Verify request succeeds
+
+7. Check database entries
+
+8. Verify card saved successfully""","""1. Cooldown window expired
+Rate limit counter RESET
+Retry successful ✓
+Rate limit status:
+-> Cooldown window: EXPIRED
+-> Time elapsed: >10 minutes
+-> Counter: RESET to 0
+-> Customer: UNBLOCKED
+-> Ready for new attempts
+Database - rate_limit_tracking:
+Before retry:
+-> attempt_count: 6 (old)
+-> window_expires: [timestamp - expired]
+-> status: 'blocked'
+After cooldown:
+-> new window starts
+-> first_attempt_time: NEW timestamp
+7th attempt (1st after reset):
+-> Rate limit check: PASSED ✓
+-> Within limit: 1 of 5
+-> Processing allowed
+-> Card addition proceeds
+-> NEW card entry created ✓
+-> Card added successfully
+-> three_ds_status: 0
+-> Post-cooldown card saved
+Database - gateway_request_log:
+-> 7th attempt logged
+-> Status: SUCCESS
+-> Rate limit: PASSED
+-> Within new window
+Rate limit headers:
+-> X-RateLimit-Limit: 5
+-> X-RateLimit-Remaining: 4
+-> X-RateLimit-Reset: [new timestamp]
+Customer experience:
+-> Waited 10 minutes
+-> Retry successful
+-> No more blocking
+-> Can add card normally
+Validation:
+-> Cooldown mechanism working ✓
+-> Counter reset working ✓
+-> Window expiry working ✓
+-> Post-cooldown retry successful ✓
+New window:
+-> 5 attempts allowed in next 10 minutes
+-> Counter starts from 1
+-> Normal operation resumed
+Security maintained:
+-> Rate limiting still active
+-> Temporary block only
+-> Fair usage enforced
+-> System protection maintained""",add_card_rate_limit; rate_limit_reset; cooldown_expired; retry_success; post_cooldown; throttling,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-007,Add Card - Rate Limit with Cardstream Card Specifically,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Rate limiting configured per card
+
+- Same card number tested multiple times""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Customer ID: valid
+
+- Same Cardstream Card: 4532 1100 0000 0001
+
+- Attempt to add same card 3+ times
+
+- Rate limit: per card BIN/last4""","""1. Attempt 1: Add card 4532 1100 0000 0001
+
+2. Verify success
+
+3. Attempt 2: Add SAME card again
+
+4. Verify duplicate card handling
+
+5. Attempt 3: Add SAME card again
+
+6. Check rate limiting per card
+
+7. Verify error messages
+
+8. Check database entries""","""1. First attempt: Card added successfully
+Second attempt with SAME card:
+Duplicate card detection:
+-> ""Card already added""
+-> ""This card is already in your account""
+-> ""Duplicate card detected""
+First attempt:
+-> Card added successfully
+-> last_4_digit: 1111
+Second attempt:
+-> Duplicate check triggered
+-> Same card detected (BIN + last 4)
+-> NO new entry created ✓
+-> Existing card returned
+Duplicate card validation:
+-> Check BIN (first 6): 411111
+-> Check last 4: 1111
+-> Check customer_id: same
+-> Match found: DUPLICATE
+-> New entry prevented ✓
+Rate limiting for same card:
+-> Prevent card testing
+-> Limit: 3 attempts per card per hour
+-> After 3 failed duplicates: blocked
+-> Cooldown: 1 hour
+Third attempt (if continues):
+-> ""Too many attempts with this card""
+-> ""Rate limit exceeded for this card""
+-> HTTP 429 (Too Many Requests)
+-> Temporary block on this card
+Database - card_rate_limiting:
+-> card_fingerprint: hash(BIN + last4)
+-> attempt_count: 3
+-> blocked_until: timestamp + 1 hour
+-> reason: 'duplicate_attempts'
+Error handling:
+-> Clear message for duplicate
+-> User knows card already exists
+-> Can view existing cards
+-> Can use existing card
+Security benefit:
+-> Prevents card testing abuse
+-> Limits duplicate attempts
+-> Protects against enumeration
+User action:
+-> Use existing card
+-> OR add different card
+-> OR wait for cooldown
+Only ONE entry for this card ✓""",add_card_rate_limit; duplicate_card; card_specific_rate_limit; cardstream_card; same_card_attempts; security_validation,P1,
+Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-009,Add Card - Excessive Attempts with Invalid Cards,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Fraud detection configured
+
+- Multiple invalid cards tested
+
+- Abuse detection""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Customer ID: valid
+
+- Multiple invalid cards:
+  * 10+ different invalid card numbers
+  * All failing validation
+  * Rapid attempts
+  * Pattern suggesting card testing""","""1. Attempt 1: Invalid card 1234 5678 9012 3456
+
+2. Attempt 2: Invalid card 1111 2222 3333 4444
+
+3. Attempt 3: Invalid card 9999 8888 7777 6666
+
+4. Continue with 7 more invalid cards
+
+5. Total: 10 rapid invalid attempts
+
+6. Verify fraud detection triggered
+
+7. Check account suspension
+
+8. Verify security alerts""","""1. First 3-5 invalid attempts: Rejected normally
+After 5+ invalid attempts: Fraud detection
+Fraud detection triggered:
+-> ""Suspicious activity detected""
+-> ""Account temporarily suspended""
+-> ""Contact support for assistance""
+-> HTTP 403 (Forbidden)
+Pattern analysis:
+-> Multiple invalid cards
+-> Rapid succession (< 1 min between)
+-> All failed validation
+-> No successful adds
+-> Pattern: Card testing attack
+Database - fraud_detection_log:
+Database - master_token table:
+-> customer_id: flagged
+-> attempt_count: 10
+-> invalid_attempts: 10
+-> success_rate: 0%
+-> pattern: 'card_testing'
+-> risk_score: HIGH
+-> action: 'account_suspended'
+-> suspended_at: timestamp
+Account suspension:
+-> Add Card: BLOCKED
+-> All payment methods: BLOCKED
+-> Duration: Manual review required
+-> Customer: Must contact support
+-> Security: Account locked
+Database - customer_accounts:
+-> account_status: 'suspended'
+-> suspension_reason: 'fraud_suspected'
+-> requires_verification: 1
+Security measures:
+-> Fraud score: HIGH
+-> IP address: Recorded
+-> Device fingerprint: Recorded
+-> Geographic location: Recorded
+-> All logged for investigation
+Security team notification:
+-> Alert sent immediately
+-> High-risk activity
+-> Possible card testing attack
+-> Customer flagged for review
+-> Manual investigation required
+Database - gateway_request_log:
+-> All 10 attempts logged
+-> Pattern visible
+-> Timestamps recorded
+-> Card numbers (masked) logged
+No cards saved ✓
+Account locked ✓
+Customer actions required:
+-> Contact customer support
+-> Verify identity
+-> Explain activity
+-> Account review
+-> Possible unlock after verification
+Prevention benefits:
+-> Stops card testing attacks
+-> Protects merchant
+-> Prevents fraud
+-> Early detection working ✓""",add_card_fraud_detection; excessive_attempts; invalid_cards; card_testing; account_suspension; security_validation; fraud_prevention,P1,
+Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-010,Add Card - Invalid Card Types (Diners/Discover Unsupported),"""- Merchant in UK pointed to Cardstream
+- Only Visa, MC, AMEX, Maestro supported
+- Diners Club and Discover NOT supported""","""- Diners Club: 3056 9309 0259 04
+- Discover: 6011 1111 1111 1117
+- CVV: 356, Expiry: 03/2030""","""1. Enter Diners Club card
+2. Submit
+3. Verify unsupported error
+4. Repeat with Discover
+5. Verify no card saved""","""1. Card REJECTED - unsupported type
+Error: ""Card type not supported""
+Supported: Visa, MC, AMEX, Maestro only
+BIN detection working
+No card saved ✓""",add_card_validation; unsupported_scheme_name; diners_club; discover_card; negative_test,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-009,Add Card - HTTP Downgrade Attempt (Security),"""- HTTPS enforcement configured
+- HTTP downgrade protection""","""- Attempt HTTP instead of HTTPS
+- URL: http:// instead of https://""","""1. Attempt Add Card over HTTP
+2. Verify HTTPS enforcement
+3. Check redirect or block""","""1. HTTP BLOCKED or REDIRECTED
+HTTPS required for card data
+PCI DSS compliance ✓
+Security maintained ✓""",add_card_security; http_downgrade; https_enforcement; ssl_required,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-010,Add Card - Duplicate Card Detection,"""- Duplicate detection configured
+- BIN + Last4 matching""","""- Card: 4532 1100 0000 0001 (ALREADY SAVED)""","""1. Verify card already saved
+2. Attempt to add SAME card
+3. Verify duplicate detection
+4. Check no new entry""","""1. Duplicate DETECTED
+Error: ""Card already exists""
+BIN+Last4 match found
+No new entry created ✓""",add_card_duplicate; duplicate_card_detection; bin_last4_match,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-012,Add Card - Webhook Success Flow,"""- Webhook configured
+- Endpoint active and reachable""","""- Valid card
+- Webhook URL: active""","""1. Add card successfully
+2. Verify webhook sent
+3. Check webhook payload and signature
+4. Verify delivery""","""1. Card added + Webhook delivered
+Event: ""card_added""
+HMAC signature valid
+HTTP 200 from merchant
+Delivery: SUCCESS ✓""",add_card_webhook; webhook_success; webhook_delivery; hmac_signature,P1,
+Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-014,Add Card - Webhook Failure Flow,"""- Webhook configured
+- Endpoint UNAVAILABLE""","""- Valid card
+- Webhook endpoint returns HTTP 500/timeout""","""1. Add card successfully
+2. Webhook delivery FAILS
+3. Verify retry mechanism
+4. Check eventual delivery""","""1. Card added BUT webhook fails
+Retry: Exponential backoff
+Card still usable ✓
+Webhook delivery independent of card save""",add_card_webhook; webhook_failure; webhook_retry; error_handling,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-013,Add Card - Cardstream dashboard Validation,"""- Cardstream dashboard access
+- Shopper reference tracking""","""- Valid card
+- Cardstream credentials for dashboard""","""1. Add card successfully
+2. Login to Cardstream dashboard
+3. Search shopper reference
+4. Verify card token visible
+5. Check all details""","""1. Card visible in Cardstream dashboard ✓
+Shopper Reference found
+Card Reference Token present
+Card details: •••• 0001, 03/2030
+Status: Active
+All data matches database ✓""",add_card_dashboard; cardstream_dashboard; shopper_reference; dashboard_validation,P1,
+Cardstream Add Card,Add Card - Multiple Cards,AC-MULTI,AC-MULTI-002,Add Card - Multiple Card Types (Visa/MC/Electron/JCB),"""- Multiple card types supported""","""- Visa: 4532 1100 0000 0001
+- MC: 5404 0000 0000 0001
+- Electron: 4929 4212 3460 0821
+- JCB: 3530 1113 3330 0000""","""1. Add Visa card
+2. Add Mastercard
+3. Add Visa Electron
+4. Add JCB (if supported)
+5. Verify all tokenized correctly""","""1. All card types detected correctly
+Visa: scheme_name=visa ✓
+MC: scheme_name=mastercard ✓
+Electron: scheme_name=visa_electron ✓
+JCB: scheme_name=jcb ✓
+All visible in dashboard""",add_card_multiple_types; visa_card; mastercard; visa_electron; jcb_card,P1,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-014,Add Card - Back URL Normal Length,"""- back_url parameter supported""","""- back_url: ~50 chars (normal)""","""1. Add Card with back_url
+2. Click Cancel
+3. Verify redirect to back_url
+4. Check parameters preserved""","""1. back_url validated ✓
+Cancel button works
+Redirects to back_url
+All parameters preserved ✓""",add_card_back_url; back_url_validation; cancel_flow,P2,
+Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-015,Add Card - Back URL Long (>600 chars),"""- Long back_url supported""","""- back_url: >600 characters""","""1. Add Card with long back_url
+2. Click Cancel
+3. Verify full URL preserved
+4. Check no truncation""","""1. Long back_url handled ✓
+No truncation
+All parameters intact
+Redirect successful ✓""",add_card_back_url; long_back_url; url_length,P2,
+Cardstream Add Card,Add Card - Validation,AC-VALIDATION,,Add card - Invalid payload,Validation of Invalid payload,Uk -GBP,"""1. Add card sale
+2. Validate input params in UI",,,P2,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-001,Add Card - Card Details Encryption - Visa Card Successfully Encrypted,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled for merchant
+
+- Card encryption enabled (client-side encryption)
+
+- Cardstream Client Side Encryption configured
+
+- Valid encryption key configured""","""- Refer Git repository for Add card test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Country: UK (country_id: 1)
+
+- Currency: GBP
+
+- Card: Visa 4532 1100 0000 0001
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Cardholder name: Test Encryption User
+
+- Encryption: Cardstream CSE library""","""1. Open Add Card page
+
+2. Open browser Developer Tools > Network tab
+
+3. Enter card details:
+   - Card: 4532 1100 0000 0001
+   - CVV: 356
+   - Expiry: 03/2030
+
+4. Submit card details
+
+5. Inspect network request payload
+
+6. Verify card data is encrypted (not plaintext)
+
+7. Verify CVV is encrypted (not plaintext)
+
+8. Capture card token on success
+
+9. Check gateway_request_log for encrypted data
+
+10. Verify master_token entry created""","""1. Add Card successful ✓
+
+2. Network payload inspection:
+   - Card number NOT visible in plaintext
+   - CVV NOT visible in plaintext
+   - Encrypted blob present (Cardstream_encrypted_data)
+   - encryptedCardNumber: encrypted string
+   - encryptedSecurityCode: encrypted string
+   - encryptedExpiryMonth: encrypted string
+   - encryptedExpiryYear: encrypted string
+
+3. Browser console:
+   - No card number logged
+   - No CVV logged
+   - Encryption successful message
+
+4. gateway_request_log:
+   - No plaintext PAN stored
+   - No plaintext CVV stored
+   - Encrypted payload logged
+   - Card details masked: ****0001
+
+5. master_token table:
+   - Token created
+   - last_4_digit: 1111
+   - scheme_name: visa
+   - Full PAN NOT stored
+   - CVV NOT stored
+
+6. PCI-DSS Compliance:
+   - Sensitive data encrypted ✓
+   - No plaintext transmission ✓
+   - No plaintext storage ✓
+   - Tokenization complete ✓
+
+7. Cardstream dashboard:
+   - Recurring contract created
+   - Shopper reference created
+   - Token stored securely""",add_card_encryption; visa_card; cse_encryption; pci_compliance; security_validation,P0,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-002,Add Card - Card Details Encryption - Mastercard Successfully Encrypted,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled for merchant
+
+- Card encryption enabled (client-side encryption)
+
+- Cardstream CSE configured
+
+- Valid encryption key configured""","""- Refer Git repository for Add card test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Country: UK (country_id: 1)
+
+- Currency: GBP
+
+- Card: Mastercard 5404 0000 0000 0001
+
+- CVV: 123
+
+- Expiry: 05/2030
+
+- Cardholder name: Test MC Encryption
+
+- Encryption: Cardstream CSE library""","""1. Open Add Card page
+
+2. Open browser Developer Tools > Network tab
+
+3. Enter Mastercard details:
+   - Card: 5404 0000 0000 0001
+   - CVV: 123
+   - Expiry: 05/2030
+
+4. Submit card details
+
+5. Inspect network request payload for encryption
+
+6. Verify card data is encrypted
+
+7. Capture card token on success
+
+8. Check gateway_request_log
+
+9. Verify master_token entry created""","""1. Add Card successful ✓
+
+2. Network payload inspection:
+   - Card number encrypted (not plaintext)
+   - CVV encrypted (not plaintext)
+   - Encrypted blob present
+   - encryptedCardNumber: encrypted string
+   - encryptedSecurityCode: encrypted string
+
+3. gateway_request_log:
+   - No plaintext PAN stored
+   - Card details masked: ****0001
+   - Encrypted payload logged
+
+4. master_token table:
+   - Token created
+   - last_4_digit: 4444
+   - scheme_name: mastercard
+   - Full PAN NOT stored
+
+5. PCI-DSS Compliance:
+   - Sensitive data encrypted ✓
+   - Tokenization complete ✓""",add_card_encryption; mastercard; cse_encryption; pci_compliance,P0,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-003,Add Card - Encryption Key Validation - Correct Key Version Used,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Multiple encryption key versions configured
+
+- Key rotation enabled
+
+- Current key version: v2""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Card: Visa 4532 1100 0000 0001
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Encryption key version: v2 (current)
+
+- Old key version: v1 (deprecated)""","""1. Open Add Card page
+
+2. Verify encryption library loads correct key version
+
+3. Enter card details
+
+4. Submit card details
+
+5. Inspect encrypted payload for key version metadata
+
+6. Verify correct key version used (v2)
+
+7. Check gateway_request_log for key version
+
+8. Verify card added successfully""","""1. Add Card successful ✓
+
+2. Encryption key validation:
+   - Key version: v2 (current) ✓
+   - Key loaded from configuration
+   - Key version in encrypted metadata
+   - Correct key used for encryption
+
+3. gateway_request_log:
+   - encryption_key_version: v2
+   - Encrypted payload logged
+   - Decryption successful (server-side)
+
+4. Key rotation support:
+   - Current key (v2) used ✓
+   - Old key (v1) not used
+   - Key version tracked
+
+5. master_token table:
+   - Token created
+   - Encryption metadata stored
+
+6. Security:
+   - Correct key version ensures decryption
+   - Key mismatch would fail
+   - Key rotation supported""",add_card_encryption; key_version; key_rotation; encryption_validation,P1,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-004,Add Card - No Sensitive Data in Browser Console/Logs,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card encryption enabled
+
+- Browser console logging enabled
+
+- Analytics/monitoring configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Card: Visa 4532 1100 0000 0001
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Browser: Chrome (DevTools enabled)""","""1. Open Add Card page
+
+2. Open browser Developer Tools:
+   - Console tab
+   - Network tab
+   - Application tab (storage)
+
+3. Enter card details:
+   - Card: 4532 1100 0000 0001
+   - CVV: 356
+
+4. Submit card details
+
+5. Search Console for:
+   - Full card number
+   - CVV value
+   - Any 16-digit numbers
+
+6. Search Network requests for plaintext card data
+
+7. Check localStorage/sessionStorage for card data
+
+8. Check cookies for sensitive data
+
+9. Verify no sensitive data exposed""","""1. Add Card successful ✓
+
+2. Browser Console inspection:
+   - NO full card number (4532110000000001) in logs
+   - NO CVV (737) in logs
+   - NO 16-digit card patterns
+   - Only masked values (****1111) if any
+
+3. Network tab inspection:
+   - Request payload: encrypted only
+   - NO plaintext PAN in any request
+   - NO plaintext CVV in any request
+   - Headers: no sensitive data
+
+4. Application storage:
+   - localStorage: NO card data
+   - sessionStorage: NO card data
+   - Cookies: NO sensitive card data
+   - IndexedDB: NO card data
+
+5. Analytics events:
+   - NO card number in tracking
+   - NO CVV in events
+   - Masked values only
+
+6. Error messages:
+   - NO card details in error logs
+   - Generic error messages
+   - No sensitive data exposed
+
+7. PCI-DSS Compliance:
+   - No sensitive data in client-side logs ✓
+   - No data leakage ✓
+   - Encryption before any logging ✓""",add_card_encryption; console_security; no_data_leakage; pci_compliance; browser_security,P0,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-005,Add Card - Encryption with Invalid Card Number (Luhn Check Failure),"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card encryption enabled
+
+- Client-side Luhn validation enabled
+
+- Server-side validation enabled""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Invalid Card: 4532 1100 0000 0002 (fails Luhn check)
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Note: Last digit changed to fail Luhn""","""1. Open Add Card page
+
+2. Enter invalid card number:
+   - Card: 4532 1100 0000 0002 (invalid Luhn)
+   - CVV: 356
+   - Expiry: 03/2030
+
+3. Submit card details
+
+4. Verify client-side validation triggers
+
+5. Check if card is rejected before encryption
+
+6. If encrypted, verify server-side rejection
+
+7. Check error message displayed
+
+8. Verify no token created""","""1. Add Card FAILS ✓
+
+2. Client-side validation:
+   - Luhn check: FAILED
+   - Error: ""Invalid card number""
+   - Card number validation failed
+   - Submission may be blocked
+
+3. If submission proceeds:
+   - Card encrypted anyway
+   - Server-side validation fails
+   - Cardstream rejects invalid card
+
+4. Error response:
+   - ""Invalid card number""
+   - ""Card validation failed""
+   - HTTP 400 or validation error
+
+5. gateway_request_log:
+   - Invalid card attempt logged
+   - Luhn validation failure
+   - No token created
+
+6. master_token table:
+   - NO entry created
+   - Invalid card rejected
+
+7. Security:
+   - Invalid cards rejected early ✓
+   - No tokenization of invalid cards ✓
+   - Validation before processing ✓""",add_card_encryption; invalid_card; luhn_validation; negative_test; card_validation,P1,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-006,Add Card - Encryption with Declined Card,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card encryption enabled
+
+- Cardstream decline test card configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Declined Card: 4000 0000 0000 0002 (Cardstream decline test card)
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Expected: Card decline from Cardstream""","""1. Open Add Card page
+
+2. Enter Cardstream decline test card:
+   - Card: 4000 0000 0000 0002
+   - CVV: 356
+   - Expiry: 03/2030
+
+3. Submit card details
+
+4. Verify card is encrypted successfully
+
+5. Verify Cardstream declines the card
+
+6. Check decline error message
+
+7. Verify no token created
+
+8. Check gateway_request_log for decline""","""1. Add Card FAILS - Card Declined ✓
+
+2. Encryption:
+   - Card encrypted successfully
+   - Encryption NOT the issue
+   - Card sent to Cardstream encrypted
+
+3. Cardstream response:
+   - resultCode: Refused
+   - refusalReason: Declined
+   - Card declined by issuer
+
+4. Error displayed:
+   - ""Card declined""
+   - ""Unable to add card""
+   - ""Please try a different card""
+
+5. gateway_request_log:
+   - Encrypted request sent
+   - Cardstream decline response
+   - refusalReason logged
+
+6. master_token table:
+   - NO entry created
+   - Declined cards not tokenized
+
+7. Cardstream dashboard:
+   - Declined transaction visible
+   - No recurring contract created
+
+8. User experience:
+   - Clear decline message ✓
+   - Can retry with different card ✓""",add_card_encryption; declined_card; cardstream_decline; negative_test; card_validation,P1,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-007,Add Card - Encryption with Expired Card,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card encryption enabled
+
+- Expiry date validation enabled""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Card: Visa 4532 1100 0000 0001
+
+- CVV: 356
+
+- Expiry: 01/2020 (EXPIRED)
+
+- Note: Past expiry date""","""1. Open Add Card page
+
+2. Enter card with expired date:
+   - Card: 4532 1100 0000 0001
+   - CVV: 356
+   - Expiry: 01/2020 (expired)
+
+3. Attempt to submit
+
+4. Verify client-side expiry validation
+
+5. Check if submission blocked
+
+6. If proceeds, verify server rejection
+
+7. Verify no token created""","""1. Add Card FAILS - Expired Card ✓
+
+2. Client-side validation:
+   - Expiry check: FAILED
+   - Error: ""Card has expired""
+   - Expiry date in the past
+   - Submission may be blocked
+
+3. If submission proceeds:
+   - Card encrypted
+   - Server-side validation fails
+   - OR Cardstream rejects expired card
+
+4. Error response:
+   - ""Card has expired""
+   - ""Please use a valid expiry date""
+   - ""Expiry date must be in the future""
+
+5. gateway_request_log:
+   - Expired card attempt logged
+   - Expiry validation failure
+   - No token created
+
+6. master_token table:
+   - NO entry created
+   - Expired cards rejected
+
+7. User experience:
+   - Clear expiry error ✓
+   - Cannot add expired cards ✓""",add_card_encryption; expired_card; expiry_validation; negative_test; card_validation,P1,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-008,Add Card - Encryption with Invalid CVV,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card encryption enabled
+
+- CVV validation enabled""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Card: Visa 4532 1100 0000 0001
+
+- Invalid CVV scenarios:
+  * CVV: 00 (too short)
+  * CVV: 12345 (too long)
+  * CVV: ABC (non-numeric)
+  * CVV: empty
+
+- Expiry: 03/2030""","""1. Open Add Card page
+
+2. Test Scenario A - CVV too short:
+   - Card: 4532 1100 0000 0001
+   - CVV: 00
+   - Submit and verify rejection
+
+3. Test Scenario B - CVV too long:
+   - CVV: 12345
+   - Submit and verify rejection
+
+4. Test Scenario C - Non-numeric CVV:
+   - CVV: ABC
+   - Submit and verify rejection
+
+5. Test Scenario D - Empty CVV:
+   - CVV: (empty)
+   - Submit and verify rejection
+
+6. Verify all scenarios rejected
+7. Check error messages""","""1. All Invalid CVV scenarios FAIL ✓
+
+Scenario A - CVV too short (00):
+   - Validation: FAILED
+   - Error: ""CVV must be 3-4 digits""
+   - Submission blocked
+
+Scenario B - CVV too long (12345):
+   - Validation: FAILED
+   - Error: ""CVV must be 3-4 digits""
+   - Submission blocked
+
+Scenario C - Non-numeric (ABC):
+   - Validation: FAILED
+   - Error: ""CVV must contain only numbers""
+   - Submission blocked
+
+Scenario D - Empty CVV:
+   - Validation: FAILED
+   - Error: ""CVV is required""
+   - Submission blocked
+
+2. Client-side validation:
+   - CVV format check ✓
+   - Length validation ✓
+   - Numeric validation ✓
+   - Required field check ✓
+
+3. gateway_request_log:
+   - No entries (blocked client-side)
+   - OR invalid CVV logged if server-side
+
+4. master_token table:
+   - NO entries created
+   - Invalid CVV rejected
+
+5. Security:
+   - Invalid CVV not processed ✓
+   - No tokenization attempts ✓""",add_card_encryption; invalid_cvv; cvv_validation; negative_test; multiple_scenarios,P1,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-009,Add Card - Encryption with Stolen/Lost Card,"""- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card encryption enabled
+
+- Cardstream fraud detection enabled
+
+- Stolen card test card configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Stolen Card: 4000 0000 0000 0119 (Cardstream test - stolen/fraud card)
+
+- CVV: 356
+
+- Expiry: 03/2030
+
+- Expected: Fraud rejection""","""1. Open Add Card page
+
+2. Enter stolen/lost test card:
+   - Card: 4000 0000 0000 0119
+   - CVV: 356
+   - Expiry: 03/2030
+
+3. Submit card details
+
+4. Verify card is encrypted
+
+5. Verify Cardstream fraud detection rejects card
+
+6. Check fraud rejection message
+
+7. Verify no token created
+
+8. Check gateway_request_log for fraud flag""","""1. Add Card FAILS - Fraud Detection ✓
+
+2. Encryption:
+   - Card encrypted successfully
+   - Sent to Cardstream encrypted
+
+3. Cardstream response:
+   - resultCode: Refused
+   - refusalReason: FRAUD / Stolen Card
+   - Fraud detection triggered
+
+4. Error displayed:
+   - ""Card cannot be added""
+   - ""Please contact your card issuer""
+   - Generic message (security)
+
+5. gateway_request_log:
+   - Encrypted request sent
+   - Fraud rejection response
+   - Security flag: FRAUD
+
+6. master_token table:
+   - NO entry created
+   - Fraud cards not tokenized
+
+7. Security measures:
+   - Fraud detection working ✓
+   - Stolen cards blocked ✓
+   - No tokens for flagged cards ✓
+
+8. Cardstream dashboard:
+   - Fraud rejection visible
+   - Risk analysis logged""",add_card_encryption; stolen_card; fraud_detection; negative_test; security_validation,P0,
+Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-012,Add Card - Encryption with AMEX Card (4-digit CVV),"- Merchant in UK (country_id: 1) pointed to Cardstream
+
+- Add card feature enabled
+
+- Card encryption enabled
+
+- AMEX cards accepted
+
+- AMEX 4-digit CVV validation","- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: UK
+
+- Card: AMEX 3782 8224 6310 005
+
+- CVV: 7373 (4 digits for AMEX)
+
+- Expiry: 03/2030
+
+- Note: AMEX uses 4-digit CVV (CID)","1. Open Add Card page
+
+2. Enter AMEX card details:
+   - Card: 3782 8224 6310 005
+   - CVV: 7373 (4-digit CID)
+   - Expiry: 03/2030
+
+3. Verify CVV field accepts 4 digits for AMEX
+
+4. Submit card details
+
+5. Verify card is encrypted (including 4-digit CVV)
+
+6. Verify card added successfully
+
+7. Check master_token for AMEX entry","1. Add Card successful ✓ (AMEX)
+
+2. CVV validation:
+   - AMEX detected (starts with 34/37)
+   - 4-digit CVV accepted ✓
+   - CVV field allows 4 digits
+
+3. Network payload:
+   - Card number encrypted
+   - 4-digit CVV encrypted
+   - encryptedSecurityCode: encrypted string
+
+4. gateway_request_log:
+   - AMEX card encrypted
+   - No plaintext data
+   - Card masked: ****0002
+
+5. master_token table:
+   - Token created
+   - last_4_digit: 0002
+   - scheme_name: amex
+   - Full PAN NOT stored
+
+6. Cardstream dashboard:
+   - AMEX recurring contract created
+   - Card type: American Express
+
+7. AMEX-specific:
+   - 4-digit CVV handled ✓
+   - Different card format supported ✓",add_card_encryption; amex_card; 4_digit_cvv; card_type_validation; pci_compliance,P1,

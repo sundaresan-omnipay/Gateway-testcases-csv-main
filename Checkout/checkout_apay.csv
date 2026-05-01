@@ -1,0 +1,1434 @@
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Apple Pay Web,CS - New Card,AP-WEB,AP-T624,Apple Pay Web – CS – New Card Page – Standard Sale,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Apple Pay test card: valid card
+- Valid redirect_url and cancel_url configured","1. Open the new card page for the CS merchant in Safari
+2. Verify Apple Pay button is displayed on the payment form
+3. Click the Apple Pay button
+4. Authenticate using Touch ID / Face ID
+5. Complete the Apple Pay payment
+6. Verify redirect to redirect_url
+7. Verify payment entry in database","1. New card page loads without any issue
+2. Apple Pay button is visible in Safari
+3. Touch ID / Face ID authentication completes
+4. Payment processes successfully through Checkout.com → CS
+5. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs;new_card;positive,P1,Can't be automated
+Apple Pay Web,CS - New Card,AP-WEB,AP-T628,Apple Pay Web – CS-CH – New Card Page – Standard Sale,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Apple Pay test card: valid card
+- Valid redirect_url configured","1. Open the new card page for the CS-CH merchant in Safari
+2. Verify Apple Pay button is displayed
+3. Click Apple Pay and authenticate via Touch ID / Face ID
+4. Complete the payment
+5. Verify redirect and database entries","1. New card page loads without any issue
+2. Apple Pay button visible in Safari
+3. Authentication and payment complete successfully through Checkout.com → CS-CH
+4. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs_ch;new_card;positive,P1,Can't be automated
+Apple Pay Web,CS - Saved Card,AP-WEB,AP-T639,Apple Pay Web – CS – Saved Card Page – Standard Sale,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Customer has a valid saved master token for CS
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Customer: valid customer_id with saved CS master token
+- Apple Pay test card: valid card","1. Open the saved card page for the CS merchant in Safari
+2. Verify Apple Pay button is displayed alongside saved card options
+3. Click Apple Pay and authenticate via Touch ID / Face ID
+4. Complete the payment
+5. Verify redirect and database entries","1. Saved card page loads correctly showing saved cards and Apple Pay button
+2. Apple Pay payment completes successfully through CS
+3. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs;saved_card;positive,P1,Can't be automated
+Apple Pay Web,CS - Saved Card,AP-WEB,AP-T640,Apple Pay Web – CS-CH – Saved Card Page – Standard Sale,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Customer has a valid saved master token for CS-CH
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Customer: valid customer_id with saved CS-CH master token","1. Open the saved card page for the CS-CH merchant in Safari
+2. Verify Apple Pay button is displayed
+3. Authenticate and complete the Apple Pay payment
+4. Verify redirect and database entries","1. Saved card page loads correctly
+2. Apple Pay payment completes successfully through CS-CH
+3. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs_ch;saved_card;positive,P1,Can't be automated
+Apple Pay Web,CS - New Card via Saved Card Page,AP-WEB,AP-T632,Apple Pay Web – CS – New Card Option on Saved Card Page,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Customer has existing saved card and valid customer_id
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Customer: valid customer_id with existing saved token
+- Apple Pay test card: valid card","1. Open the saved card page for the CS merchant in Safari
+2. Verify saved cards and Apple Pay button are displayed
+3. Select the Apple Pay / new card option
+4. Authenticate via Touch ID / Face ID
+5. Complete the payment
+6. Verify redirect and database entries","1. Saved card page loads with Apple Pay option visible
+2. Apple Pay sheet opens correctly
+3. Payment completes successfully through CS
+4. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs;new_card_via_saved;positive,P1,Can't be automated
+Apple Pay Web,CS - New Card via Saved Card Page,AP-WEB,AP-T643,Apple Pay Web – CS-CH – New Card Option on Saved Card Page,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Customer has existing saved card and valid customer_id
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Customer: valid customer_id with existing saved token","1. Open the saved card page for the CS-CH merchant in Safari
+2. Select the Apple Pay / new card option
+3. Authenticate and complete the payment
+4. Verify redirect and database entries","1. Saved card page loads with Apple Pay option visible
+2. Payment completes successfully through CS-CH
+3. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs_ch;new_card_via_saved;positive,P1,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T630,Apple Pay Web – CS – Non-Safari Browser – Apple Pay Not Available,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- Chrome or Firefox browser (non-Safari)","- Merchant: CS merchant
+- Browser: Chrome or Firefox (non-Safari)","1. Open the new card page for the CS merchant in Chrome
+2. Verify Apple Pay button is NOT displayed
+3. Verify payment can still be completed using other available methods
+4. Repeat in Firefox","1. Apple Pay button is NOT displayed in Chrome or Firefox
+2. Other payment options are available
+3. Standard card payment completes successfully
+4. DB: transaction completed with alternative payment method",applepay_web;cs;non_safari;apple_pay_hidden,P1,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T631,Apple Pay Web – CS – Safari on iOS Mobile – Standard Sale,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Safari browser on iOS mobile device
+- Valid Apple Pay card configured in iOS Wallet","- Merchant: CS merchant
+- Device: iOS mobile (iPhone)
+- Browser: Safari on iOS","1. Open the new card page on Safari on an iOS mobile device
+2. Verify Apple Pay button is displayed
+3. Click Apple Pay and authenticate via Face ID / Touch ID
+4. Complete the payment
+5. Verify redirect and database entries","1. Apple Pay button is visible on iOS Safari
+2. Authentication via Face ID / Touch ID completes successfully
+3. Payment processes through CS
+4. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs;ios_safari;mobile;positive,P1,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T636,Apple Pay Web – CS – Safari on Non-iOS Device – Apple Pay Not Available,"- Merchant MID pointed to CS via Checkout.com
+- Safari browser on a non-iOS machine (Windows or non-Apple device)","- Merchant: CS merchant
+- Browser: Safari on non-iOS/non-macOS device","1. Open the new card page in Safari on a non-iOS / non-macOS device
+2. Verify Apple Pay button is NOT displayed
+3. Verify other payment options remain available","1. Apple Pay button is NOT shown on non-Apple device Safari
+2. Other payment methods remain functional
+3. No Apple Pay payment can be initiated",applepay_web;cs;non_ios;safari;apple_pay_hidden,P1,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T629,Apple Pay Web – CS – Payment within iFrame,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Page configured to load new card page inside an iFrame","1. Open the page that embeds the new card page inside an iFrame
+2. Verify Apple Pay button is visible within the iFrame
+3. Click Apple Pay and complete authentication
+4. Verify payment completes successfully","1. New card page loads correctly within the iFrame
+2. Apple Pay button is visible and functional inside the iFrame
+3. Payment completes successfully through CS
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs;iframe;positive,P2,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T635,Apple Pay Web – CS – Payment via System Password Option,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Device: macOS with Apple Pay but Touch ID unavailable","1. Open the new card page for the CS merchant in Safari on macOS
+2. Click the Apple Pay button
+3. When prompted, use the system password option instead of Touch ID
+4. Complete the payment
+5. Verify redirect and database entries","1. Apple Pay button is visible
+2. System password prompt is shown when Touch ID is unavailable
+3. Payment completes successfully after system password authentication
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs;system_password;positive,P2,Can't be automated
+Apple Pay Web,Multiple Cards,AP-WEB,AP-T647,Apple Pay Web – CS-CH – Exclude Amex/Discover – New Card Page,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US) with Amex/Discover disabled
+- Apple Pay wallet contains Amex card","1. Open the new card page for the CS-CH merchant in Safari
+2. Click the Apple Pay button
+3. Verify Amex and Discover cards are greyed out / not selectable in the Apple Pay sheet
+4. Verify only Visa and Mastercard are selectable
+5. Attempt to select an Amex card and verify it cannot be used","1. Apple Pay sheet opens with card network restrictions applied
+2. Amex and Discover cards are greyed out / disabled
+3. Only Visa and Mastercard are selectable
+4. Payment proceeds only with supported card types",applepay_web;cs_ch;new_card;amex_excluded;card_restriction,P1,Can't be automated
+Apple Pay Web,Multiple Cards,AP-WEB,AP-T648,Apple Pay Web – CS-CH – Exclude Amex/Discover – Saved Card Page,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Customer has saved cards including Amex
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US) with Amex/Discover disabled
+- Customer has saved Amex card in Apple Pay","1. Open the saved card page for the CS-CH merchant in Safari
+2. Click the Apple Pay button
+3. Verify Amex/Discover cards are greyed out in the Apple Pay sheet
+4. Verify only supported card types are selectable","1. Saved card page loads correctly
+2. Apple Pay sheet reflects card network restrictions
+3. Amex/Discover cards not selectable
+4. Payment proceeds only with supported card types",applepay_web;cs_ch;saved_card;amex_excluded;card_restriction,P1,Can't be automated
+Apple Pay Web,Multiple Cards,AP-WEB,AP-T649,Apple Pay Web – CS-CH – Exclude Amex/Discover – New Card via Saved Card Page,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Customer accessing Apple Pay via saved card page
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US) with Amex/Discover disabled
+- Customer accessing Apple Pay via saved card page new card option","1. Open the saved card page for the CS-CH merchant
+2. Select the Apple Pay / new card option
+3. Verify Amex/Discover are greyed out in the Apple Pay sheet
+4. Verify card restrictions apply regardless of entry point","1. Apple Pay sheet opens with correct card network restrictions
+2. Amex/Discover disabled regardless of entry point
+3. Only Visa/Mastercard selectable",applepay_web;cs_ch;new_card_via_saved;amex_excluded;card_restriction,P1,Can't be automated
+Apple Pay Web,Kount & Price Uplift,AP-WEB,AP-T629K,Apple Pay Web – CS – Kount Fraud Score Validation on Sale,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- Kount enabled for the merchant","- Merchant: CS merchant with Kount enabled
+- Apple Pay test card: valid card
+- Kount risk threshold configured","1. Open the new card page for the CS merchant
+2. Process an Apple Pay payment with a valid card
+3. Verify the Kount risk score is generated
+4. Verify payment outcome matches the Kount risk threshold
+5. Validate Kount session data in DB","1. Payment processes successfully
+2. Kount risk score generated and stored
+3. DB: kount_session / risk_score column populated correctly
+4. High-risk score triggers correct decline/review action per merchant config",applepay_web;cs;kount;risk_validation,P1,Can't be automated
+Apple Pay Web,Kount & Price Uplift,AP-WEB,AP-T629U,Apple Pay Web – CS – Price Uplift Applied on Sale,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- Price uplift (split type 7) configured for the merchant","- Merchant: CS merchant with price uplift configured
+- split_fee: [{type_id: 7, value_type: ""amount"", value: <uplift_value>}]","1. Open the new card page for the CS merchant
+2. Verify the order total reflects price uplift in the payment summary
+3. Process an Apple Pay payment
+4. Verify price uplift is correctly applied and distributed
+5. Validate DB entries for split commission","1. Payment processes successfully with price uplift applied
+2. DB: split_payment_flag=1
+3. payments_split_commission: commission_type_id=7, correct uplift value
+4. Main merchant net correctly reduced by uplift value
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries (one per split):
+- order_ref: <order_ref>SC<split_id> (suffixed)
+- merchant_id: split partner merchant_id
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_web;cs;price_uplift;split_type_7,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T618A,Apple Pay Web – CS – Declined Card on New Card Page,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- Declined test card available in Apple Pay wallet
+- failure_url configured","- Merchant: CS merchant
+- Apple Pay card: declined card
+- failure_url configured","1. Open the new card page for the CS merchant in Safari
+2. Click the Apple Pay button
+3. Authenticate with the declined card
+4. Submit the payment
+5. Verify decline response and redirect to failure_url
+6. Verify DB entries","1. Payment is declined
+2. User redirected to failure_url
+3. Failure page displays clear decline message
+4. Apple Pay button available for retry on failure page
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- psp_reference: populated or null depending on failure point
+- reason: decline reason stored
+- delete_status: 0",applepay_web;cs;new_card;declined;negative,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T619A,Apple Pay Web – CS-CH – Declined Card on New Card Page,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- Declined test card available
+- failure_url configured","- Merchant: CS-CH merchant (US)
+- Apple Pay card: declined card
+- failure_url configured","1. Open the new card page for the CS-CH merchant in Safari
+2. Click Apple Pay, authenticate with the declined card
+3. Submit the payment
+4. Verify decline and redirect to failure_url
+5. Verify DB entries","1. Payment is declined
+2. User redirected to failure_url
+3. Failure page shows correct decline message
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- psp_reference: populated or null depending on failure point
+- reason: decline reason stored
+- delete_status: 0",applepay_web;cs_ch;new_card;declined;negative,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T620A,Apple Pay Web – CS – Expired Card on New Card Page,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- Expired card in Apple Pay wallet","- Merchant: CS merchant
+- Apple Pay card: expired card","1. Open the new card page for the CS merchant in Safari
+2. Click Apple Pay and select the expired card
+3. Submit the payment
+4. Verify expired card rejection and DB entries","1. Payment rejected with expired card error
+2. Error message indicates card has expired
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- psp_reference: populated or null depending on failure point
+- reason: card expired
+- delete_status: 0",applepay_web;cs;new_card;expired_card;negative,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T621A,Apple Pay Web – CS-CH – Expired Card on New Card Page,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- Expired card in Apple Pay wallet","- Merchant: CS-CH merchant (US)
+- Apple Pay card: expired card","1. Open the new card page for the CS-CH merchant in Safari
+2. Click Apple Pay and select the expired card
+3. Submit the payment
+4. Verify expired card rejection and DB entries","1. Payment rejected with expired card error
+2. DB: failure status with decline reason = card expired
+3. country_code: US, currency_code: USD",applepay_web;cs_ch;new_card;expired_card;negative,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T633,Apple Pay Web – CS – Duplicate Order ID Prevention,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- First payment already completed with a given order_id","- Merchant: CS merchant
+- order_id: same order_id used for second attempt","1. Complete a successful Apple Pay payment with order_id_A
+2. Capture the payment_id from the first transaction
+3. Attempt a second Apple Pay payment with the same order_id_A and merchant_id
+4. Verify duplicate detection
+5. Verify no new DB entry is created","1. First payment: succeeds with payment_id_1
+2. Second attempt with same order_id:
+   - Response: HTTP 200, outcome=success, payment_id=payment_id_1
+   - Message: ""Transaction already paid""
+3. DB: no duplicate payment entry created",applepay_web;cs;duplicate_order_id;negative,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T646,Apple Pay Web – CS – Country Not Enabled for Checkout.com,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Merchant country NOT enabled for Checkout.com in country table
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)",- Merchant: CS merchant pointing to a country not enabled for Checkout.com,"1. Open the new card page for the merchant
+2. Attempt to process an Apple Pay payment
+3. Verify payment is blocked with appropriate error
+4. Verify DB entries reflect the failure","1. Payment is not processed — error returned for country/provider mismatch
+2. No authorisation attempted at Checkout.com
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_web;cs;country_not_enabled;negative,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T641,Apple Pay Web – CS – Traffic Switch via datman_global_config,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- datman_global_config table accessible
+- Apple Pay traffic switch entry present","1. In datman_global_config, set Apple Pay traffic switch value from 0 to 1
+2. Verify Apple Pay appears/disappears on the payment page according to the config value
+3. Process a payment and verify behaviour matches the config setting","1. Apple Pay visibility on the payment page matches the datman_global_config value
+2. When value=0: Apple Pay button not shown
+3. When value=1: Apple Pay button visible and functional
+4. No payment data affected — only visibility controlled by config",applepay_web;cs;traffic_switch;config_table,P2,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T626,Apple Pay Web – CS – Full Refund,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Successful Apple Pay Web payment completed
+- Refund enabled for the merchant
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Completed Apple Pay Web payment with known order_id and payment_id
+- Refund amount: full transaction amount","1. Complete a successful Apple Pay Web payment via CS
+2. Note the order_id and payment_id
+3. Process a full refund via the refund API
+4. Verify refund API response
+5. Verify DB entries
+6. Verify Checkout.com dashboard reflects the refund","1. Refund API returns success
+2. Full refund amount processed
+3. Checkout.com dashboard shows refund status
+
+DB – refunds table:
+- refund_amount: processed refund amount
+- original_payment_id: linked to original payment
+- refund_status: completed
+
+DB – payments table (original):
+- transaction_status_id: 1 (unchanged)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: unchanged",applepay_web;cs;full_refund;positive,P1,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T625,Apple Pay Web – CS-CH – Full Refund,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Successful Apple Pay Web payment completed
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Completed Apple Pay Web payment
+- Refund amount: full amount","1. Complete a successful Apple Pay Web payment via CS-CH
+2. Process a full refund via the refund API
+3. Verify refund API response and DB entries","1. Refund API returns success
+2. Full refund processed
+
+DB – refunds table:
+- refund_amount: processed refund amount
+- original_payment_id: linked to original payment
+- refund_status: completed
+
+DB – payments table (original):
+- transaction_status_id: 1 (unchanged)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: unchanged",applepay_web;cs_ch;full_refund;positive,P1,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T634,Apple Pay Web – CS – Partial Refund,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Successful Apple Pay Web payment completed
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Completed Apple Pay Web payment
+- Refund amount: partial amount","1. Complete a successful Apple Pay Web payment via CS
+2. Process a partial refund via the refund API
+3. Verify refund API response
+4. Verify DB entries — partial refund amount stored
+5. Verify remaining refundable balance is correct","1. Partial refund API returns success
+2. Remaining refundable balance correct
+
+DB – refunds table:
+- refund_amount: processed refund amount
+- original_payment_id: linked to original payment
+- refund_status: completed
+
+DB – payments table (original):
+- transaction_status_id: 1 (unchanged)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: unchanged",applepay_web;cs;partial_refund;positive,P1,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T627,Apple Pay Web – CS-CH – Partial Refund,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Successful Apple Pay Web payment completed
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Completed Apple Pay Web payment
+- Refund amount: partial amount","1. Complete a successful Apple Pay Web payment via CS-CH
+2. Process a partial refund via the refund API
+3. Verify refund API response and DB entries","1. Partial refund API returns success
+2. Remaining balance = original amount minus refunded amount
+
+DB – refunds table:
+- refund_amount: processed refund amount
+- original_payment_id: linked to original payment
+- refund_status: completed
+
+DB – payments table (original):
+- transaction_status_id: 1 (unchanged)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: unchanged",applepay_web;cs_ch;partial_refund;positive,P1,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T638,Apple Pay Web – CS – Refund Initiated from Checkout.com Dashboard,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Successful Apple Pay Web payment visible in Checkout.com dashboard
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","- Merchant: CS merchant
+- Completed Apple Pay Web payment in Checkout.com dashboard","1. Complete a successful Apple Pay Web payment via CS
+2. Locate the transaction in the Checkout.com dashboard
+3. Initiate a refund from the dashboard UI
+4. Verify refund processed and DB entries updated","1. Refund initiated and processed from Checkout.com dashboard
+2. Checkout.com transaction status updated to refunded
+
+DB – refunds table:
+- refund_amount: processed refund amount
+- original_payment_id: linked to original payment
+- refund_status: completed
+
+DB – payments table (original):
+- transaction_status_id: 1 (unchanged)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: unchanged",applepay_web;cs;refund_from_dashboard;positive,P1,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T642,Apple Pay Web – CS / CS-CH – Refund Email Notification – New Card Page,"- Merchant MID pointed to CS or CS-CH via Checkout.com
+- Refund email notification enabled
+- Successful Apple Pay Web payment on new card page","- Merchant: CS or CS-CH merchant with refund email enabled
+- Customer email on the payment record","1. Complete a successful Apple Pay Web payment on the new card page
+2. Process a refund for the transaction
+3. Verify refund email sent to customer
+4. Verify email content includes correct refund details","1. Refund is processed successfully
+2. Refund email sent to the customer email address
+3. Email contains correct refund amount, order reference and merchant name
+4. No personal data exposure in email beyond what is required",applepay_web;cs;cs_ch;refund_email;new_card,P2,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T643R,Apple Pay Web – CS / CS-CH – Refund Email Notification – Saved Card Page,"- Merchant MID pointed to CS or CS-CH via Checkout.com
+- Refund email notification enabled
+- Successful Apple Pay Web payment on saved card page",- Merchant: CS or CS-CH merchant with refund email enabled,"1. Complete a successful Apple Pay Web payment on the saved card page
+2. Process a refund for the transaction
+3. Verify refund email sent to customer with correct details","1. Refund processed successfully
+2. Refund email sent to correct customer email address
+3. Email contains correct refund details",applepay_web;cs;cs_ch;refund_email;saved_card,P2,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-001,Apple Pay Web – CS – Global Split Type Sale Succeeds,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- Global split type configured (IDs 1–8, 11, 100)","split_fee: [{type_id: <valid_global_type_id>, value_type: ""amount"", value: <split_value>}]
+Note: Global split types (IDs 1-8, 11, 100) can be used across all providers.","1. Process an Apple Pay Web sale via CS with a valid global split type in split_fee payload
+2. Complete the payment
+3. Verify payments_split_commission table entry
+4. Verify split amounts distributed correctly","1. Sale succeeds with global split type applied ✓
+2. payments_split_commission: entry with correct commission_type_id ✓
+3. Main merchant net amount correctly reduced by split value ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries (one per split):
+- order_ref: <order_ref>SC<split_id> (suffixed)
+- merchant_id: split partner merchant_id
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_web;cs;split_commission;global_split;positive,P1,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-002,Apple Pay Web – CS – Invalid Split Type ID Rejected,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)","split_fee: [{type_id: <invalid_type_id>, value_type: ""amount"", value: <split_value>}]","1. Process an Apple Pay Web sale via CS with an invalid/non-existent split type_id
+2. Verify the transaction is rejected
+3. Verify no DB entries created","1. Sale rejected ✓
+2. API error: ""invalid type id"" ✓
+3. No payments_split_commission record created ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_web;cs;split_commission;invalid_type;negative,P0,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-003,Apple Pay Web – CS – Soft-Deleted Split Type Blocks Sale,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- Split type soft-deleted (delete_status=0)","split_fee: [{type_id: <soft_deleted_split_id>, value_type: ""amount"", value: <split_value>}]
+Precondition: Use DELETE API → verify delete_status=0 in split_commission_types.","1. Soft-delete a split type via DELETE API
+2. Verify delete_status=0 in split_commission_types
+3. Attempt an Apple Pay Web sale using the soft-deleted type_id
+4. Verify sale is rejected","1. DELETE API soft-deletes the split type ✓
+2. split_commission_types shows delete_status=0 ✓
+3. Sale rejected ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_web;cs;split_commission;deleted_split;negative,P1,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-004,Apple Pay Web – CS – Updated Split Type via API Used in Sale Succeeds,"- Merchant MID pointed to Cardstream (CS) via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser (Apple Pay only works in Safari)
+- Split type updated via Update API","split_fee: [{type_id: <updated_split_id>, value_type: ""amount"", value: <updated_value>}]
+Precondition: Use Update API → verify updated values in split_commission_types.","1. Update a split type via the Update API
+2. Verify split_commission_types reflects updated values
+3. Process an Apple Pay Web sale with the updated split type
+4. Verify updated values applied correctly","1. Update confirmed in split_commission_types ✓
+2. Sale with updated split type succeeds ✓
+3. payments_split_commission entry uses updated values ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries (one per split):
+- order_ref: <order_ref>SC<split_id> (suffixed)
+- merchant_id: split partner merchant_id
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_web;cs;split_commission;updated_split;positive,P1,Can't be automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-023,Apple Pay TokenPay – CS – Invalid / Blank order_id,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS merchant
+- Payload: valid Apple Pay token with invalid or blank order_id","1. Prepare a TokenPay payload with an invalid or blank order_id
+2. Submit the TokenPay API request
+3. Verify API returns a validation error
+4. Verify no payment record created in DB","1. API returns validation error for invalid/blank order_id
+2. Error message clearly identifies the order_id issue
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;invalid_order_id;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-016,Apple Pay TokenPay – CS and CS-CH – Different Providers Validation,"- Merchant MID pointed to CS and CS-CH via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- CS merchant MID and CS-CH merchant MID both available
+- Valid Apple Pay tokens for each","1. Process a TokenPay sale using the CS merchant MID
+2. Verify sale succeeds and DB reflects CS PSP
+3. Process a TokenPay sale using the CS-CH merchant MID
+4. Verify sale succeeds and DB reflects CS-CH PSP","1. CS sale: transaction_status_id=1, country_code=GB ✓
+2. CS-CH sale: transaction_status_id=1, country_code=US ✓
+3. DB: correct provider mapping for each transaction
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_tokenpay;cs;cs_ch;providers;positive,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-017,Apple Pay TokenPay – CS – Invalid / Expired Token,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS merchant
+- Payload: expired or invalid Apple Pay token","1. Prepare a TokenPay payload with an expired or invalid Apple Pay token
+2. Submit the TokenPay API request
+3. Verify API returns a token validation error","1. API returns error indicating token is invalid or expired
+2. No payment processed
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;invalid_token;expired_token;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-018,Apple Pay TokenPay – CS – Gateway = Google Pay Rejected,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS merchant
+- Payload: valid Apple Pay token but gateway field set to googlepay","1. Prepare TokenPay payload with gateway=googlepay
+2. Submit the TokenPay API request
+3. Verify the request is rejected","1. API returns error: ""request invalid"" — gateway=googlepay not accepted for Apple Pay endpoint
+2. No payment processed
+3. Apple Pay TokenPay endpoint only accepts gateway=applepay
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;invalid_gateway;googlepay;negative,P2,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-019,Apple Pay TokenPay – CS – Invalid / Modified Encrypted Data,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS merchant
+- Tampered Apple Pay encrypted payload","1. Generate a valid encrypted Apple Pay payload
+2. Modify / corrupt the encrypted data
+3. Submit the modified payload via the TokenPay API
+4. Verify the error response","1. API returns error: ""Invalid secret"" or decryption error
+2. Payment not processed
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;invalid_encrypted_data;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-020,Apple Pay TokenPay – CS – Duplicate Order ID Prevention,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- First TokenPay sale already completed with a given order_id","- Merchant: CS merchant
+- order_id: same order_id as already-completed first sale","1. Complete a successful Apple Pay TokenPay sale with order_id_A
+2. Submit a second TokenPay request with the same order_id_A and merchant_id
+3. Verify duplicate detection
+4. Verify no new DB entry created","1. First sale: succeeds with payment_id_1
+2. Second attempt with same order_id:
+   - Response: outcome=success, payment_id=payment_id_1
+   - Message: ""Transaction already paid""
+3. DB: no duplicate payment entry created",applepay_tokenpay;cs;duplicate_order_id;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-021,Apple Pay TokenPay – CS – Standard Sale End-to-End,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS merchant
+- Apple Pay token: valid Non-3DS token
+- All mandatory payload fields present","1. Generate a valid Apple Pay token for CS
+2. Prepare the TokenPay payload with all required fields
+3. Submit the TokenPay API request
+4. Verify successful response
+5. Verify DB entries","1. TokenPay API returns success
+2. Payment completes successfully through CS via Checkout.com
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_tokenpay;cs;standard_sale;positive,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-022,Apple Pay TokenPay – CS – Invalid Secret Key,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS merchant
+- Payload: invalid or expired secret key","1. Prepare the TokenPay payload with an invalid or expired secret key
+2. Attempt to generate the encrypted link
+3. Verify error returned at encryption stage","1. Encrypted link generation fails with appropriate error
+2. Error indicates invalid key length or invalid secret
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;invalid_secret;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-024,Apple Pay TokenPay – CS / CS-CH – Refund Email Notification,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Refund email notification enabled","- Merchant: CS or CS-CH merchant with refund email enabled
+- Completed TokenPay sale","1. Complete a successful Apple Pay TokenPay sale
+2. Process a refund for the transaction
+3. Verify refund email sent to customer
+4. Verify email content includes correct refund details","1. Refund processed successfully
+2. Refund email sent to correct customer address
+3. Email contains correct refund amount, order reference and merchant name",applepay_tokenpay;cs;cs_ch;refund_email;positive,P2,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-025,Apple Pay TokenPay – CS – Country Not Enabled for Checkout.com,"- Merchant MID pointed to CS via Checkout.com
+- Merchant country NOT enabled for Checkout.com in country table
+- Valid Apple Pay token available (FH mobile app)",- Merchant: CS merchant pointing to a country not enabled for Checkout.com,"1. Generate an encrypted link for the merchant with unsupported country
+2. Submit the TokenPay API request
+3. Verify sale rejected
+4. Verify DB failure entry","1. Sale rejected — country not enabled for this provider
+2. No authorisation attempted at Checkout.com
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;country_not_enabled;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS Standard,AP-TP,AP-CH-TP-026,Apple Pay TokenPay – CS – Declined Card with failure_url,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Declined Apple Pay token available
+- failure_url configured","- Merchant: CS merchant
+- Apple Pay token: declined card token
+- failure_url configured","1. Generate an Apple Pay token for a declined card
+2. Prepare the TokenPay payload with the declined token and valid failure_url
+3. Submit the TokenPay API request
+4. Verify sale fails and redirect to failure_url
+5. Verify DB entries","1. Sale fails — declined response from Checkout.com / CS
+2. Redirect to failure_url
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- psp_reference: populated or null depending on failure point
+- reason: decline reason stored
+- delete_status: 0",applepay_tokenpay;cs;declined;failure_url;negative,P1,Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-027,Apple Pay TokenPay – FH – Declined Card Handling,"- Merchant MID pointed to CS via Checkout.com (FH merchant)
+- Apple Pay enabled in the FH mobile app
+- Declined Apple Pay token available","- FH merchant: CS via Checkout.com
+- Apple Pay token: declined card","1. In the FH app, navigate to the checkout page
+2. Select Apple Pay as payment method
+3. Initiate a TokenPay request with a declined Apple Pay token
+4. Verify payment is declined and failure page displayed
+5. Verify DB entries","1. Apple Pay payment sheet displayed in the FH app
+2. Payment declined by Checkout.com / CS
+3. FH app displays payment failed / decline message
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- psp_reference: populated or null depending on failure point
+- reason: decline reason stored
+- delete_status: 0",applepay_tokenpay;fh;declined;negative,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-028,Apple Pay TokenPay – FH – Provider Decline Handling,"- FH merchant pointed to CS via Checkout.com
+- Checkout.com configured to simulate provider decline","- FH merchant: CS via Checkout.com
+- Decline scenario: insufficient funds / card declined by issuer","1. In the FH app, select Apple Pay as payment method
+2. Initiate a TokenPay request that will be declined by CS
+3. Verify provider decline response handled correctly
+4. Verify failure page displayed
+5. Verify DB entries","1. Payment request sent to Checkout.com
+2. Provider returns decline response
+3. Failure page shown in FH app
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- psp_reference: populated or null depending on failure point
+- reason: decline reason stored
+- delete_status: 0",applepay_tokenpay;fh;provider_decline;negative,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-029,Apple Pay TokenPay – FH – Failure Page Message Validation,"- FH merchant pointed to CS via Checkout.com
+- Decline scenario triggered",- Triggered Apple Pay payment decline in FH app,"1. Trigger a payment decline via Apple Pay TokenPay in the FH app
+2. Verify the failure page loads
+3. Verify failure message content
+4. Verify navigation options are present","1. Failure page loads successfully in the FH app
+2. Clear payment failure message displayed (e.g. ""Payment Failed"", ""Transaction Declined"")
+3. Navigation options visible: Back to Cart, Retry Payment",applepay_tokenpay;fh;failure_page;ui_validation,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-030,Apple Pay TokenPay – FH – Back/Retry Navigation from Failure Page,- FH app on failure page after a declined payment,- Failure page displayed after declined Apple Pay payment,"1. Trigger a payment decline and reach the failure page
+2. Tap ""Back to Cart"" — verify cart is intact
+3. Tap ""Retry Payment"" — verify checkout restarts correctly
+4. Complete a successful payment on retry","1. ""Back to Cart"" navigates back to FH cart with items intact ✓
+2. ""Retry Payment"" restarts checkout correctly ✓
+3. Retry allows a successful payment to complete ✓",applepay_tokenpay;fh;failure_page;retry;navigation,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-031,Apple Pay TokenPay – FH – Success Flow Regression Validation,"- FH merchant pointed to CS via Checkout.com
+- Valid Apple Pay token available","- FH merchant: CS via Checkout.com
+- Apple Pay token: valid token","1. In the FH app, select Apple Pay as payment method
+2. Initiate a TokenPay request with a valid Apple Pay token
+3. Complete the payment
+4. Verify success redirect in the app
+5. Verify DB entries","1. Apple Pay authentication completes successfully in the FH app
+2. Payment authorised by Checkout.com / CS
+3. User redirected to success page in FH app ✓
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_tokenpay;fh;success;regression,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-032,Apple Pay TokenPay – FH – No Unexpected Redirect to FH Checkout on Failure,"- FH merchant pointed to CS via Checkout.com
+- Decline scenario triggered",- Triggered Apple Pay payment decline in FH app,"1. Trigger a payment decline via Apple Pay TokenPay in the FH app
+2. Monitor redirect flow after decline
+3. Verify user lands on Datman payment failed page — NOT redirected to FH checkout","1. After decline, user lands on Datman payment failed page ✓
+2. No unexpected redirect to FH checkout ✓
+3. No silent/automatic retry ✓",applepay_tokenpay;fh;decline;redirect_validation,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-034,Apple Pay TokenPay – FH – Invalid Provider Response Handling,"- FH merchant pointed to CS via Checkout.com
+- Malformed provider response",- Test environment configured to return a malformed provider response,"1. Configure test environment to return malformed/invalid decline response
+2. Initiate Apple Pay TokenPay request in the FH app
+3. Verify system handles malformed response gracefully
+4. Verify failure page is shown","1. System handles malformed response without crashing ✓
+2. No HTTP 500 surfaced to user ✓
+3. Generic failure message displayed on failure page ✓
+4. Error logged server-side",applepay_tokenpay;fh;invalid_response;error_handling,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-035,Apple Pay TokenPay – FH – Multiple Rapid Failure Attempts Stability,"- FH app available
+- Declined Apple Pay token available",- FH app with multiple rapid decline scenarios,"1. Trigger payment decline in FH app (1st attempt)
+2. Quickly retry (2nd attempt) — decline again
+3. Retry a 3rd time — verify app stability","1. Each decline handled independently ✓
+2. System does not crash or become unresponsive ✓
+3. Failure page shown correctly after each attempt ✓
+4. DB: separate declined entry for each attempt
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- psp_reference: populated or null depending on failure point
+- reason: decline reason stored
+- delete_status: 0",applepay_tokenpay;fh;multiple_failures;stability,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-036,"Apple Pay TokenPay – FH – Cross-Browser Validation (Chrome, Firefox, Safari)","- FH checkout accessible via web browsers
+- Apple Pay TokenPay enabled","- FH checkout: Chrome, Firefox, Safari (latest versions)","1. Test Apple Pay TokenPay decline flow in Chrome — verify failure page
+2. Repeat in Firefox — verify failure page renders correctly
+3. Repeat in Safari — verify failure page renders correctly","1. Failure page renders correctly in Chrome ✓
+2. Failure page renders correctly in Firefox ✓
+3. Failure page renders correctly in Safari ✓
+4. Navigation options consistent across all browsers",applepay_tokenpay;fh;cross_browser;chrome;firefox;safari,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-037,"Apple Pay TokenPay – FH – Cross-Device Validation (Desktop, Tablet, Mobile)",- FH app / checkout accessible on multiple device types,"- Devices: Desktop (Mac/Windows), Tablet (iPad/Android), Mobile (iOS/Android)","1. Test Apple Pay TokenPay payment flow on Desktop — verify success and failure page
+2. Repeat on Tablet — verify responsive layout and payment flow
+3. Repeat on Mobile — verify responsive layout and payment flow","1. Payment flow works correctly on Desktop ✓
+2. Failure page responsive and functional on Tablet ✓
+3. Failure page responsive and functional on Mobile ✓
+4. Apple Pay sheet renders correctly on all devices",applepay_tokenpay;fh;cross_device;desktop;tablet;mobile,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-038,Apple Pay TokenPay – FH – Payment ID and Order Mapping Validation,"- FH merchant pointed to CS via Checkout.com
+- Apple Pay TokenPay payment completed",- Completed or declined Apple Pay TokenPay payment,"1. Trigger an Apple Pay TokenPay payment (success or decline)
+2. Capture payment_id / transaction reference from response
+3. Query DB using the payment_id
+4. Verify DB record has correct order_id, merchant_id and payment status","1. Unique payment_id generated for each transaction ✓
+2. DB record exists with correct payment_id, order_id and merchant_id mapping ✓
+3. Order status reflects correct payment outcome ✓",applepay_tokenpay;fh;payment_mapping;data_validation,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-039,Apple Pay TokenPay – FH – Logging Validation for Decline Flow,"- FH merchant pointed to CS via Checkout.com
+- Logging enabled",- Declined Apple Pay TokenPay transaction,"1. Trigger an Apple Pay TokenPay payment decline in the FH app
+2. Check application/server logs for the decline event
+3. Verify log entry contains: timestamp, transaction_id, decline reason, provider response","1. Decline event logged in application logs ✓
+2. Log contains: timestamp, transaction_id, decline reason ✓
+3. Provider response logged for debugging ✓
+4. No sensitive card data logged",applepay_tokenpay;fh;logging;decline;monitoring,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-040,Apple Pay TokenPay – FH – Retry Payment After Failure,- FH app displaying failure page after declined payment,- Failure page showing after first declined attempt,"1. Trigger a payment decline — land on failure page
+2. Tap ""Retry Payment"" or navigate back to checkout
+3. Select Apple Pay again
+4. Complete a successful payment on retry","1. User navigates from failure page successfully ✓
+2. Checkout flow restarts without issues ✓
+3. Apple Pay sheet displays correctly on retry ✓
+4. Successful payment completes on retry ✓",applepay_tokenpay;fh;retry;failure_recovery,P1,Not Automated
+Apple Pay TokenPay,Decline Handling - FH,AP-TP-FH,AP-CH-TP-041,Apple Pay TokenPay – FH – Checkout Retry Stability (Multiple Failures),- FH app available with multiple retry attempts,- Multiple consecutive decline scenarios,"1. Trigger decline (1st attempt) — reach failure page
+2. Retry immediately (2nd attempt) — decline again
+3. Retry a 3rd time — complete successfully
+4. Verify app remains stable throughout","1. Checkout flow remains stable after multiple failures ✓
+2. Session does not break or timeout prematurely ✓
+3. Cart items remain intact after each retry ✓
+4. Successful payment on 3rd attempt completes correctly ✓",applepay_tokenpay;fh;retry_stability;multiple_failures,P1,Not Automated
+Apple Pay TokenPay,Split Commission - TokenPay,AP-TP-SPLIT,PS-CH-APTP-001,Apple Pay TokenPay – CS – Global Split Type Sale Succeeds,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Global split type configured","split_fee: [{type_id: <valid_global_type_id>, value_type: ""amount"", value: <split_value>}]
+Note: Global split types (IDs 1-8, 11, 100) can be used across all providers.","1. Process an Apple Pay TokenPay sale via CS with a valid global split type in split_fee payload
+2. Complete the payment
+3. Verify payments_split_commission table entry","1. Sale succeeds with global split type applied ✓
+2. payments_split_commission: entry with correct commission_type_id ✓
+3. Main merchant net correctly reduced by split value ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries:
+- order_ref: <order_ref>SC<split_id>
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_tokenpay;cs;split_commission;global_split;positive,P1,Automated
+Apple Pay TokenPay,Split Commission - TokenPay,AP-TP-SPLIT,PS-CH-APTP-002,Apple Pay TokenPay – CS – Invalid Split Type ID Rejected,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","split_fee: [{type_id: <invalid_type_id>, value_type: ""amount"", value: <split_value>}]","1. Process an Apple Pay TokenPay sale via CS with an invalid split type_id
+2. Verify the transaction is rejected
+3. Verify no DB entries created","1. Sale rejected ✓
+2. API error: ""invalid type id"" ✓
+3. No payments_split_commission record created ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;split_commission;invalid_type;negative,P0,Automated
+Apple Pay TokenPay,Split Commission - TokenPay,AP-TP-SPLIT,PS-CH-APTP-003,Apple Pay TokenPay – CS – Soft-Deleted Split Type Blocks Sale,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Split type soft-deleted (delete_status=0)","split_fee: [{type_id: <soft_deleted_split_id>, value_type: ""amount"", value: <split_value>}]
+Precondition: Use DELETE API → verify delete_status=0 in split_commission_types.","1. Soft-delete a split type via DELETE API
+2. Verify delete_status=0 in split_commission_types
+3. Attempt an Apple Pay TokenPay sale with the soft-deleted type_id
+4. Verify sale is rejected","1. Soft-delete confirmed ✓
+2. Sale rejected ✓
+3. No payments_split_commission record created ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs;split_commission;deleted_split;negative,P0,Automated
+Apple Pay TokenPay,Split Commission - TokenPay,AP-TP-SPLIT,PS-CH-APTP-004,Apple Pay TokenPay – CS – Updated Split Type via API Used in Sale Succeeds,"- Merchant MID pointed to CS via Checkout.com
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Split type updated via Update API","split_fee: [{type_id: <updated_split_id>, value_type: ""amount"", value: <updated_value>}]
+Precondition: Use Update API → verify updated values in split_commission_types.","1. Update a split type via the Update API
+2. Verify split_commission_types reflects updated values
+3. Process an Apple Pay TokenPay sale with the updated split type
+4. Verify updated values applied correctly","1. Update confirmed in split_commission_types ✓
+2. Sale with updated split type succeeds ✓
+3. payments_split_commission entry uses updated values ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'GB', currency_code: 'GBP'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries:
+- order_ref: <order_ref>SC<split_id>
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_tokenpay;cs;split_commission;updated_split;positive,P1,Automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T630C,Apple Pay Web – CS-CH – Non-Safari Browser – Apple Pay Not Available,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- Chrome or Firefox browser (non-Safari)","- Merchant: CS-CH merchant (US)
+- Browser: Chrome or Firefox (non-Safari)","1. Open the new card page for the CS-CH merchant in Chrome
+2. Verify Apple Pay button is NOT displayed
+3. Verify payment can still be completed using other available methods
+4. Repeat in Firefox","1. Apple Pay button is NOT displayed in Chrome or Firefox
+2. Other payment options remain available
+3. Standard card payment completes successfully
+
+DB – payments table:
+- transaction_status_id: 1
+- country_code: 'US', currency_code: 'USD'
+- transaction_method_id reflects non-Apple Pay method used",applepay_web;cs_ch;non_safari;apple_pay_hidden,P1,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T631C,Apple Pay Web – CS-CH – Safari on iOS Mobile – Standard Sale,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Safari browser on iOS mobile device
+- Valid Apple Pay card configured in iOS Wallet","- Merchant: CS-CH merchant (US)
+- Device: iOS mobile (iPhone)
+- Browser: Safari on iOS","1. Open the new card page on Safari on an iOS mobile device
+2. Verify Apple Pay button is displayed
+3. Click Apple Pay and authenticate via Face ID / Touch ID
+4. Complete the payment
+5. Verify redirect and database entries","1. Apple Pay button visible on iOS Safari
+2. Authentication via Face ID / Touch ID completes successfully
+3. Payment processes through CS-CH
+4. User redirected to redirect_url
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs_ch;ios_safari;mobile;positive,P1,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T636C,Apple Pay Web – CS-CH – Safari on Non-iOS Device – Apple Pay Not Available,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Safari browser on a non-iOS / non-macOS device","- Merchant: CS-CH merchant (US)
+- Browser: Safari on non-iOS/non-macOS device","1. Open the new card page for the CS-CH merchant in Safari on a non-iOS device
+2. Verify Apple Pay button is NOT displayed
+3. Verify other payment options remain available","1. Apple Pay button NOT shown on non-Apple device Safari
+2. Other payment methods remain functional
+3. No Apple Pay payment can be initiated",applepay_web;cs_ch;non_ios;safari;apple_pay_hidden,P1,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T629C,Apple Pay Web – CS-CH – Payment within iFrame,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Page configured to load new card page inside an iFrame","1. Open the page that embeds the CS-CH new card page inside an iFrame
+2. Verify Apple Pay button is visible within the iFrame
+3. Click Apple Pay and complete authentication
+4. Verify payment completes successfully","1. New card page loads correctly within the iFrame
+2. Apple Pay button visible and functional inside the iFrame
+3. Payment completes successfully through CS-CH
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs_ch;iframe;positive,P2,Can't be automated
+Apple Pay Web,Cross Browser & Cross Device,AP-WEB,AP-T635C,Apple Pay Web – CS-CH – Payment via System Password Option,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Device: macOS with Apple Pay but Touch ID unavailable","1. Open the new card page for the CS-CH merchant in Safari on macOS
+2. Click the Apple Pay button
+3. When prompted, use the system password instead of Touch ID
+4. Complete the payment
+5. Verify redirect and database entries","1. Apple Pay button is visible
+2. System password prompt shown when Touch ID unavailable
+3. Payment completes successfully after system password authentication
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs_ch;system_password;positive,P2,Can't be automated
+Apple Pay Web,Kount & Price Uplift,AP-WEB,AP-T629KC,Apple Pay Web – CS-CH – Kount Fraud Score Validation on Sale,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- Kount enabled for the merchant","- Merchant: CS-CH merchant (US) with Kount enabled
+- Apple Pay test card: valid card
+- Kount risk threshold configured","1. Open the new card page for the CS-CH merchant
+2. Process an Apple Pay payment with a valid card
+3. Verify the Kount risk score is generated
+4. Verify payment outcome matches the Kount risk threshold
+5. Validate Kount session data in DB","1. Payment processes successfully
+2. Kount risk score generated and stored
+3. DB: kount_session / risk_score column populated correctly
+4. High-risk score triggers correct decline/review action per merchant config
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 2 (Apple Pay Web)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_web;cs_ch;kount;risk_validation,P1,Can't be automated
+Apple Pay Web,Kount & Price Uplift,AP-WEB,AP-T629UC,Apple Pay Web – CS-CH – Price Uplift Applied on Sale,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- Price uplift (split type 7) configured for the merchant","- Merchant: CS-CH merchant (US) with price uplift configured
+- split_fee: [{type_id: 7, value_type: ""amount"", value: <uplift_value>}]","1. Open the new card page for the CS-CH merchant
+2. Verify order total reflects price uplift in the payment summary
+3. Process an Apple Pay payment
+4. Verify price uplift correctly applied and distributed
+5. Validate DB entries for split commission","1. Payment processes successfully with price uplift applied
+2. DB: split_payment_flag=1
+3. payments_split_commission: commission_type_id=7, correct uplift value
+4. Main merchant net correctly reduced by uplift value
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries (one per split):
+- order_ref: <order_ref>SC<split_id> (suffixed)
+- merchant_id: split partner merchant_id
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_web;cs_ch;price_uplift;split_type_7,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T633C,Apple Pay Web – CS-CH – Duplicate Order ID Prevention,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- First payment already completed with a given order_id","- Merchant: CS-CH merchant (US)
+- order_id: same order_id used for second attempt","1. Complete a successful Apple Pay payment with order_id_A via CS-CH
+2. Capture the payment_id from the first transaction
+3. Attempt a second Apple Pay payment with the same order_id_A and merchant_id
+4. Verify duplicate detection
+5. Verify no new DB entry is created","1. First payment: succeeds with payment_id_1
+2. Second attempt with same order_id:
+   - Response: HTTP 200, outcome=success, payment_id=payment_id_1
+   - Message: ""Transaction already paid""
+3. DB: no duplicate payment entry created",applepay_web;cs_ch;duplicate_order_id;negative,P1,Can't be automated
+Apple Pay Web,Decline - Web,AP-WEB,AP-T646C,Apple Pay Web – CS-CH – Country Not Enabled for Checkout.com,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country NOT enabled for Checkout.com in country table",- Merchant: CS-CH merchant pointing to a country not enabled for Checkout.com,"1. Open the new card page for the CS-CH merchant
+2. Attempt to process an Apple Pay payment
+3. Verify payment is blocked with appropriate error
+4. Verify DB entries reflect the failure","1. Payment not processed — error returned for country/provider mismatch
+2. No authorisation attempted at Checkout.com
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_web;cs_ch;country_not_enabled;negative,P1,Can't be automated
+Apple Pay Web,Refunds - Web,AP-WEB,AP-T638C,Apple Pay Web – CS-CH – Refund Initiated from Checkout.com Dashboard,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Successful Apple Pay Web payment visible in Checkout.com dashboard
+- iOS Safari or macOS Safari browser","- Merchant: CS-CH merchant (US)
+- Completed Apple Pay Web payment in Checkout.com dashboard","1. Complete a successful Apple Pay Web payment via CS-CH
+2. Locate the transaction in the Checkout.com dashboard
+3. Initiate a refund from the dashboard UI
+4. Verify refund processed and DB entries updated","1. Refund initiated and processed from Checkout.com dashboard
+2. Checkout.com transaction status updated to refunded
+
+DB – refunds table:
+- refund_amount: processed refund amount
+- original_payment_id: linked to original payment
+- refund_status: completed
+
+DB – payments table (original):
+- transaction_status_id: 1 (unchanged)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: unchanged",applepay_web;cs_ch;refund_from_dashboard;positive,P1,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-001C,Apple Pay Web – CS-CH – Global Split Type Sale Succeeds,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- Global split type configured (IDs 1–8, 11, 100)","split_fee: [{type_id: <valid_global_type_id>, value_type: ""amount"", value: <split_value>}]
+Note: Global split types (IDs 1-8, 11, 100) can be used across all providers.","1. Process an Apple Pay Web sale via CS-CH with a valid global split type in split_fee payload
+2. Complete the payment
+3. Verify payments_split_commission table entry
+4. Verify split amounts distributed correctly","1. Sale succeeds with global split type applied ✓
+2. payments_split_commission: entry with correct commission_type_id ✓
+3. Main merchant net correctly reduced by split value ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries (one per split):
+- order_ref: <order_ref>SC<split_id> (suffixed)
+- merchant_id: split partner merchant_id
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_web;cs_ch;split_commission;global_split;positive,P1,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-002C,Apple Pay Web – CS-CH – Invalid Split Type ID Rejected,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser","split_fee: [{type_id: <invalid_type_id>, value_type: ""amount"", value: <split_value>}]","1. Process an Apple Pay Web sale via CS-CH with an invalid/non-existent split type_id
+2. Verify the transaction is rejected
+3. Verify no DB entries created","1. Sale rejected ✓
+2. API error: ""invalid type id"" ✓
+3. No payments_split_commission record created ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_web;cs_ch;split_commission;invalid_type;negative,P0,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-003C,Apple Pay Web – CS-CH – Soft-Deleted Split Type Blocks Sale,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- Split type soft-deleted (delete_status=0)","split_fee: [{type_id: <soft_deleted_split_id>, value_type: ""amount"", value: <split_value>}]
+Precondition: Use DELETE API → verify delete_status=0 in split_commission_types.","1. Soft-delete a split type via DELETE API
+2. Verify delete_status=0 in split_commission_types
+3. Attempt an Apple Pay Web sale via CS-CH using the soft-deleted type_id
+4. Verify sale is rejected","1. Soft-delete confirmed ✓
+2. Sale rejected ✓
+3. No payments_split_commission record created ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_web;cs_ch;split_commission;deleted_split;negative,P1,Can't be automated
+Apple Pay Web,Split Commission - Web,AP-WEB,PS-CH-APW-004C,Apple Pay Web – CS-CH – Updated Split Type via API Used in Sale Succeeds,"- Merchant MID pointed to Cardstream-CH (CS-CH) via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay test card available
+- iOS Safari or macOS Safari browser
+- Split type updated via Update API","split_fee: [{type_id: <updated_split_id>, value_type: ""amount"", value: <updated_value>}]
+Precondition: Use Update API → verify updated values in split_commission_types.","1. Update a split type via the Update API
+2. Verify split_commission_types reflects updated values
+3. Process an Apple Pay Web sale via CS-CH with the updated split type
+4. Verify updated values applied correctly","1. Update confirmed in split_commission_types ✓
+2. Sale with updated split type succeeds ✓
+3. payments_split_commission entry uses updated values ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries (one per split):
+- order_ref: <order_ref>SC<split_id> (suffixed)
+- merchant_id: split partner merchant_id
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_web;cs_ch;split_commission;updated_split;positive,P1,Can't be automated
+Apple Pay TokenPay,TokenPay - CS-CH,AP-TP-CSCH,AP-CH-TP-021C,Apple Pay TokenPay – CS-CH – Standard Sale End-to-End,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS-CH merchant (US)
+- Apple Pay token: valid Non-3DS token
+- All mandatory payload fields present","1. Generate a valid Apple Pay token for CS-CH
+2. Prepare the TokenPay payload with all required fields
+3. Submit the TokenPay API request
+4. Verify successful response
+5. Verify DB entries","1. TokenPay API returns success
+2. Payment completes successfully through CS-CH via Checkout.com
+
+DB – payments table (Success):
+- transaction_status_id: 1
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated with Checkout.com PSP reference
+- internal_reference: O<order_ref>M<merchant_id>T<payment_id>
+- gross, fee, net: correctly calculated
+- delete_status: 0, withdrawn_status: 0",applepay_tokenpay;cs_ch;standard_sale;positive,P1,Automated
+Apple Pay TokenPay,TokenPay - CS-CH,AP-TP-CSCH,AP-CH-TP-023C,Apple Pay TokenPay – CS-CH – Invalid / Blank order_id,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS-CH merchant (US)
+- Payload: valid Apple Pay token with invalid or blank order_id","1. Prepare a TokenPay payload with an invalid or blank order_id
+2. Submit the TokenPay API request
+3. Verify API returns a validation error
+4. Verify no payment record created in DB","1. API returns validation error for invalid/blank order_id
+2. Error message clearly identifies the order_id issue
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs_ch;invalid_order_id;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS-CH,AP-TP-CSCH,AP-CH-TP-017C,Apple Pay TokenPay – CS-CH – Invalid / Expired Token,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS-CH merchant (US)
+- Payload: expired or invalid Apple Pay token","1. Prepare a TokenPay payload with an expired or invalid Apple Pay token
+2. Submit the TokenPay API request
+3. Verify API returns a token validation error","1. API returns error indicating token is invalid or expired
+2. No payment processed
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs_ch;invalid_token;expired_token;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS-CH,AP-TP-CSCH,AP-CH-TP-020C,Apple Pay TokenPay – CS-CH – Duplicate Order ID Prevention,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- First TokenPay sale already completed with a given order_id","- Merchant: CS-CH merchant (US)
+- order_id: same as already-completed first sale","1. Complete a successful Apple Pay TokenPay sale with order_id_A via CS-CH
+2. Submit a second TokenPay request with the same order_id_A and merchant_id
+3. Verify duplicate detection
+4. Verify no new DB entry created","1. First sale: succeeds with payment_id_1
+2. Second attempt:
+   - Response: outcome=success, payment_id=payment_id_1
+   - Message: ""Transaction already paid""
+3. DB: no duplicate payment entry created",applepay_tokenpay;cs_ch;duplicate_order_id;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS-CH,AP-TP-CSCH,AP-CH-TP-025C,Apple Pay TokenPay – CS-CH – Country Not Enabled for Checkout.com,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Merchant country NOT enabled for Checkout.com in country table
+- Valid Apple Pay token available (FH mobile app)",- Merchant: CS-CH merchant pointing to a country not enabled for Checkout.com,"1. Generate an encrypted link for the CS-CH merchant with unsupported country
+2. Submit the TokenPay API request
+3. Verify sale rejected
+4. Verify DB failure entry","1. Sale rejected — country not enabled for this provider
+2. No authorisation attempted at Checkout.com
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs_ch;country_not_enabled;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS-CH,AP-TP-CSCH,AP-CH-TP-026C,Apple Pay TokenPay – CS-CH – Declined Card with failure_url,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Declined Apple Pay token available
+- failure_url configured","- Merchant: CS-CH merchant (US)
+- Apple Pay token: declined card token
+- failure_url configured","1. Generate an Apple Pay token for a declined card using CS-CH merchant
+2. Prepare the TokenPay payload with the declined token and valid failure_url
+3. Submit the TokenPay API request
+4. Verify sale fails and redirect to failure_url
+5. Verify DB entries","1. Sale fails — declined response from Checkout.com / CS-CH
+2. Redirect to failure_url
+
+DB – payments table (Failed/Declined):
+- transaction_status_id: 7 or 9
+- payment_provider_id: 4 (Checkout.com)
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- psp_reference: populated or null depending on failure point
+- reason: decline reason stored
+- delete_status: 0",applepay_tokenpay;cs_ch;declined;failure_url;negative,P1,Automated
+Apple Pay TokenPay,TokenPay - CS-CH,AP-TP-CSCH,AP-CH-TP-022C,Apple Pay TokenPay – CS-CH – Invalid Secret Key,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","- Merchant: CS-CH merchant (US)
+- Payload: invalid or expired secret key","1. Prepare the TokenPay payload with an invalid or expired secret key
+2. Attempt to generate the encrypted link
+3. Verify error returned at encryption stage","1. Encrypted link generation fails with appropriate error
+2. Error indicates invalid key length or invalid secret
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs_ch;invalid_secret;negative,P1,Automated
+Apple Pay TokenPay,Split Commission - TokenPay - CS-CH,AP-TP-CSCH-SPLIT,PS-CH-APTP-001C,Apple Pay TokenPay – CS-CH – Global Split Type Sale Succeeds,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Global split type configured","split_fee: [{type_id: <valid_global_type_id>, value_type: ""amount"", value: <split_value>}]
+Note: Global split types (IDs 1-8, 11, 100) can be used across all providers.","1. Process an Apple Pay TokenPay sale via CS-CH with a valid global split type in split_fee payload
+2. Complete the payment
+3. Verify payments_split_commission table entry","1. Sale succeeds with global split type applied ✓
+2. payments_split_commission: entry with correct commission_type_id ✓
+3. Main merchant net correctly reduced by split value ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries:
+- order_ref: <order_ref>SC<split_id>
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_tokenpay;cs_ch;split_commission;global_split;positive,P1,Automated
+Apple Pay TokenPay,Split Commission - TokenPay - CS-CH,AP-TP-CSCH-SPLIT,PS-CH-APTP-002C,Apple Pay TokenPay – CS-CH – Invalid Split Type ID Rejected,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)","split_fee: [{type_id: <invalid_type_id>, value_type: ""amount"", value: <split_value>}]","1. Process an Apple Pay TokenPay sale via CS-CH with an invalid split type_id
+2. Verify the transaction is rejected
+3. Verify no DB entries created","1. Sale rejected ✓
+2. API error: ""invalid type id"" ✓
+3. No payments_split_commission record created ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs_ch;split_commission;invalid_type;negative,P0,Automated
+Apple Pay TokenPay,Split Commission - TokenPay - CS-CH,AP-TP-CSCH-SPLIT,PS-CH-APTP-003C,Apple Pay TokenPay – CS-CH – Soft-Deleted Split Type Blocks Sale,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Split type soft-deleted (delete_status=0)","split_fee: [{type_id: <soft_deleted_split_id>, value_type: ""amount"", value: <split_value>}]
+Precondition: Use DELETE API → verify delete_status=0 in split_commission_types.","1. Soft-delete a split type via DELETE API
+2. Verify delete_status=0 in split_commission_types
+3. Attempt an Apple Pay TokenPay sale via CS-CH with the soft-deleted type_id
+4. Verify sale is rejected","1. Soft-delete confirmed ✓
+2. Sale rejected ✓
+3. No payments_split_commission record created ✓
+
+DB – payments table:
+- No payment record created
+- Validation error returned before any DB write",applepay_tokenpay;cs_ch;split_commission;deleted_split;negative,P0,Automated
+Apple Pay TokenPay,Split Commission - TokenPay - CS-CH,AP-TP-CSCH-SPLIT,PS-CH-APTP-004C,Apple Pay TokenPay – CS-CH – Updated Split Type via API Used in Sale Succeeds,"- Merchant MID pointed to CS-CH via Checkout.com
+- Merchant country: US (CS-CH is US only)
+- Apple Pay enabled for the merchant
+- Valid Apple Pay token available (FH mobile app)
+- Split type updated via Update API","split_fee: [{type_id: <updated_split_id>, value_type: ""amount"", value: <updated_value>}]
+Precondition: Use Update API → verify updated values in split_commission_types.","1. Update a split type via the Update API
+2. Verify split_commission_types reflects updated values
+3. Process an Apple Pay TokenPay sale via CS-CH with the updated split type
+4. Verify updated values applied correctly","1. Update confirmed in split_commission_types ✓
+2. Sale with updated split type succeeds ✓
+3. payments_split_commission entry uses updated values ✓
+
+DB – payments table (with splits):
+Main merchant entry:
+- transaction_status_id: 1, payment_provider_id: 4
+- transaction_mode_id: 1 (TokenPay)
+- transaction_method_id: 9 (Apple Pay)
+- country_code: 'US', currency_code: 'USD'
+- gross: full amount, fee: merchant fee, net: gross - fee - splits
+Split entries:
+- order_ref: <order_ref>SC<split_id>
+- gross = net = split value, fee: 0
+- psp_reference: same as main transaction
+- internal_reference: same as main transaction",applepay_tokenpay;cs_ch;split_commission;updated_split;positive,P1,Automated

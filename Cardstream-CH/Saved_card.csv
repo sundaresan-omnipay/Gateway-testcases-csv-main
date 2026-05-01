@@ -1,0 +1,3204 @@
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T243,Cardstream-CH :  Payment failure: error code,"- Ensure the MID is pointed to Cardstream-CH
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>","1. Use the following PHP script
+<<test_script_repo_url>> 
+and try to process the sale for US merchant (Cardstream-ch)
+1. Use the same URL and try to process the payment.
+1. Use the same order_id and change the amount and try to process the 
+payment.
+1. Use the valid card and enter invalid CVV and try to process the payment.
+Try to process the sale by passing the invalid Merchant 
+1. Open the payment link and modify the URl and process the payment
+
+2. Verify able to see the payment getting processed","1. The sale should be processed.
+1. The Page should throw an error message stating that invalid request.
+1. The Page should redirect to blank page.
+1. The page should throw proper error message stating that Payment failed : 
+50685-M63155116A4387L0821.
+The sale should not be processed and should throw proper error message.
+The payment should fail with the error message",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T265,Cardstream-CH : Saved card sale (USA),"- Ensure the MID is pointed to Cardstream-CH
+- A valid master_token exists for the shopper in the master_token table
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+
+Additional test data / cURL:
+update customers set threeds_version='2' where id='<id of new merchant 
+created>';
+
+update cardstream_settings set value = 232640 where name = 'merchant_id';"," PHP end point
+1. Use the following script - Datman script
+<<test_script_repo_url>> 
+and use the valid values and make sure to use the merchant id as the one 
+which was enabled for 3DSV2 using the query in test data and the customer 
+is newly created and haven't done any transactions before
+
+2. Make sure to enter the webhookUrl as 
+<webhook_listener_url>
+
+3. Make sure to use the datmanHost value as 
+<legacy_checkout_url>
+Click on pluto link and check whether saved card sale is going through or 
+not
+After page got loaded we should be able to enter cvv of a specific card in 
+landed page.
+Check after sale is successfully done whether its redirecting to 
+redirect_url which was passed in payload.
+
+
+
+
+Verify the entries in DB and MMS dashboard
+a) DB
+* Payments & Payments split commission
+* Webhook-log
+* Shoppers
+
+
+Validate the back button for all the scenarios and see if it is navigating 
+to the back_URL given in the payload
+Verify on other browser, if gpay link and apple pay link is displaying
+Verify on mobile browser, if gpay link and apple pay link is displaying","The value of threeds_version should be updated in the table
+Click on link then saved sale page has to be loaded.
+Cvv page should be displayed
+After sale is successful it should redirect to redirect_url which was 
+passed in payload.
+a) The entries should be updated in DB & Dashboard as per the sale value.
+* Transaction-status-id should be updated as 1, transaction-method-id 2, 
+transcation-mode-02, &
+Master token id should be updated as per the token used.
+* commission type, amount, payment_status, fee_type & master-token-id 
+should be updated successfully.
+* The webhook log should be updated in the DB
+* No duplicate entry should be added in the table
+
+
+User should see when clicking on back button the URL is navigating in the 
+end to back_URL given in the payload
+On other browser, gpay link and apple pay link should be displayed
+On mobile browser, gpay link and apple pay link be displayed
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- Verify shoppers entry
+SELECT * FROM shoppers WHERE shopper_id='<shopper_id>';
+
+-- Verify webhook_log
+SELECT * FROM webhook_log WHERE order_ref='<order_ref>';
+
+-- Verify no duplicate in payments
+SELECT COUNT(*) FROM payments WHERE order_ref='<order_ref>';
+-- Expected: COUNT = 1 (no duplicates)","Automated, sanity",P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T268,Cardstream-CH : Process payment with a non-US merchant,"- Ensure the MID is pointed to Cardstream-CH
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+
+Additional test data / cURL:
+php script : php test script
+<<test_script_repo_url>>
+
+BaseUrl: <legacy_checkout_url> (can change based on build )
+
+Stage DB Details
+<https://datman.atlassian.net/wiki/spaces/ND/pages/837353652/Gateway+Stage+DB+setup>","                   New Card: Non-US merchant 
+1. Add Non-UK merchantID to the payload
+
+2. Use php script and load the url in the browser (use MAMP to run php 
+server)
+
+3. User added the card details and proceed with the payment
+Navigate to Stage DB & validate the Payments table & Dashboard
+                   Saved Card: Non-US merchant 
+1. Add Non-UK merchantID with valid master-token & Customer-id to the 
+payload
+
+2. Use php script and load the url in the browser (use MAMP to run php 
+server)
+
+3. User added the card details and proceed with the payment
+Navigate to Stage DB & validate the Payments table & Dashboard
+Express-pay - Non-US
+
+1. Try to process the sale by passing the valid master-token and verify the 
+sale in DB.
+Try to process the sale by passing the values
+
+b) Country-id as 1 with CS Cardstream-ID
+d) Country-id as 1 with CS-CH-USA Cardstream-ID
+e) Country-id as 11 with CS-CH-USA Cardstream-ID","1. Cardstream-Checkout Hosted form page should be displayed
+2. upon submitting the card details and clicking on pay button the payment 
+should be displayed as successful.
+user should be able to see the transaction happened in the payments table & 
+Entry should be displayed in Dashboard
+The page should be redirected to saved card hosted form.
+user should be able to see the transaction happened in the payments table & 
+Entry should be displayed in Dashboard
+The sale should be success and the entry should be displayed in DB.
+a) Should be passed
+b) Should be passed
+c) Should be failed
+d) Should be failed
+e) Should be failed
+
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T1345,CARDSTREAM-CH : Saved Card Sale - Validation of OMT reference in metadata ,"- Ensure the MID is pointed to Cardstream-CH
+- A valid master_token exists for the shopper in the master_token table
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>","Using the payload for Saved Card try
+
+1. Open the link Pluto
+<<legacy_checkout_url>> 
+and process the payment by entering the valid card details
+1. Verify the values in the payments table
+1. Login to the test MMS portal, navigate to the transactions of the 
+merchant 232639 and verify the transaction made through 3DSV2 is available
+
+2. Verify the value of the 3D Secure Check in the transaction details
+Verify the OMT reference in metadata in AWS logs ","The payment should be processed without any issue
+The entry should be updated successfully.
+a) Transaction-status-id as 1
+b) Payment-provider-id as 3
+c) Transaction-mode-id as1
+d) Transaction-method-id as 2
+
+
+The value of the 3D secure check should be Authenticated (2.1.0)
+OMT Reference should be shown  in metadata in AWS logs
+
+── DB VALIDATION ──
+SELECT id, order_ref, payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id, master_token_id,
+       shopper_id, gross, last_4_digits
+FROM payments WHERE order_ref='<order_ref>';
+-- Expected:
+--   transaction_status_id = 1
+--   payment_provider_id   = 3  (Cardstream)
+--   transaction_mode_id   = 1
+--   transaction_method_id = 2  (Saved Card)",Can't-be-automated,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-001,Cardstream-CH Saved Card - Split Commission - Global Split Type Sale Succeeds,"- Ensure the MID is pointed to Cardstream-CH
+- A valid master_token exists for the shopper in the master_token table
+- Split commission configuration is active for the merchant
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+
+Additional test data / cURL:
+split_fee: [{type_id: ex 3, value_type: 'amount', value: 2.50}]
+Note: Global split types (IDs 1-8 and 11) can be used across all providers. New global splits can also be created via FH API token.","1. Process a Saved Card sale with a global split type (ex: type_id=3 'Delivery Fee Restaurant') in the split_fee payload.
+2. Complete the payment successfully.
+3. Verify the sale is successful with transaction_status_id=1.
+4. Query payments_split_commission table for the split entry.
+5. Verify the commission amount matches the split_fee payload.","1. Sale succeeds with global split type ✓
+2. payments_split_commission table contains entry with commission_type_id matching the split used ✓
+3. commission_amount = 2.50 as per payload ✓
+4. split_payment_flag=1 in payments table ✓
+5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify split commission record
+SELECT psc.id, psc.payment_id, psc.commission_type_id,
+       psc.commission_amount, psc.value_type
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref = '<order_ref>';
+
+-- Expected: commission_amount = 2.50
+--            commission_type_id = <type_id from payload>
+
+-- 3. Verify split flag on payments
+SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: split_payment_flag = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-002,Cardstream-CH Saved Card - Split Commission - Invalid Split Type ID Rejected,"- Ensure the MID is pointed to Cardstream-CH
+- A valid master_token exists for the shopper in the master_token table
+- Split commission configuration is active for the merchant
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+
+Additional test data / cURL:
+split_fee: [{type_id: 9999, value_type: 'amount', value: 2.50}]
+Note: Only valid global split type IDs (ex: 1-8 and 11) or newly created splits via API are accepted.","1. Process a Saved Card sale with an invalid/non-existent split type_id (ex: type_id=9999) in the split_fee payload.
+2. Verify the transaction is rejected before authorization.
+3. Confirm no payments_split_commission entry is created.
+4. Verify no payment record is created.","1. Sale is rejected ✓
+2. API responds with error: 'invalid type id' ✓
+3. No payments_split_commission record created ✓
+4. No payment record created ✓
+5. Only valid split type IDs from split_commission_types table are accepted ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Confirm no split record
+SELECT COUNT(*) FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref='<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-003,Cardstream-CH Saved Card - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale,"- Ensure the MID is pointed to Cardstream-CH
+- A valid master_token exists for the shopper in the master_token table
+- Split commission configuration is active for the merchant
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+
+Additional test data / cURL:
+split_fee: [{type_id: <soft_deleted_split_id>, value_type: 'amount', value: 2.50}]
+Precondition: Use DELETE API on an existing split type → verify delete_status=0 in split_commission_types table","1. Use the DELETE API to soft-delete an existing split type (sets delete_status=0 in split_commission_types table).
+2. Verify the split_commission_types table shows delete_status=0 for the deleted split type.
+3. Process a Saved Card sale using the soft-deleted split type_id in the split_fee payload.
+4. Verify the transaction is rejected before authorization.
+5. Confirm no payments_split_commission entry is created.","1. DELETE API successfully soft-deletes the split type ✓
+2. split_commission_types table shows delete_status=0 for the target split ✓
+3. Sale using soft-deleted split type is rejected ✓
+4. API responds with error: 'invalid type id' ✓
+5. No payments_split_commission record created ✓
+6. No payment record created ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Confirm no split record
+SELECT COUNT(*) FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref='<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-004,Cardstream-CH Saved Card - Split Commission - Updated Split Type via API Used in Sale Succeeds,"- Ensure the MID is pointed to Cardstream-CH
+- A valid master_token exists for the shopper in the master_token table
+- Split commission configuration is active for the merchant
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+
+Additional test data / cURL:
+split_fee: [{type_id: <updated_split_id>, value_type: 'amount', value: 3.00}]
+Precondition: Use Update API to modify an existing split type → verify updated values in split_commission_types table","1. Use the Update API to modify an existing split type (ex: update name or value).
+2. Verify the split_commission_types table reflects the updated values.
+3. Process a Saved Card sale using the updated split type_id in the split_fee payload.
+4. Complete the payment successfully.
+5. Query payments_split_commission table for the split entry.
+6. Verify the commission entry reflects the updated split type.","1. Update API successfully modifies the split type ✓
+2. split_commission_types table reflects updated values ✓
+3. Sale with updated split type succeeds with transaction_status_id=1 ✓
+4. payments_split_commission table contains entry with updated commission_type_id ✓
+5. commission_amount = 3.00 as per payload ✓
+6. split_payment_flag=1 in payments table ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify split commission record
+SELECT psc.id, psc.payment_id, psc.commission_type_id,
+       psc.commission_amount, psc.value_type
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref = '<order_ref>';
+
+-- Expected: commission_amount = 3.00
+--            commission_type_id = <type_id from payload>
+
+-- 3. Verify split flag on payments
+SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: split_payment_flag = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-001,Cardstream-CH: Saved card sale with master_token linked to MasterCard (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: see per-case brand from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Card Brand: MasterCard — fetch from master_token table where card_brand='MasterCard' and provider='cardstream'","1. Fetch master_token where card_brand=MasterCard, provider=cardstream.
+2. Build saved-card payload using that token.
+3. Submit sale via PHP script / cURL.
+4. Verify API response.
+5. Query DB.","1. Sale succeeds — transaction_status_id=1 ✓
+2. payments.last_4_digits matches MasterCard token ✓
+3. master_token_id in payments matches token used ✓
+4. Webhook fired with success status ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- Extra: confirm master_token record
+SELECT id, card_brand, last_4_digits, provider
+FROM master_token
+WHERE id = '<master_token_id>';
+-- Expected: card_brand = 'MasterCard', provider = 'cardstream'
+
+-- Verify webhook_log entry
+SELECT id, order_ref, status, payload, created_at
+FROM webhook_log
+WHERE order_ref = '<order_ref>';
+-- Expected: status = success, payload contains correct order/amount",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-002,Cardstream-CH: Saved card sale with master_token linked to Amex card (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: see per-case brand from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Card Brand: Amex — fetch from master_token table where card_brand='Amex' and provider='cardstream'","1. Fetch master_token where card_brand=Amex, provider=cardstream.
+2. Build saved-card payload.
+3. Submit sale.
+4. Verify API response and DB.","1. Sale succeeds — transaction_status_id=1 ✓
+2. payments.last_4_digits matches Amex token ✓
+3. master_token_id matches ✓
+4. Webhook fired ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- Extra: confirm master_token record
+SELECT id, card_brand, last_4_digits, provider
+FROM master_token
+WHERE id = '<master_token_id>';
+-- Expected: card_brand = 'Amex', provider = 'cardstream'
+
+-- Verify webhook_log entry
+SELECT id, order_ref, status, payload, created_at
+FROM webhook_log
+WHERE order_ref = '<order_ref>';
+-- Expected: status = success, payload contains correct order/amount",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-003,Cardstream-CH: Saved card — master_token belonging to different shopper is rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: see per-case brand from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Use master_token belonging to Shopper B in a request for Shopper A","1. Retrieve a master_token belonging to Shopper B.
+2. Submit saved-card payload with Shopper A's shopper_id and Shopper B's token.
+3. Observe response.","1. Sale rejected ✓
+2. Error: 'Invalid token / token does not belong to shopper' ✓
+3. No payment record ✓
+4. No webhook fired ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-004,Cardstream-CH: Saved card — expired card master_token declined by gateway (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: see per-case brand from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Use master_token where associated card expiry date has passed","1. Find master_token where card expiry is in the past.
+2. Submit saved-card sale.
+3. Verify response.","1. Sale declined by gateway ✓
+2. Error: 'Card expired' or gateway decline code ✓
+3. transaction_status_id reflects declined state ✓
+
+── DB VALIDATION ──
+-- Verify payments record shows failed/declined status
+SELECT id, order_ref, payment_provider_id, transaction_status_id,
+       transaction_method_id, master_token_id, reason
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected:
+--   payment_provider_id   = 3  (Cardstream)
+--   transaction_status_id = <declined status id, not 1>
+--   transaction_method_id = 2  (Saved Card)
+--   reason                = <gateway decline message>",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-001,Cardstream-CH: 3DSv2 saved card — frictionless flow (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Merchant enabled for 3DS v2","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+threeds_version: 2
+DB setup: UPDATE customers SET threeds_version='2' WHERE id='<merchant_id>';
+Flow: Frictionless (no OTP challenge)","1. Set threeds_version=2 via DB.
+2. Submit saved-card sale triggering frictionless 3DS.
+3. Verify DB and MMS dashboard.","1. Frictionless completes without OTP page ✓
+2. transaction_status_id=1 ✓
+3. 3D Secure = Authenticated (2.x) in MMS ✓
+4. Webhook contains 3DS flag ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify 3DS fields on payments
+SELECT id, order_ref, transaction_status_id,
+       payment_provider_id, transaction_method_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- 3. Verify customers threeds_version updated
+SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
+-- Expected: threeds_version = '2'
+
+-- 4. Verify webhook_log
+-- Verify webhook_log entry
+SELECT id, order_ref, status, payload, created_at
+FROM webhook_log
+WHERE order_ref = '<order_ref>';
+-- Expected: status = success, payload contains correct order/amount","Automated,sanity",P1,Automated
+Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-002,Cardstream-CH: 3DSv2 saved card — challenge flow (OTP required) (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Merchant enabled for 3DS v2","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+threeds_version: 2
+DB setup: UPDATE customers SET threeds_version='2' WHERE id='<merchant_id>';
+Flow: Challenge (OTP required)","1. Set threeds_version=2.
+2. Submit saved-card sale triggering challenge.
+3. Complete OTP.
+4. Verify DB and dashboard.","1. OTP page rendered ✓
+2. Sale succeeds after correct OTP — transaction_status_id=1 ✓
+3. Webhook confirms auth and payment success ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify 3DS fields on payments
+SELECT id, order_ref, transaction_status_id,
+       payment_provider_id, transaction_method_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- 3. Verify customers threeds_version updated
+SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
+-- Expected: threeds_version = '2'
+
+-- 4. Verify webhook_log
+-- Verify webhook_log entry
+SELECT id, order_ref, status, payload, created_at
+FROM webhook_log
+WHERE order_ref = '<order_ref>';
+-- Expected: status = success, payload contains correct order/amount",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-003,Cardstream-CH: 3DSv2 saved card — failed authentication rejects sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Merchant enabled for 3DS v2","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+threeds_version: 2
+DB setup: UPDATE customers SET threeds_version='2' WHERE id='<merchant_id>';
+Flow: Challenge — enter wrong OTP","1. Submit saved-card sale triggering challenge.
+2. Enter incorrect OTP.
+3. Observe response.","1. Authentication fails ✓
+2. Sale rejected — transaction_status_id ≠ 1 ✓
+3. Error: 'Authentication failed' ✓
+
+── DB VALIDATION ──
+-- Verify failed payments record
+SELECT id, order_ref, payment_provider_id,
+       transaction_status_id, transaction_method_id, reason
+FROM payments
+WHERE order_ref = '<order_ref>';
+-- Expected: transaction_status_id ≠ 1, reason contains auth failure
+
+-- Confirm no successful duplicate
+SELECT COUNT(*) FROM payments
+WHERE order_ref='<order_ref>' AND transaction_status_id=1;
+-- Expected: COUNT = 0",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-004,Cardstream-CH: Australia merchant rejected — Cardstream-CH is USA only (out of scope),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Region: Australia — OUT OF SCOPE
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>","1. Configure Australia merchant with Cardstream-CH MID.
+2. Attempt saved-card sale.
+3. Observe response.","1. Sale rejected — Australia not supported ✓
+2. Error indicates unsupported region ✓
+3. No payment record ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-001,Cardstream-CH: Error — invalid merchant ID (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Merchant ID: <invalid_merchant_id>","1. Submit saved-card payload with non-existent merchant_id.
+2. Observe API response.","1. HTTP 4xx returned ✓
+2. Response: 'Invalid merchant ID' ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-002,Cardstream-CH: Error — duplicate order_id with different amount (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+order_id: <previously_used_order_ref>
+Amount: <different_amount>","1. Process a successful sale with order_ref=X.
+2. Re-submit with same order_ref but different amount.
+3. Observe response.","1. Second request rejected ✓
+2. Error: 'Duplicate order ID' ✓
+
+── DB VALIDATION ──
+-- Confirm only one payments record exists for this order_ref
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 1 (original only — no duplicate created)",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-003,Cardstream-CH: Error — missing mandatory fields in payload (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Omit mandatory fields one at a time (shopper_id, gross amount, redirect_url)","1. Submit without shopper_id.
+2. Submit without amount.
+3. Submit without redirect_url.
+4. Record error messages.","1. Each rejected with HTTP 400 ✓
+2. Field-specific error returned ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-004,Cardstream-CH: Error — tampered payment URL rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>","1. Generate valid payment link.
+2. Modify URL parameters (amount, order_ref).
+3. Open tampered URL and attempt payment.","1. Payment fails with clear error ✓
+2. Error: 'Invalid request' ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-005,Cardstream-CH: Error — gateway decline error code displayed correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Card: Configured to trigger specific gateway decline","1. Submit saved-card sale with decline-triggering card.
+2. Observe error shown and API response.","1. Sale declined ✓
+2. Gateway error code shown (e.g. 50685-M63155116A4387L0821) ✓
+3. Human-readable message: 'Payment failed: <error_code>' ✓
+
+── DB VALIDATION ──
+-- Verify payments record shows failed/declined status
+SELECT id, order_ref, payment_provider_id, transaction_status_id,
+       transaction_method_id, master_token_id, reason
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected:
+--   payment_provider_id   = 3  (Cardstream)
+--   transaction_status_id = <declined status id, not 1>
+--   transaction_method_id = 2  (Saved Card)
+--   reason                = <gateway decline message>",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-001,Cardstream-CH: CVV shown and required when cvv_enabled=1 in country table (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- country table: cvv_enabled=1","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB check: SELECT cvv_enabled FROM country WHERE id=<country_id>; -- must return 1","1. Confirm cvv_enabled=1.
+2. Verify CVV field visible on page.
+3. Enter valid CVV and submit.
+4. Validate DB.","1. CVV field displayed ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-002,Cardstream-CH: CVV hidden and sale proceeds without CVV when cvv_enabled=0 (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- country table: cvv_enabled=0","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB check: SELECT cvv_enabled FROM country WHERE id=<country_id>; -- must return 0","1. Confirm cvv_enabled=0.
+2. Verify CVV field NOT visible.
+3. Submit without CVV.
+4. Validate DB.","1. CVV field NOT displayed ✓
+2. Sale succeeds without CVV — transaction_status_id=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-003,Cardstream-CH: Invalid CVV when cvv_enabled=1 — sale rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- country table: cvv_enabled=1","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+CVV: invalid (e.g. 000 or wrong length)","1. Confirm cvv_enabled=1.
+2. Enter invalid CVV.
+3. Submit and observe.","1. CVV validation fails ✓
+2. Error: 'Invalid CVV' ✓
+3. Sale rejected ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-004,Cardstream-CH: Empty CVV when cvv_enabled=1 — form blocks submission (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- country table: cvv_enabled=1","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+CVV: empty","1. Confirm cvv_enabled=1.
+2. Leave CVV empty.
+3. Attempt submit.","1. Form blocks or API rejects ✓
+2. Error: 'CVV is required' ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-001,Cardstream-CH: Sale below max_transaction_limit succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- customers.max_transaction_limit set","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Amount: below max_transaction_limit
+DB: SELECT max_transaction_limit FROM customers WHERE id='<merchant_id>';","1. Check limit.
+2. Submit sale with amount < limit.
+3. Verify DB.","1. Sale succeeds — transaction_status_id=1 ✓
+2. No limit error ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-002,Cardstream-CH: Sale exceeding max_transaction_limit is rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- customers.max_transaction_limit set","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Amount: greater than max_transaction_limit","1. Check limit.
+2. Submit sale with amount > limit.
+3. Observe response.","1. Sale rejected before gateway ✓
+2. Error: 'Transaction amount exceeds maximum allowed limit' ✓
+3. No payment record ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-003,Cardstream-CH: Sale exactly at max_transaction_limit is rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- customers.max_transaction_limit set","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Amount: exactly equal to max_transaction_limit","1. Check limit.
+2. Submit sale with amount == limit.
+3. Observe response.","1. Sale rejected (exclusive boundary) ✓
+2. Error: 'Transaction amount exceeds maximum allowed limit' ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-004,Cardstream-CH: max_transaction_limit = NULL — large sale not blocked (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- customers.max_transaction_limit = NULL","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Amount: large value (e.g. $9999)
+DB: UPDATE customers SET max_transaction_limit=NULL WHERE id='<merchant_id>';","1. Set limit=NULL.
+2. Submit high-value sale.
+3. Verify DB.","1. No limit check applied ✓
+2. Gateway processes and returns result ✓
+3. transaction_status_id reflects gateway outcome ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-001,Cardstream-CH: Whitelabel saved card sale succeeds with correct branding (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Merchant is configured as whitelabel","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Merchant type: Whitelabel","1. Open whitelabel saved-card page.
+2. Verify custom branding.
+3. Submit sale.
+4. Verify DB.","1. Whitelabel branding displayed ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. Payment record under whitelabel merchant_id ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- Confirm merchant_id is the whitelabel merchant
+SELECT id, merchant_id, payment_provider_id, transaction_status_id
+FROM payments WHERE order_ref='<order_ref>';
+-- Expected: merchant_id = <whitelabel_merchant_id>",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-002,Cardstream-CH: Whitelabel — CVV shown/hidden per country cvv_enabled flag (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Whitelabel merchant
+- Test both cvv_enabled=1 and cvv_enabled=0","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Merchant type: Whitelabel","1. cvv_enabled=1: verify CVV shown, submit with CVV.
+2. cvv_enabled=0: verify CVV hidden, submit without CVV.
+3. Verify both sales in DB.","1. CVV shown when cvv_enabled=1 ✓
+2. CVV hidden when cvv_enabled=0 ✓
+3. Both sales succeed — transaction_status_id=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-003,Cardstream-CH: Whitelabel — sale exceeding max_transaction_limit rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Whitelabel merchant
+- max_transaction_limit set","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Merchant type: Whitelabel
+Amount: > max_transaction_limit","1. Check limit for whitelabel merchant.
+2. Submit sale > limit.
+3. Observe response.","1. Sale rejected ✓
+2. Error: 'Transaction amount exceeds maximum allowed limit' ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-004,Cardstream-CH: Whitelabel — 3DSv2 challenge completes correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Whitelabel merchant
+- 3DS v2 enabled","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Merchant type: Whitelabel
+threeds_version: 2","1. Submit whitelabel sale triggering 3DS challenge.
+2. Complete OTP.
+3. Verify DB.","1. 3DS challenge completes ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify 3DS fields on payments
+SELECT id, order_ref, transaction_status_id,
+       payment_provider_id, transaction_method_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- 3. Verify customers threeds_version updated
+SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
+-- Expected: threeds_version = '2'
+
+-- 4. Verify webhook_log
+-- Verify webhook_log entry
+SELECT id, order_ref, status, payload, created_at
+FROM webhook_log
+WHERE order_ref = '<order_ref>';
+-- Expected: status = success, payload contains correct order/amount",Manual,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-005,"Cardstream-CH: Whitelabel — Australia merchant out of scope, rejected","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- Whitelabel merchant with Australia config","Payment method: Saved Card
+Region: Australia — OUT OF SCOPE
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Merchant type: Whitelabel","1. Configure whitelabel Australia merchant.
+2. Attempt sale.
+3. Observe response.","1. Sale rejected — Australia not supported ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-001,Datman Checkout (Old UI v1): Saved card sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=1 (Old UI)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v1 (Old)
+DB: UPDATE customers SET datman_hosted_ui_version=1 WHERE id='<merchant_id>';","1. Set datman_hosted_ui_version=1.
+2. Open link — confirm Old UI.
+3. Submit valid saved-card sale.
+4. Verify DB.","1. Old UI (v1) displayed ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. Webhook fired ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- Confirm datman_hosted_ui_version on customers
+SELECT id, datman_hosted_ui_version FROM customers WHERE id='<merchant_id>';
+-- Expected: datman_hosted_ui_version = 1","Automated,sanity",P1,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-002,Datman Checkout (New UI v2): Saved card sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';","1. Set datman_hosted_ui_version=2.
+2. Open link — confirm New UI.
+3. Submit valid saved-card sale.
+4. Verify DB.","1. New Datman Checkout UI (v2) displayed ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. Webhook fired ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- Confirm datman_hosted_ui_version
+SELECT id, datman_hosted_ui_version FROM customers WHERE id='<merchant_id>';
+-- Expected: datman_hosted_ui_version = 2","Automated,sanity",P1,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-003,Datman Checkout: Toggle v1→v2 — correct UI loads without cache (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Step A: datman_hosted_ui_version=1 | Step B: datman_hosted_ui_version=2","1. Set v1, load page — confirm Old UI.
+2. Set v2, reload — confirm New UI.","1. v1: Old UI ✓  |  v2: New UI ✓
+2. No cache issues ✓
+
+── DB VALIDATION ──
+-- Verify toggle reflected in customers table
+SELECT id, datman_hosted_ui_version FROM customers WHERE id='<merchant_id>';
+-- Expected after step B: datman_hosted_ui_version = 2",Manual,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-004,Datman Checkout (New UI v2): CVV shown/hidden per country cvv_enabled flag (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)
+- Test both cvv_enabled=1 and =0","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';
+DB: SELECT cvv_enabled FROM country WHERE id=<country_id>;","1. Set v2.
+2. cvv_enabled=1: verify CVV visible, submit with CVV.
+3. cvv_enabled=0: verify CVV hidden, submit without CVV.","1. CVV shown when cvv_enabled=1 ✓
+2. CVV hidden when cvv_enabled=0 ✓
+3. Both sales succeed ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-005,Datman Checkout (New UI v2): Sale > max_transaction_limit rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)
+- max_transaction_limit set","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';
+Amount: > max_transaction_limit","1. Set v2.
+2. Submit sale > limit.
+3. Observe error.","1. Limit error displayed on New UI ✓
+2. No payment record ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-006,Datman Checkout (New UI v2): 3DSv2 challenge renders correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)
+- 3DS v2 enabled","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';
+threeds_version: 2","1. Set v2 + threeds_version=2.
+2. Submit sale triggering 3DS challenge.
+3. Complete OTP.
+4. Verify DB.","1. 3DS challenge renders in New UI ✓
+2. Sale succeeds after auth — transaction_status_id=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify 3DS fields on payments
+SELECT id, order_ref, transaction_status_id,
+       payment_provider_id, transaction_method_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- 3. Verify customers threeds_version updated
+SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
+-- Expected: threeds_version = '2'
+
+-- 4. Verify webhook_log
+-- Verify webhook_log entry
+SELECT id, order_ref, status, payload, created_at
+FROM webhook_log
+WHERE order_ref = '<order_ref>';
+-- Expected: status = success, payload contains correct order/amount",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-007,Datman Checkout (New UI v2): Inline error messages for invalid payload (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';
+Missing mandatory fields","1. Set v2.
+2. Submit payload missing mandatory fields.
+3. Observe error display.","1. Inline field-level errors shown in New UI style ✓
+2. No payment record ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-008,Datman Checkout (New UI v2): MasterCard master_token shows correct card brand (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: MasterCard from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';","1. Set v2.
+2. Fetch master_token with card_brand=MasterCard.
+3. Open New UI — verify MasterCard icon shown.
+4. Submit sale and verify DB.","1. New UI shows MasterCard branding ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+SELECT id, last_4_digits, master_token_id, payment_provider_id
+FROM payments WHERE order_ref='<order_ref>';
+-- Confirm master_token_id matches the MasterCard token used
+
+SELECT id, card_brand FROM master_token WHERE id='<master_token_id>';
+-- Expected: card_brand = 'MasterCard'",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-009,Datman Checkout (New UI v2): Whitelabel merchant shows custom branding (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)
+- Whitelabel merchant","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';
+Merchant type: Whitelabel","1. Set v2 for whitelabel merchant.
+2. Verify branding on New UI.
+3. Submit sale and verify DB.","1. Whitelabel branding shown on New UI ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Manual,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-010,Datman Checkout (Old UI v1): Regression — unchanged after new UI rollout (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=1 (Old UI)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v1 (Old)
+DB: UPDATE customers SET datman_hosted_ui_version=1 WHERE id='<merchant_id>';","1. Set v1.
+2. Run: saved card sale, CVV, 3DS.
+3. Confirm baseline behaviour.","1. Old UI renders without regression ✓
+2. Saved card sale succeeds ✓
+3. CVV / 3DS flows unchanged ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+","Automated,regression",P1,Automated
+Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-011,Datman Checkout: Australia rejected on both v1 and v2 — out of scope,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- Australia merchant","Payment method: Saved Card
+Region: Australia — OUT OF SCOPE
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>","1. Australia merchant, v1: attempt sale → observe rejection.
+2. Australia merchant, v2: attempt sale → observe rejection.","1. v1 & v2: both rejected ✓
+2. No payment records ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-001,Cardstream-CH: Split — single global split (amount-based) sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Split commission active for merchant","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Valid global split type IDs are 1–8 and 11 (type 100 excluded).
+split_commission_types table governs valid IDs.
+split_fee: [{type_id: 3, value_type: 'amount', value: 2.50}]","1. Submit saved-card sale with split_fee type_id=3, value=2.50.
+2. Verify transaction_status_id=1.
+3. Query payments_split_commission.","1. Sale succeeds ✓
+2. payments_split_commission: commission_type_id=3, amount=2.50 ✓
+3. split_payment_flag=1 ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify split commission record
+SELECT psc.id, psc.payment_id, psc.commission_type_id,
+       psc.commission_amount, psc.value_type
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref = '<order_ref>';
+
+-- Expected: commission_amount = 2.50
+--            commission_type_id = <type_id from payload>
+
+-- 3. Verify split flag on payments
+SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: split_payment_flag = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-002,Cardstream-CH: Split — single global split (percentage-based) sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Split commission active for merchant","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Valid global split type IDs are 1–8 and 11 (type 100 excluded).
+split_commission_types table governs valid IDs.
+split_fee: [{type_id: 5, value_type: 'percentage', value: 1.5}]","1. Submit sale with percentage split.
+2. Verify commission = 1.5% of gross.
+3. Query payments_split_commission.","1. Sale succeeds ✓
+2. commission_amount = 1.5% of payments.gross ✓
+3. split_payment_flag=1 ✓
+
+── DB VALIDATION ──
+-- Verify payments record
+SELECT id, order_ref, gross, payment_provider_id,
+       transaction_status_id, transaction_method_id
+FROM payments WHERE order_ref='<order_ref>';
+
+-- Verify split commission
+SELECT psc.commission_type_id, psc.commission_amount, psc.value_type
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref='<order_ref>';
+-- Expected: commission_amount = payments.gross * 0.015
+
+-- Verify split flag
+SELECT split_payment_flag FROM payments WHERE order_ref='<order_ref>';
+-- Expected: split_payment_flag = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-003,Cardstream-CH: Split — multiple split types in single sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Split commission active","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Valid global split type IDs are 1–8 and 11 (type 100 excluded).
+split_commission_types table governs valid IDs.
+split_fee: [{type_id: 3, value_type: 'amount', value: 2.50}, {type_id: 5, value_type: 'percentage', value: 1.0}]","1. Submit sale with two split_fee entries.
+2. Query payments_split_commission for both rows.","1. Sale succeeds ✓
+2. Two rows in payments_split_commission ✓
+3. Each commission_amount correct ✓
+
+── DB VALIDATION ──
+-- Verify both split rows
+SELECT psc.commission_type_id, psc.commission_amount, psc.value_type
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref='<order_ref>'
+ORDER BY psc.commission_type_id;
+-- Expected: 2 rows — type_id 3 with amount=2.50, type_id 5 with % of gross
+
+SELECT split_payment_flag FROM payments WHERE order_ref='<order_ref>';
+-- Expected: split_payment_flag = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-004,Cardstream-CH: Split — invalid type_id (non-existent) rejects sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Split commission active","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Valid global split type IDs are 1–8 and 11 (type 100 excluded).
+split_commission_types table governs valid IDs.
+split_fee: [{type_id: 9999, value_type: 'amount', value: 2.50}]","1. Submit sale with invalid type_id=9999.
+2. Verify rejection.","1. Sale rejected ✓
+2. Error: 'invalid type id' ✓
+3. No payments_split_commission record ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Confirm no split commission record
+SELECT COUNT(*) FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref='<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-005,Cardstream-CH: Split — soft-deleted type (delete_status=0) blocks sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DELETE API called to soft-delete a split type","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Valid global split type IDs are 1–8 and 11 (type 100 excluded).
+split_commission_types table governs valid IDs.
+split_fee: [{type_id: <soft_deleted_id>, value_type: 'amount', value: 2.50}]
+Precondition: DELETE API → delete_status=0 in split_commission_types","1. DELETE API → soft-delete split type.
+2. Verify split_commission_types.delete_status=0.
+3. Submit sale with soft-deleted type_id.
+4. Verify rejection.","1. split_commission_types.delete_status=0 ✓
+2. Sale rejected ✓
+3. Error: 'invalid type id' ✓
+
+── DB VALIDATION ──
+-- Verify soft-delete in split_commission_types
+SELECT id, delete_status FROM split_commission_types
+WHERE id = '<soft_deleted_id>';
+-- Expected: delete_status = 0
+
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-006,Cardstream-CH: Split — updated split type used in sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Update API called on existing split type","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Valid global split type IDs are 1–8 and 11 (type 100 excluded).
+split_commission_types table governs valid IDs.
+split_fee: [{type_id: <updated_id>, value_type: 'amount', value: 3.00}]
+Precondition: Update API → verify updated values in split_commission_types","1. Update API → modify split type.
+2. Verify split_commission_types updated.
+3. Submit sale with updated type_id.
+4. Query payments_split_commission.","1. split_commission_types reflects update ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. commission_amount=3.00 ✓
+
+── DB VALIDATION ──
+-- Verify update in split_commission_types
+SELECT id, name, delete_status FROM split_commission_types
+WHERE id='<updated_id>';
+
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify split commission record
+SELECT psc.id, psc.payment_id, psc.commission_type_id,
+       psc.commission_amount, psc.value_type
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref = '<order_ref>';
+
+-- Expected: commission_amount = 3.00
+--            commission_type_id = <type_id from payload>
+
+-- 3. Verify split flag on payments
+SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: split_payment_flag = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-007,Cardstream-CH: Split + max_transaction_limit — sale > limit rejected (limit takes priority) (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- max_transaction_limit set
+- Split commission active","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Note: Valid global split type IDs are 1–8 and 11 (type 100 excluded).
+split_commission_types table governs valid IDs.
+split_fee: [{type_id: 3, value_type: 'amount', value: 2.50}]
+Amount: > max_transaction_limit","1. Submit sale > limit with split_fee.
+2. Verify rejection.","1. Sale rejected — limit error (not split error) ✓
+2. Error: 'Transaction amount exceeds maximum allowed limit' ✓
+3. No payments_split_commission record ✓
+
+── DB VALIDATION ──
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Confirm no split record either
+SELECT COUNT(*) FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref='<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-008,Cardstream-CH: Split — on New Datman Checkout UI (v2) sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- DB: datman_hosted_ui_version=2 (New UI)
+- Split commission active","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+UI: v2 (New)
+DB: UPDATE customers SET datman_hosted_ui_version=2 WHERE id='<merchant_id>';
+split_fee: [{type_id: 3, value_type: 'amount', value: 2.50}]","1. Set datman_hosted_ui_version=2.
+2. Submit sale with split_fee on New UI.
+3. Verify DB entries.","1. New UI renders correctly ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. payments_split_commission entry created ✓
+
+── DB VALIDATION ──
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+
+-- 2. Verify split commission record
+SELECT psc.id, psc.payment_id, psc.commission_type_id,
+       psc.commission_amount, psc.value_type
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref = '<order_ref>';
+
+-- Expected: commission_amount = 2.50
+--            commission_type_id = <type_id from payload>
+
+-- 3. Verify split flag on payments
+SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: split_payment_flag = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-001,Dashboard — Cardstream: successful saved card sale reflected correctly in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Access to MMS dashboard
+- Provider: Cardstream (payment_provider_id=3)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Provider: Cardstream
+payment_provider_id: 3","1. Process successful saved-card sale via Cardstream.
+2. Log in to MMS, navigate to merchant transactions.
+3. Locate by order_ref and verify all fields.","1. Transaction visible in MMS ✓
+2. Status = Success, Provider = Cardstream ✓
+3. Amount, Card Brand, Last 4, Method = Saved Card ✓
+4. Transaction Mode = 02, merchant name correct ✓
+5. TxAuthNo (auth code) displayed ✓
+
+── DB VALIDATION ──
+-- DB cross-check before opening dashboard
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       last_4_digits, firstname, lastname, delete_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id
+FROM payments WHERE order_ref='<order_ref>';
+
+-- Expected:
+--   payment_provider_id   = 3   (Cardstream)
+--   transaction_status_id = 1
+--   transaction_method_id = 2   (Saved Card)
+--   transaction_mode_id   = 2
+--   country_code          = 'US'
+--   currency_code         = 'USD'
+--   delete_status         = 0
+--   withdrawn_status      = 0",Manual,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-002,Dashboard — Cardstream: 3DSv2 authenticated sale shows 3DS flag in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Access to MMS dashboard
+- Provider: Cardstream (payment_provider_id=3)
+- 3DS v2 enabled","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Provider: Cardstream
+payment_provider_id: 3
+threeds_version: 2","1. Process 3DSv2 saved-card sale.
+2. Open transaction in MMS.
+3. Verify 3DS fields.","1. 3D Secure Check = Authenticated (2.x) ✓
+2. Transaction Status = Success ✓
+3. Provider = Cardstream ✓
+
+── DB VALIDATION ──
+-- DB cross-check before opening dashboard
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       last_4_digits, firstname, lastname, delete_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id
+FROM payments WHERE order_ref='<order_ref>';
+
+-- Expected:
+--   payment_provider_id   = 3   (Cardstream)
+--   transaction_status_id = 1
+--   transaction_method_id = 2   (Saved Card)
+--   transaction_mode_id   = 2
+--   country_code          = 'US'
+--   currency_code         = 'USD'
+--   delete_status         = 0
+--   withdrawn_status      = 0
+
+-- Verify customers threeds_version
+SELECT threeds_version FROM customers WHERE id='<merchant_id>';
+-- Expected: '2'",Manual,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-003,Dashboard — Cardstream: declined sale shows correct failed status in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Access to MMS dashboard
+- Provider: Cardstream (payment_provider_id=3)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Provider: Cardstream
+payment_provider_id: 3
+Card: triggers gateway decline","1. Process declined saved-card sale.
+2. Open transaction in MMS.
+3. Verify status and error fields.","1. Status = Failed/Declined ✓
+2. Decline reason/error code displayed ✓
+3. Provider = Cardstream ✓
+
+── DB VALIDATION ──
+SELECT id, order_ref, transaction_status_id, reason,
+       payment_provider_id, transaction_method_id, gross
+FROM payments WHERE order_ref='<order_ref>';
+-- Expected: transaction_status_id ≠ 1, reason = decline message",Manual,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-004,Dashboard — Cardstream: split commission entry visible in MMS transaction detail (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Access to MMS dashboard
+- Provider: Cardstream (payment_provider_id=3)
+- Split commission active","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Provider: Cardstream
+payment_provider_id: 3
+split_fee: [{type_id: 3, value_type: 'amount', value: 2.50}]","1. Process saved-card sale with split_fee.
+2. Open transaction in MMS.
+3. Navigate to split commission section.","1. Split commission section shows type and amount ✓
+2. commission_amount=2.50 ✓
+3. split_payment_flag reflected ✓
+
+── DB VALIDATION ──
+SELECT p.order_ref, p.gross, p.split_payment_flag,
+       psc.commission_type_id, psc.commission_amount
+FROM payments p
+JOIN payments_split_commission psc ON psc.payment_id = p.id
+WHERE p.order_ref='<order_ref>';
+-- Expected: commission_amount=2.50, split_payment_flag=1",Manual,P2,Can't-be-automated
+Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-001,Dashboard — Checkout.com: successful saved card sale reflected correctly in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Access to MMS dashboard
+- Provider: Checkout.com (payment_provider_id=2)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=checkout)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Provider: Checkout.com
+payment_provider_id: 2","1. Process successful saved-card sale via Checkout.com.
+2. Log in to MMS, locate by order_ref.
+3. Verify all fields.","1. Transaction visible in MMS ✓
+2. Status = Success, Provider = Checkout.com ✓
+3. Amount, Card Brand, Last 4, Method = Saved Card ✓
+
+── DB VALIDATION ──
+-- DB cross-check before opening dashboard
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       last_4_digits, firstname, lastname, delete_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id
+FROM payments WHERE order_ref='<order_ref>';
+
+-- Expected:
+--   payment_provider_id   = 2   (Checkout.com)
+--   transaction_status_id = 1
+--   transaction_method_id = 2   (Saved Card)
+--   transaction_mode_id   = 2
+--   country_code          = 'US'
+--   currency_code         = 'USD'
+--   delete_status         = 0
+--   withdrawn_status      = 0",Manual,P2,Can't-be-automated
+Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-002,Dashboard — Checkout.com: 3DSv2 authenticated sale shows 3DS flag in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Access to MMS dashboard
+- Provider: Checkout.com (payment_provider_id=2)
+- 3DS v2 enabled","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=checkout)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Provider: Checkout.com
+payment_provider_id: 2
+threeds_version: 2","1. Process 3DSv2 sale via Checkout.com.
+2. Open in MMS.
+3. Verify 3DS fields.","1. 3D Secure Check = Authenticated (2.x) ✓
+2. Status = Success, Provider = Checkout.com ✓
+
+── DB VALIDATION ──
+-- DB cross-check before opening dashboard
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       last_4_digits, firstname, lastname, delete_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id
+FROM payments WHERE order_ref='<order_ref>';
+
+-- Expected:
+--   payment_provider_id   = 2   (Checkout.com)
+--   transaction_status_id = 1
+--   transaction_method_id = 2   (Saved Card)
+--   transaction_mode_id   = 2
+--   country_code          = 'US'
+--   currency_code         = 'USD'
+--   delete_status         = 0
+--   withdrawn_status      = 0",Manual,P2,Can't-be-automated
+Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-003,Dashboard — Checkout.com: declined sale shows correct failed status in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Access to MMS dashboard
+- Provider: Checkout.com (payment_provider_id=2)","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=checkout)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Provider: Checkout.com
+payment_provider_id: 2
+Card: triggers Checkout.com decline","1. Process declined sale via Checkout.com.
+2. Open in MMS.
+3. Verify status and error.","1. Status = Failed/Declined ✓
+2. Checkout.com decline reason shown ✓
+
+── DB VALIDATION ──
+SELECT id, order_ref, transaction_status_id, reason,
+       payment_provider_id, transaction_method_id, gross
+FROM payments WHERE order_ref='<order_ref>';
+-- Expected: payment_provider_id=2, transaction_status_id ≠ 1",Manual,P2,Can't-be-automated
+Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-004,Dashboard — Cardstream vs Checkout.com: provider fields differ correctly in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- One merchant on Cardstream, one on Checkout.com","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Run same sale on both providers and compare MMS fields","1. Process sale on Cardstream merchant.
+2. Process same sale on Checkout.com merchant.
+3. Compare MMS fields side by side.","1. payment_provider_id=3 for Cardstream ✓
+2. payment_provider_id=2 for Checkout.com ✓
+3. transaction_method_id=2 (Saved Card) for both ✓
+4. Common fields (gross, last_4, method) consistent ✓
+
+── DB VALIDATION ──
+-- Cardstream transaction
+SELECT order_ref, payment_provider_id, transaction_status_id,
+       transaction_method_id, gross, last_4_digits
+FROM payments WHERE order_ref='<cs_order_ref>';
+-- Expected: payment_provider_id = 3
+
+-- Checkout.com transaction
+SELECT order_ref, payment_provider_id, transaction_status_id,
+       transaction_method_id, gross, last_4_digits
+FROM payments WHERE order_ref='<co_order_ref>';
+-- Expected: payment_provider_id = 2",Manual,P2,Can't-be-automated
+Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-001,Cardstream-CH: Kount APPROVE — sale proceeds normally (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Kount fraud scoring enabled for merchant
+- Kount test environment configured","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Kount: Enabled
+DB: kount_response (order_id, decision, score)
+Kount Decision: APPROVE","1. Submit sale with scenario triggering Kount APPROVE.
+2. Verify Kount DB entry.
+3. Verify sale proceeds to gateway.","1. Kount APPROVE — sale proceeds ✓
+2. transaction_status_id=1 ✓
+3. kount_response.decision=APPROVE ✓
+
+── DB VALIDATION ──
+-- 1. Verify kount_response record
+SELECT id, order_id, decision, score, created_at
+FROM kount_response
+WHERE order_id = '<order_ref>';
+
+-- Expected: decision = 'APPROVE', score = <numeric_score>
+
+-- 2. Cross-reference with payments
+SELECT p.id, p.order_ref, p.transaction_status_id
+FROM payments p
+WHERE p.order_ref = '<order_ref>';
+
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-002,Cardstream-CH: Kount DECLINE — sale blocked pre-authorisation (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Kount fraud scoring enabled for merchant
+- Kount test environment configured","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Kount: Enabled
+DB: kount_response (order_id, decision, score)
+Kount Decision: DECLINE","1. Submit sale triggering Kount DECLINE.
+2. Verify sale not sent to gateway.
+3. Verify DB.","1. Kount DECLINE — sale blocked before gateway ✓
+2. Error: 'Transaction declined by fraud check' ✓
+3. No gateway auth attempt ✓
+
+── DB VALIDATION ──
+-- 1. Verify kount_response record
+SELECT id, order_id, decision, score, created_at
+FROM kount_response
+WHERE order_id = '<order_ref>';
+
+-- Expected: decision = 'DECLINE', score = <numeric_score>
+
+-- 2. Cross-reference with payments
+SELECT p.id, p.order_ref, p.transaction_status_id
+FROM payments p
+WHERE p.order_ref = '<order_ref>';
+
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-003,"Cardstream-CH: Kount REVIEW — sale proceeds, flagged for manual review (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Kount fraud scoring enabled for merchant
+- Kount test environment configured","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Kount: Enabled
+DB: kount_response (order_id, decision, score)
+Kount Decision: REVIEW","1. Submit sale triggering Kount REVIEW.
+2. Verify sale proceeds to gateway.
+3. Verify REVIEW flag in DB.","1. Sale proceeds — transaction_status_id=1 ✓
+2. kount_response.decision=REVIEW ✓
+3. Transaction flagged in MMS ✓
+
+── DB VALIDATION ──
+-- 1. Verify kount_response record
+SELECT id, order_id, decision, score, created_at
+FROM kount_response
+WHERE order_id = '<order_ref>';
+
+-- Expected: decision = 'REVIEW', score = <numeric_score>
+
+-- 2. Cross-reference with payments
+SELECT p.id, p.order_ref, p.transaction_status_id
+FROM payments p
+WHERE p.order_ref = '<order_ref>';
+
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-004,Cardstream-CH: Kount score stored correctly for all three decision types (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Kount fraud scoring enabled for merchant
+- Kount test environment configured","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Kount: Enabled
+DB: kount_response (order_id, decision, score)
+Run three separate sales: APPROVE, DECLINE, REVIEW","1. Run sale for each Kount decision.
+2. After each, query kount_response.
+3. Verify decision and score stored.","1. APPROVE: decision=APPROVE, score stored ✓
+2. DECLINE: decision=DECLINE, score stored ✓
+3. REVIEW: decision=REVIEW, score stored ✓
+4. No null scores ✓
+
+── DB VALIDATION ──
+SELECT order_id, decision, score FROM kount_response
+WHERE order_id IN ('<approve_order_ref>', '<decline_order_ref>', '<review_order_ref>');
+-- Expected: 3 rows, each with non-null score
+
+-- Cross-reference with payments
+SELECT order_ref, transaction_status_id FROM payments
+WHERE order_ref IN ('<approve_order_ref>', '<decline_order_ref>', '<review_order_ref>');
+-- Expected:
+--   approve_order_ref  → transaction_status_id = 1
+--   decline_order_ref  → no payments record (blocked)
+--   review_order_ref   → transaction_status_id = 1",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-005,Cardstream-CH: Kount DECLINE on New Datman Checkout UI (v2) — error shown on new UI (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Kount fraud scoring enabled for merchant
+- Kount test environment configured
+- datman_hosted_ui_version=2","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Kount: Enabled
+DB: kount_response (order_id, decision, score)
+UI: v2
+Kount Decision: DECLINE","1. Set datman_hosted_ui_version=2.
+2. Submit sale triggering Kount DECLINE.
+3. Verify error on New UI and DB.","1. New UI shows fraud decline error ✓
+2. Sale blocked — not sent to gateway ✓
+3. kount_response.decision=DECLINE ✓
+
+── DB VALIDATION ──
+-- 1. Verify kount_response record
+SELECT id, order_id, decision, score, created_at
+FROM kount_response
+WHERE order_id = '<order_ref>';
+
+-- Expected: decision = 'DECLINE', score = <numeric_score>
+
+-- 2. Cross-reference with payments
+SELECT p.id, p.order_ref, p.transaction_status_id
+FROM payments p
+WHERE p.order_ref = '<order_ref>';
+
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-006,Cardstream-CH: Kount disabled for merchant — no kount_response entry created (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Kount is DISABLED for this merchant","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+Kount: Disabled for merchant","1. Ensure Kount disabled.
+2. Submit sale.
+3. Verify no Kount entry and sale proceeds.","1. Sale proceeds directly to gateway ✓
+2. transaction_status_id=1 ✓
+3. No kount_response record ✓
+
+── DB VALIDATION ──
+-- Verify no kount_response entry
+SELECT COUNT(*) FROM kount_response WHERE order_id='<order_ref>';
+-- Expected: COUNT = 0
+
+-- 1. Verify payments record created
+SELECT id, order_ref, merchant_id, country_code, currency_code,
+       gross, fee, net, transaction_time, psp_reference,
+       internal_reference, last_4_digits, firstname, lastname,
+       email_address, delete_status, withdrawn_status,
+       payment_provider_id, transaction_status_id,
+       transaction_mode_id, transaction_method_id,
+       TxAuthNo, master_token_id, shopper_id, cs_mid
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected values:
+--   merchant_id          = <merchant_id>
+--   country_code         = 'US'
+--   currency_code        = 'USD'
+--   gross                = <sale_amount>
+--   delete_status        = 0
+--   withdrawn_status     = 0
+--   payment_provider_id  = 3  (Cardstream)
+--   transaction_status_id= 1  (Success)
+--   transaction_mode_id  = 2  (Saved Card mode)
+--   transaction_method_id= 2  (Saved Card)
+--   master_token_id      = <master_token_id from token table>
+--   shopper_id           = '<shopper_id>'
+--   last_4_digits        = <last4 from master_token table>
+--   TxAuthNo             = <auth_code returned by gateway>
+--   psp_reference        = <reference returned by Cardstream>
+--   day/week/month/year  = match transaction_time date parts
+",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-001,Cardstream-CH: Price uplift (fixed amount) — uplifted gross charged correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Price uplift configured in customers table
+- price_uplift_type = fixed","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
+price_uplift: fixed (e.g. $2.00)
+Base amount: $10.00 → expected gross: $12.00","1. Configure price_uplift=2.00 (fixed) in customers table.
+2. Submit sale with base amount=$10.00.
+3. Verify payment page shows $12.00.
+4. Complete sale and verify DB.","1. Payment page shows $12.00 ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. payments.gross = $12.00 ✓
+
+── DB VALIDATION ──
+-- 1. Verify uplift config in customers table
+SELECT id, price_uplift, price_uplift_type
+FROM customers
+WHERE id = '<merchant_id>';
+
+-- 2. Verify payments.gross = base_amount + uplift
+SELECT id, order_ref, gross, fee, net,
+       payment_provider_id, transaction_status_id,
+       transaction_method_id, master_token_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected: gross = <base_amount + uplift_amount>
+--           payment_provider_id   = 3
+--           transaction_status_id = 1
+--           transaction_method_id = 2",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-002,Cardstream-CH: Price uplift (percentage) — uplifted gross charged correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Price uplift configured in customers table
+- price_uplift_type = percentage","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
+price_uplift: 5%
+Base amount: $10.00 → expected gross: $10.50","1. Configure price_uplift=5% in customers table.
+2. Submit sale with base amount=$10.00.
+3. Verify payment page shows $10.50.
+4. Complete sale and verify DB.","1. Payment page shows $10.50 ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. payments.gross = $10.50 ✓
+
+── DB VALIDATION ──
+-- 1. Verify uplift config in customers table
+SELECT id, price_uplift, price_uplift_type
+FROM customers
+WHERE id = '<merchant_id>';
+
+-- 2. Verify payments.gross = base_amount + uplift
+SELECT id, order_ref, gross, fee, net,
+       payment_provider_id, transaction_status_id,
+       transaction_method_id, master_token_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected: gross = <base_amount + uplift_amount>
+--           payment_provider_id   = 3
+--           transaction_status_id = 1
+--           transaction_method_id = 2",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-003,Cardstream-CH: price_uplift = NULL — base amount charged unchanged (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- price_uplift = NULL in customers table","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: UPDATE customers SET price_uplift=NULL WHERE id='<merchant_id>';
+Base amount: $10.00","1. Set price_uplift=NULL.
+2. Submit sale with $10.00.
+3. Verify amount on page and DB.","1. Page shows $10.00 — no uplift ✓
+2. Sale succeeds — transaction_status_id=1 ✓
+3. payments.gross = $10.00 ✓
+
+── DB VALIDATION ──
+-- Confirm NULL uplift
+SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
+-- Expected: price_uplift = NULL
+
+-- Confirm gross = base amount
+SELECT gross FROM payments WHERE order_ref='<order_ref>';
+-- Expected: gross = <base_amount>",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-004,Cardstream-CH: Uplifted amount below max_transaction_limit — sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Price uplift configured in customers table
+- max_transaction_limit set","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
+base + uplift < max_transaction_limit","1. Configure uplift and limit so uplifted total is below limit.
+2. Submit sale.
+3. Verify DB.","1. Uplifted amount below limit — sale proceeds ✓
+2. transaction_status_id=1 ✓
+3. payments.gross = uplifted amount ✓
+
+── DB VALIDATION ──
+-- 1. Verify uplift config in customers table
+SELECT id, price_uplift, price_uplift_type
+FROM customers
+WHERE id = '<merchant_id>';
+
+-- 2. Verify payments.gross = base_amount + uplift
+SELECT id, order_ref, gross, fee, net,
+       payment_provider_id, transaction_status_id,
+       transaction_method_id, master_token_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected: gross = <base_amount + uplift_amount>
+--           payment_provider_id   = 3
+--           transaction_status_id = 1
+--           transaction_method_id = 2",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-005,Cardstream-CH: Uplifted total exceeds max_transaction_limit — sale rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Price uplift configured in customers table
+- max_transaction_limit set","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
+base + uplift > max_transaction_limit","1. Configure uplift such that base + uplift > max_transaction_limit.
+2. Submit sale.
+3. Observe response.","1. Sale rejected — uplifted total exceeds limit ✓
+2. Error: 'Transaction amount exceeds maximum allowed limit' ✓
+3. Limit checked against uplifted gross, not base amount ✓
+
+── DB VALIDATION ──
+-- Confirm limit config
+SELECT max_transaction_limit, price_uplift FROM customers WHERE id='<merchant_id>';
+
+-- Verify NO payments record was created
+SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0
+
+-- Verify NO webhook-log entry created
+SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
+-- Expected: COUNT = 0",Automated,P1,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-006,Cardstream-CH: Price uplift visible on payment page — Old UI (v1) and New UI (v2) (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Price uplift configured in customers table
+- Test both datman_hosted_ui_version=1 and =2","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
+UI v1: datman_hosted_ui_version=1 | UI v2: datman_hosted_ui_version=2","1. Set v1, open page — verify uplifted amount displayed.
+2. Set v2, open page — verify uplifted amount displayed.
+3. Complete sales on both.","1. v1: uplifted amount shown ✓
+2. v2: uplifted amount shown ✓
+3. Both payments.gross = uplifted amount ✓
+
+── DB VALIDATION ──
+-- Both sales
+SELECT order_ref, gross, transaction_status_id
+FROM payments
+WHERE order_ref IN ('<v1_order_ref>', '<v2_order_ref>');
+-- Expected: gross = uplifted amount for both",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-007,Cardstream-CH: Price uplift + split commission — both applied correctly in DB (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Price uplift configured in customers table
+- Split commission also active","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
+split_fee: [{type_id: 3, value_type: 'amount', value: 2.50}]","1. Configure uplift and split_fee.
+2. Submit sale.
+3. Verify uplifted gross in payments.
+4. Verify split commission record.","1. payments.gross = uplifted amount ✓
+2. payments_split_commission: commission_amount=2.50 ✓
+3. split_payment_flag=1 ✓
+4. Uplift and split are independent ✓
+
+── DB VALIDATION ──
+-- 1. Verify uplift config in customers table
+SELECT id, price_uplift, price_uplift_type
+FROM customers
+WHERE id = '<merchant_id>';
+
+-- 2. Verify payments.gross = base_amount + uplift
+SELECT id, order_ref, gross, fee, net,
+       payment_provider_id, transaction_status_id,
+       transaction_method_id, master_token_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected: gross = <base_amount + uplift_amount>
+--           payment_provider_id   = 3
+--           transaction_status_id = 1
+--           transaction_method_id = 2
+
+-- Verify split commission
+SELECT psc.commission_type_id, psc.commission_amount
+FROM payments_split_commission psc
+JOIN payments p ON p.id = psc.payment_id
+WHERE p.order_ref='<order_ref>';
+-- Expected: commission_amount = 2.50",Automated,P2,Automated
+Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-008,Dashboard — Cardstream: uplifted gross shown correctly in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+- Test environment is accessible and stable
+- Valid test credentials are available
+- A valid master_token exists for the shopper in the master_token table
+- Price uplift configured in customers table
+- Access to MMS dashboard","Payment method: Saved Card
+Region: USA only (Australia is out of scope for Cardstream-CH)
+Shopper: shopper_id=<shopper_id>
+Master token: Fetch from master_token table (provider=cardstream)
+Card: Visa, last 4 digits: use from master_token table
+Merchant ID: <merchant_id>
+Shopper ID: <shopper_id>
+Webhook URL: <webhook_listener_url>
+Redirect URL: <redirect_url>
+DB: SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';","1. Process sale with uplift.
+2. Open transaction in MMS.
+3. Verify amount fields in dashboard.","1. MMS shows uplifted gross as transaction amount ✓
+2. No discrepancy between dashboard and payments.gross ✓
+3. Provider = Cardstream ✓
+
+── DB VALIDATION ──
+-- 1. Verify uplift config in customers table
+SELECT id, price_uplift, price_uplift_type
+FROM customers
+WHERE id = '<merchant_id>';
+
+-- 2. Verify payments.gross = base_amount + uplift
+SELECT id, order_ref, gross, fee, net,
+       payment_provider_id, transaction_status_id,
+       transaction_method_id, master_token_id
+FROM payments
+WHERE order_ref = '<order_ref>';
+
+-- Expected: gross = <base_amount + uplift_amount>
+--           payment_provider_id   = 3
+--           transaction_status_id = 1
+--           transaction_method_id = 2",Manual,P2,Can't-be-automated

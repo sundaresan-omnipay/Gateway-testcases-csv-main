@@ -1,0 +1,59 @@
+name: Index Changed CSVs to Chroma Cloud
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.csv"
+
+jobs:
+  chroma-index:
+    name: Detect & Index Changed CSVs
+    runs-on: ubuntu-latest
+    environment: CHROMA_API_KEY
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r scripts/requirements-chroma.txt
+
+      - name: Detect changed CSV files
+        id: changed
+        run: |
+          BEFORE="${{ github.event.before }}"
+          if git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+            CHANGED=$(git diff --name-only "${BEFORE}" HEAD -- '**/*.csv' | tr '\n' ' ')
+          else
+            echo "No previous commit found; treating all CSVs as changed."
+            CHANGED=$(git ls-files '*.csv' | tr '\n' ' ')
+          fi
+
+          echo "Changed CSV files: ${CHANGED}"
+          echo "files=${CHANGED}" >> "$GITHUB_OUTPUT"
+
+      - name: Index changed files into Chroma Cloud
+        if: steps.changed.outputs.files != ''
+        env:
+          CHROMA_API_KEY: ${{ secrets.CHROMA_API_KEY }}
+          CHROMA_TENANT: ${{ secrets.CHROMA_TENANT }}
+          CHROMA_DATABASE: ${{ secrets.CHROMA_DATABASE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CHROMA_EMBEDDING_MODEL: text-embedding-3-large
+        run: |
+          python scripts/index_to_chroma.py ${{ steps.changed.outputs.files }}
+
+      - name: No CSV changes detected
+        if: steps.changed.outputs.files == ''
+        run: echo "No gateway CSV files changed in this push — nothing to index."

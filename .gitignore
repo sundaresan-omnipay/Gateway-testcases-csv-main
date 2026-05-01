@@ -1,0 +1,5 @@
+coverage-reports/
+converted-files-sqlite/
+*.db
+.DS_Store
+

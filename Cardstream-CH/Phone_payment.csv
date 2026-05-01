@@ -1,0 +1,5459 @@
+Module,Submodule,Parent ID,Test Case #,CS_phone_pay_TC_001_ch_moto_sale_omt_reference.spec.js,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status,Countries applicable,Partners applicable,Automation mapped TC
+Cardstream Moto Payments,MOTO Payment - Basic Flow,MOTO-Basic,MOTO-001,CARDSTREAM - CH - MOTO sale - Validation of OMT reference in metadata,,,"Using the payload for MOTO try
+
+1. Open the link Pluto and process the payment by entering the valid card details
+
+Verify the entries in
+A) DB
+* Card-payment : Verify - Order-id, Payment provider, Origin, Method, master-token-id, Cross reference
+* Webhook-log
+
+B) Dashboard :
+
+Verify the OMT reference in metadata in AWS logs","* The payment should be processed without any issue
+
+A) The entries should be updated in DB as per the sale value.
+* Payment-provider should be updated as cardstream.
+* Origin should be displayed as WebForm-CS-3D-V2.
+* Method should be updated as CardOnFile.
+* Master token id should be updated as per the token used.
+* The webhook log should be updated in the DB
+* No duplicate entry should be added in the table
+
+B) User should able to see the sale entry is displayed successfully in dashboard.
+
+OMT Reference should be shown in metadata in AWS logs",Can't-be-automated,High,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,Split-Commission,PP-001,Cardstream-CH Phone Payment - Split Commission - Global Split Type Sale Succeeds,,"split_fee: [{type_id: ex 3, value_type: 'amount', value: 2.50}]
+Note: Global split types (IDs 1-8, 11, 100) can be used across all providers. New global splits can also be created via FH API token.","1. Process a Phone Payment sale with a global split type (ex: type_id=3 'Delivery Fee Restaurant') in the split_fee payload.
+2. Complete the payment successfully.
+3. Verify the sale is successful with transaction_status_id=1.
+4. Query payments_split_commission table for the split entry.
+5. Verify the commission amount matches the split_fee payload.","1. Sale succeeds with global split type ✓
+2. payments_split_commission table contains entry with commission_type_id matching the split used ✓
+3. commission_amount = 2.50 as per payload ✓
+4. split_payment_flag=1 in payments table ✓
+5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓",Automated,Normal,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,Split-Commission,PP-002,Cardstream-CH Phone Payment - Split Commission - Invalid Split Type ID Rejected,,"split_fee: [{type_id: 9999, value_type: 'amount', value: 2.50}]
+Note: Only valid global split type IDs (ex: 1-8, 11, 100) or newly created splits via API are accepted.","1. Process a Phone Payment sale with an invalid/non-existent split type_id (ex: type_id=9999) in the split_fee payload.
+2. Verify the transaction is rejected before authorization.
+3. Confirm no payments_split_commission entry is created.
+4. Verify no payment record is created.","1. Sale is rejected ✓
+2. API responds with error: 'invalid type id' ✓
+3. No payments_split_commission record created ✓
+4. No payment record created ✓
+5. Only valid split type IDs from split_commission_types table are accepted ✓",Automated,Normal,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,Split-Commission,PP-003,Cardstream-CH Phone Payment - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale,,"split_fee: [{type_id: <soft_deleted_split_id>, value_type: 'amount', value: 2.50}]
+Precondition: Use DELETE API on an existing split type → verify delete_status=0 in split_commission_types table","1. Use the DELETE API to soft-delete an existing split type (sets delete_status=0 in split_commission_types table).
+2. Verify the split_commission_types table shows delete_status=0 for the deleted split type.
+3. Process a Phone Payment sale using the soft-deleted split type_id in the split_fee payload.
+4. Verify the transaction is rejected before authorization.
+5. Confirm no payments_split_commission entry is created.","1. DELETE API successfully soft-deletes the split type ✓
+2. split_commission_types table shows delete_status=0 for the target split ✓
+3. Sale using soft-deleted split type is rejected ✓
+4. API responds with error: 'invalid type id' ✓
+5. No payments_split_commission record created ✓
+6. No payment record created ✓",Automated,Normal,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,Split-Commission,PP-004,Cardstream-CH Phone Payment - Split Commission - Updated Split Type via API Used in Sale Succeeds,,"split_fee: [{type_id: <updated_split_id>, value_type: 'amount', value: 3.00}]
+Precondition: Use Update API to modify an existing split type → verify updated values in split_commission_types table","1. Use the Update API to modify an existing split type (ex: update name or value).
+2. Verify the split_commission_types table reflects the updated values.
+3. Process a Phone Payment sale using the updated split type_id in the split_fee payload.
+4. Complete the payment successfully.
+5. Query payments_split_commission table for the split entry.
+6. Verify the commission entry reflects the updated split type.","1. Update API successfully modifies the split type ✓
+2. split_commission_types table reflects updated values ✓
+3. Sale with updated split type succeeds with transaction_status_id=1 ✓
+4. payments_split_commission table contains entry with updated commission_type_id ✓
+5. commission_amount = 3.00 as per payload ✓
+6. split_payment_flag=1 in payments table ✓",Automated,Normal,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-001,"Moto payment - End to End - Sale, DB Validations and Cardstream Dashboard validation","""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+Moto payment should be enabled for the merchant - Store should be created and available for the merchant in Cardstream
+
+- cardstream_store_id_enabled value should be updated as 1 for the merchant in customers table","""- Refer Git repository for test script to open moto card page
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team for Cardstream Stage key)
+
+- Webhook url: webhook_url
+
+- Country: United Kingdom (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $50.00 (within moto limit)
+
+- Address objects in format:
+  - address: {house_number, flat, address1, address2, postcode}
+  - avs: {house_number, postcode}
+  - AddressOnFile: [{AvsHouseNumber, AvsPostcode}]
+
+- All mandatory fields""","""1. Open moto card page using the test script
+
+2. Verify google pay and apple pay is not displayed on the payment page - Moto payment page should not have these buttons
+
+3. Complete the transaction using the Cardstream test cards
+
+4. Verify redirect to redirect_url upon completion
+
+5. Capture order_id and verify database entries""","""1. User should see the moto page, and  validate if the hosted form has the month column with data as(Front of card, written in MM/YY) & Security code has infromation as (Back of card, 3 digits). check if the white labeling information is not ruled out and is coming as expected
+CVV is hidden by default and only becomes visible after the eye icon is toggled.Payment completes successfully and redirects to redirect_url
+
+2. Database verification - gateway_request_log:
+-> Entry created with raw payload
+-> Payment method: Moto transaction
+
+3. Database verification - payments table:
+-> transaction_status_id: 1 (success)
+-> payment_provider_id: 3 (Cardstream)
+-> transaction_method_id: 3 (Moto)
+-> transaction_time: valid BST timestamp
+-> first_name, last_name captured
+-> psp_reference: Cardstream reference present
+-> merchant_id, country_code: 'US', currency_code: 'USD'
+-> fee: calculated based on merchant fee_tier
+-> net: gross - fee
+-> gross: $50.00
+-> internal_reference: O<order_id>M<merchant_id>T<payment_id>
+-> last_4_digits: last 4 digits of card
+-> email_address: testing@datman.je
+-> shopper_id populated
+
+4. Database verification - webhook_log:
+-> webhook_url present
+-> encrypted_payload present
+
+5. Database verification - cardstream_webhook_notification_log:
+-> merchant_id present
+
+6. Cardstream US dashboard verification:
+-> Payment lifecycle complete
+-> Transaction amount: $50.00 USD
+-> Payment method: Moto payment
+-> No splits involved (standard sale)
+-> Settlement status visible""","""moto_sale_cardstream;
+moto_standard;
+region_us;
+currency_gbp;
+non_3ds;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-002,Moto payment - Sale with Full Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment should be enabled for the merchant - Store should be created and available for the merchant in Cardstream
+
+- cardstream_store_id_enabled value should be updated as 1 for the merchant in customers table
+
+- Refund functionality enabled for the merchant""","""- Refer Git repository for test script to open moto card page
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team for Cardstream Stage key)
+
+- Webhook url: webhook_url
+
+- Country: United Kingdom (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $50.00 (within moto limit)
+
+- Address objects in format:
+  - address: {house_number, flat, address1, address2, postcode}
+  - avs: {house_number, postcode}
+  - AddressOnFile: [{AvsHouseNumber, AvsPostcode}]
+
+- All mandatory fields""","""1. Verify the UI of the moto sale and Complete a successful moto payment transaction (refer to TC001 for full sale steps)
+
+2. Capture payment_id and order_id from the successful transaction
+
+3. Initiate full refund using refund API:
+   - Provide payment_id
+   - Refund amount: $50.00 (full transaction amount)
+   - Reason: ""Customer request"" (optional)
+
+4. Verify refund API response
+
+5. Check database entries for refund transaction
+
+6. Verify Cardstream dashboard for refund status""","""1. ""1. User should see the moto page, and  validate if the hosted form has the month column with data as(Front of card, written in MM/YY) & Security code has infromation as (Back of card, 3 digits). check if the white labeling information is not ruled out and is coming as expected
+CVV is hidden by default and only becomes visible after the eye icon is toggled & Refund API returns success response with refund_id
+
+2. Database verification - payments table:
+-> New entry created for refund
+-> transaction_status_id: 2 (refund)
+-> payment_provider_id: 3 (Cardstream)
+-> transaction_method_id: 3 (Moto)
+-> gross: -$50.00 (negative amount)
+-> fee: -$[refunded_fee] (negative fee amount)
+-> net: gross - fee (negative)
+-> merchant_id: [CS-CH Merchant ID]
+-> currency_code: 'USD'
+-> country_code: 'US'
+-> psp_reference: Cardstream refund reference
+
+3. Database verification - webhook_log:
+-> webhook_url present
+-> encrypted_payload present
+-> payload contains: {refund_id, payment_id, refund_amount, refund_reason}
+
+4. Database verification - cardstream_webhook_notification_log:
+-> merchant_id present
+
+5. Original payment entry (payments table):
+-> transaction_status_id: Updated to 2 (refunded) or 5 (partially refunded)
+
+6. Cardstream US dashboard verification:
+-> Refund transaction visible
+-> Linked to original transaction
+-> Settlement status shows refund deduction
+
+7. Customer receives refund confirmation (if webhook successful)
+
+8. Card refunded within 5-10 business days""","""moto_refund_cardstream;
+moto_full_refund;
+region_us;
+currency_gbp;
+non_3ds;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-003,Moto payment - Sale with Back URL functionality - Valid back url given in payload should land in that page,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment should be enabled for the merchant
+
+- Store should be created and available for the merchant in Cardstream
+
+- cardstream_store_id_enabled value should be updated as 1 for the merchant in customers table
+
+- Back URL functionality configured""","""- Refer Git repository for test script to open moto card page
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team for Cardstream Stage key)
+
+- Webhook url: webhook_url
+
+- Country: United Kingdom (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $50.00
+
+- Redirect URL: https://example.com/success
+
+- Back URL: https://example.com/back (VALID URL)
+
+- Cancel URL: https://example.com/cancel
+
+- Address objects in proper format
+
+- All mandatory fields""","""1. Open moto card page using the test script with back_url parameter included in the payload
+
+2. Verify that the payment page loads successfully
+
+3. On the payment page, locate and click the ""Back"" or ""← Go Back"" button
+
+4. Verify that user is redirected to the back_url provided in the payload
+
+5. Verify the URL in browser matches the back_url
+
+6. Check database entries for any transaction status""","""1. Payment page loads successfully with back button visible & ""1. User should see the moto page, and  validate if the hosted form has the month column with data as(Front of card, written in MM/YY) & Security code has infromation as (Back of card, 3 digits). check if the white labeling information is not ruled out and is coming as expected
+CVV is hidden by default and only becomes visible after the eye icon is toggled
+
+2. Clicking back button redirects to: https://example.com/back
+
+3. URL in browser matches exactly: https://example.com/back
+
+4. No payment entry created in database (transaction not initiated)
+
+5. User successfully navigated back without completing payment
+
+6. Database verification - gateway_request_log:
+-> Entry created with back_url present in raw payload
+
+7. Back URL functionality working as expected
+
+8. Valid URLs are properly honored by the payment gateway
+
+9. User can return to merchant site without completing payment""","""moto_back_url;
+moto_navigation;
+region_us;
+currency_gbp;
+url_validation;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-004,Moto payment - Sale with Partial Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled for the merchant
+
+- Store created and available in Cardstream
+
+- cardstream_store_id_enabled = 1 in customers table
+
+- Partial refund functionality enabled""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Original transaction amount: $50.00
+
+- Partial refund amount: $20.00
+
+- All mandatory fields""","""1. Complete a successful moto payment for $50.00 (refer to TC001)
+
+2. Capture payment_id and order_id
+
+3. Initiate partial refund:
+   - payment_id: [captured_payment_id]
+   - Refund amount: $20.00 (partial)
+   - Reason: ""Partial order cancellation""
+
+4. Verify refund API response
+
+5. Check database entries
+
+6. Verify Cardstream dashboard
+
+7. Attempt second partial refund of $15.00
+
+8. Verify cumulative refund tracking""","""1. First partial refund successful ($20.00)
+
+2. Database verification - payments table (refund entry):
+-> transaction_status_id: 2 (refund)
+-> gross: -$20.00
+-> fee: -$[proportional_fee]
+-> net: calculated based on refund
+
+3. Original payment entry updated:
+-> transaction_status_id: 5 (partially refunded)
+
+4. webhook_log:
+
+5. cardstream_webhook_notification_log:
+
+6. Second partial refund successful ($15.00)
+
+7. Cumulative tracking:
+-> Total refunded: $35.00
+
+8. Cardstream dashboard shows both partial refunds
+
+9. Multiple partial refunds allowed until full amount refunded""","""moto_partial_refund;
+moto_refund;
+region_us;
+currency_gbp;
+multiple_refunds;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-004,Moto payment - Sale with Partial Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled for the merchant   
+
+- Store created and available in Cardstream 
+
+- Android stimulator for Android version, Android V8, V9, V10, V11                                 
+
+- cardstream_store_id_enabled = 1 in customers table
+
+- Partial refund functionality enabled""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Original transaction amount: $50.00
+
+- Partial refund amount: $20.00
+
+- All mandatory fields""","1. With the Android stimulator, Stimuate Android device with Version V8, V9, V10, & V11 & pass the Moto Pay URL in the web browser to validate to see if the UI is not breaking and has no glitches & Complete a successful moto payment for $50.00 (refer to TC001)
+
+2. Capture payment_id and order_id
+
+3. Initiate partial refund:
+   - payment_id: [captured_payment_id]
+   - Refund amount: $20.00 (partial)
+   - Reason: ""Partial order cancellation""
+
+4. Verify refund API response
+
+5. Check database entries
+
+6. Verify Cardstream dashboard
+
+7. Attempt second partial refund of $15.00
+
+8. Verify cumulative refund tracking""","""1. With all the Android versions the UI should not be breaking and no glitches should be seen in the Moto UI and the sale and First partial refund successful ($20.00)
+
+2. Database verification - payments table (refund entry):
+-> transaction_status_id: 2 (refund)
+-> gross: -$20.00
+-> fee: -$[proportional_fee]
+-> net: calculated based on refund
+
+3. Original payment entry updated:
+-> transaction_status_id: 5 (partially refunded)
+
+4. webhook_log:
+
+5. cardstream_webhook_notification_log:
+
+6. Second partial refund successful ($15.00)
+
+7. Cumulative tracking:
+-> Total refunded: $35.00
+
+8. Cardstream dashboard shows both partial refunds
+
+9. Multiple partial refunds allowed until full amount refunded""","""moto_partial_refund;
+moto_refund;
+region_us;
+currency_gbp;
+multiple_refunds;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-005,"Moto payment - Different Valid Test Cards Sale (Visa Electron, MasterCard Corporate, Mastercard, VISA Debit, Maestro, VISA Classic, Mastercard Prepaid)","""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Store created in Cardstream
+
+-Android stimulator for Android version, Android V8, V9, V10, V11
+
+- cardstream_store_id_enabled = 1
+
+- All major card schemes enabled""","""- Test Cards (Cardstream Test Cards):
+  1. Visa Electron: 4917 3000 0000 0008
+  2. MasterCard Corporate: 5200 0000 0000 0007
+  3. Mastercard: 5555 4444 3333 1111
+  4. VISA Debit: 4400 0000 0000 0008
+  5. Maestro: 6771 8900 0000 0007
+  6. VISA Classic: 4111 1111 1111 1111
+  7. Mastercard Prepaid: 5200 8282 8282 8210
+
+- CVV: 737 (for all cards)
+
+- Expiry: 03/2030 (valid future date)
+
+- Amount: $25.00 per transaction
+
+- Email: testing@datman.je
+
+- All mandatory fields""","""1. For each card type, perform the following:
+
+2. Open moto card page, Pass the same in the Every android version web browser
+
+3. Enter card details
+
+4. Complete the transaction
+
+5. Verify redirect to redirect_url
+
+6. Capture order_id and payment_id
+
+7. Verify database entries for card-specific data
+
+8. Check Cardstream dashboard
+
+9. Verify card brand identification
+
+10. Repeat for all 7 card types""","""For Each Card Type:
+
+
+
+With all the Android versions the UI should not be breaking and no glitches should be seen in the Moto UI
+
+with the below DB validations
+
+1. Transaction successful
+
+2. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+  * ""Visa Electron""
+  * ""MasterCard Corporate""
+  * ""mc"" or ""Mastercard""
+  * ""Visa Debit""
+  * ""Maestro""
+  * ""Visa Classic"" or ""visa""
+  * ""Mastercard Prepaid""
+-> last_4_digits: last 4 of card
+-> gross: $25.00
+-> currency_code: 'USD'
+
+3. Card brand correctly identified
+
+4. gateway_request_log:
+-> Payment method matches card type
+
+5. webhook_log:
+-> payment_success webhook sent
+
+6. cardstream_webhook_notification_log:
+-> Payment method details present
+
+7. Cardstream dashboard:
+-> Card scheme displayed correctly
+-> Transaction successful
+-> All 7 card types processed
+
+8. Different card types all supported
+
+9. BIN validation working correctly
+
+10. Card scheme routing to Cardstream successful""","""moto_multiple_cards;
+card_schemes;
+visa;
+mastercard;
+maestro;
+region_us;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-005,"Moto payment - Different Valid Test Cards Sale (Visa Electron, MasterCard Corporate, Mastercard, VISA Debit, Maestro, VISA Classic, Mastercard Prepaid)","""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Store created in Cardstream
+
+- cardstream_store_id_enabled = 1
+
+- All major card schemes enabled""","""- Test Cards (Cardstream Test Cards):
+  1. Visa Electron: 4917 3000 0000 0008
+  2. MasterCard Corporate: 5200 0000 0000 0007
+  3. Mastercard: 5555 4444 3333 1111
+  4. VISA Debit: 4400 0000 0000 0008
+  5. Maestro: 6771 8900 0000 0007
+  6. VISA Classic: 4111 1111 1111 1111
+  7. Mastercard Prepaid: 5200 8282 8282 8210
+
+- CVV: 737 (for all cards)
+
+- Expiry: 03/2030 (valid future date)
+
+- Amount: $25.00 per transaction
+
+- Email: testing@datman.je
+
+- All mandatory fields""","""1. For each card type, perform the following:
+
+2. Open moto card page
+
+3. Enter card details
+
+4. Complete the transaction
+
+5. Verify redirect to redirect_url
+
+6. Capture order_id and payment_id
+
+7. Verify database entries for card-specific data
+
+8. Check Cardstream dashboard
+
+9. Verify card brand identification
+
+10. Repeat for all 7 card types""","""For Each Card Type:
+
+1. Transaction successful
+
+2. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+  * ""Visa Electron""
+  * ""MasterCard Corporate""
+  * ""mc"" or ""Mastercard""
+  * ""Visa Debit""
+  * ""Maestro""
+  * ""Visa Classic"" or ""visa""
+  * ""Mastercard Prepaid""
+-> last_4_digits: last 4 of card
+-> gross: $25.00
+-> currency_code: 'USD'
+
+3. Card brand correctly identified
+
+4. gateway_request_log:
+-> Payment method matches card type
+
+5. webhook_log:
+-> payment_success webhook sent
+
+6. cardstream_webhook_notification_log:
+-> Payment method details present
+
+7. Cardstream dashboard:
+-> Card scheme displayed correctly
+-> Transaction successful
+-> All 7 card types processed
+
+8. Different card types all supported
+
+9. BIN validation working correctly
+
+10. Card scheme routing to Cardstream successful""","""moto_multiple_cards;
+card_schemes;
+visa;
+mastercard;
+maestro;
+region_us;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-006,Moto payment - AMEX Card Sale,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Store created in Cardstream
+
+- cardstream_store_id_enabled = 1
+
+- AMEX card scheme enabled for the merchant
+
+- AMEX specific fee tier configured (usually higher than Visa/MC)""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: Currency: USD75.00
+
+- AMEX Test Card: 3700 0000 0000 002 (Cardstream test card)
+
+- CVV: 7373
+
+- Expiry: 03/2030
+
+- Address objects in proper format
+
+- All mandatory fields""","""1. Open moto card page using test script
+
+2. Enter AMEX card details
+
+3. Complete the transaction
+
+4. Verify redirect to redirect_url
+
+5. Capture order_id and payment_id
+
+6. Verify database entries
+
+7. Check AMEX-specific fee calculation
+
+8. Verify Cardstream dashboard
+
+9. Confirm card brand = ""AMEX""
+
+10. Validate fee structure for AMEX""","""1.""1. User should see the moto page, and  validate if the hosted form has the month column with data as(Front of card, written in MM/YY) & Security code has infromation as (Front of card, 4 digits). check if the white labeling information is not ruled out and is coming as expected
+CVV is hidden by default and only becomes visible after the eye icon is toggled & Transaction successful with AMEX card
+
+2. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+-> last_4_digits: last 4 of AMEX card
+-> gross: $75.00
+-> fee: $[AMEX_specific_fee] (typically higher percentage)
+-> net: gross - AMEX_fee
+-> payment_provider_id: 3 (Cardstream)
+-> transaction_method_id: 3 (Moto)
+-> currency_code: 'USD'
+-> country_code: 'US'
+
+3. AMEX fee calculation:
+-> Usually 3.5% + fixed fee (vs 2.5% for Visa/MC)
+-> Fee tier specific to AMEX
+-> Higher fee correctly applied
+
+4. gateway_request_log:
+-> Card type identified as AMEX
+
+5. webhook_log:
+-> payment_success with AMEX details
+
+6. cardstream_webhook_notification_log:
+-> Payment method: AMEX
+
+7. Cardstream dashboard:
+-> Card scheme: American Express
+-> Transaction successful
+-> AMEX settlement timeline applies (typically longer)
+
+8. AMEX-specific merchant category code (MCC) applied
+
+9. Different fee structure validated""","""moto_amex;
+amex_card;
+region_us;
+currency_gbp;
+premium_card;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-007,Moto payment - Failed Sale - Google pay and Apple pay button should not be available on the failed page,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Store created in Cardstream
+
+- Failed payment page configured
+
+- Google Pay and Apple Pay are enabled for regular transactions""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Declined Test Card: 4000 3000 0000 3003 (Cardstream declined card)
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- Address objects
+
+- All mandatory fields""","""1. Open moto card page
+
+2. Enter declined test card details
+
+3. Submit the payment
+
+4. Payment will be declined by Cardstream
+
+5. User redirected to failed payment page
+
+6. Inspect the failed payment page DOM/HTML
+
+7. Verify Google Pay button is NOT present
+
+8. Verify Apple Pay button is NOT present
+
+9. Check page source code
+
+10. Verify only ""Try Again"" or ""Back to Merchant"" options available""","""1. Payment declined
+
+2. User redirected to failed/declined page
+
+3. Failed page does NOT display:
+   ❌ Google Pay button
+   ❌ Apple Pay button
+
+4. Failed page ONLY displays:
+   ✓ Error message
+   ✓ Decline reason
+   ✓ ""Try Again"" link
+   ✓ ""Return to Merchant"" button
+   ✓ Transaction reference
+
+5. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 7 (declined) or 9 (failed)
+-> gross: $50.00
+-> fee: $0.00 (no fee for failed transaction)
+-> last_4_digits: 3003
+
+6. gateway_request_log:
+-> Response code: Declined
+
+7. webhook_log (if configured for failures):
+-> reason: decline_reason
+
+8. cardstream_webhook_notification_log:
+-> reason: Card declined
+
+9. Cardstream dashboard:
+-> Transaction shows as declined
+-> No settlement
+
+10. Security validation: Digital wallet buttons not exposed on error pages
+
+11. UI/UX: Clean error page without payment method options""","""moto_failed;
+declined_transaction;
+no_digital_wallets;
+ui_validation;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-008,Moto payment - Sale with Long Redirect URL - Payment should not be failed,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Store created in Cardstream
+
+- URL length handling properly configured
+
+- No strict URL length validation (or validation allows long URLs)""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Redirect URL: https://example.com/success?param1=value1&param2=value2&param3=value3&param4=value4&param5=value5&param6=value6&param7=value7&param8=value8&param9=value9&param10=value10&transaction_id=123456789&merchant_ref=ABCDEFGHIJKLMNOP&session_token=abcdefghijklmnopqrstuvwxyz1234567890 (Long URL with multiple parameters - approximately 350+ characters)
+
+- Valid test card
+
+- All mandatory fields""","""1. Open moto card page with long redirect_url in payload
+
+2. Verify payment page loads successfully
+
+3. Complete payment with valid test card
+
+4. Payment should process successfully
+
+5. Verify redirect to the long redirect_url
+
+6. Capture order_id and payment_id
+
+7. Verify complete URL is preserved
+
+8. Check database entries
+
+9. Validate URL integrity
+
+10. Confirm all parameters are intact""","""1. Payment processes successfully
+
+2. Payment NOT failed due to long URL
+
+3. Redirect successful to full URL
+
+4. Database - gateway_request_log:
+-> URL length: ~350+ characters
+-> All parameters intact
+
+5. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+-> gross: $50.00
+-> payment_provider_id: 3 (Cardstream)
+-> All transaction details correct
+
+6. User redirected to:
+https://example.com/success?param1=value1&param2=value2...&session_token=abcdefghijklmnopqrstuvwxyz1234567890
+
+7. All query parameters preserved:
+-> param1=value1 ✓
+-> param2=value2 ✓
+-> ... (all 10+ parameters) ✓
+-> transaction_id=123456789 ✓
+-> merchant_ref=ABCDEFGHIJKLMNOP ✓
+-> session_token=abcdefghijklmnopqrstuvwxyz1234567890 ✓
+
+8. URL encoding proper
+
+9. webhook_log:
+-> payment_success
+
+10. No truncation of redirect URL
+
+11. Gateway handles long URLs correctly
+
+12. Merchant session tracking intact""","""moto_long_url;
+url_validation;
+edge_case;
+region_us;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-009,Moto payment - Sale with Long Cancel URL - Payment should not be failed,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Store created in Cardstream
+
+- URL length handling configured
+
+- Cancel URL functionality enabled""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Cancel URL: https://example.com/cancel?reason=user_cancelled&merchant_id=12345&session_id=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz&timestamp=1234567890&signature=abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOP&redirect_source=payment_gateway&cancel_type=user_initiated&retry_count=0 (Long URL ~320+ characters)
+
+- Valid test card
+
+- All mandatory fields""","""1. Open moto card page with long cancel_url in payload
+
+2. Verify payment page loads
+
+3. Complete payment successfully
+
+4. Verify payment processes (not cancelled in this test)
+
+5. Verify cancel_url is stored correctly
+
+6. Database verification
+
+7. Optionally: Test cancel flow by clicking cancel button
+
+8. If cancelled: verify redirect to long cancel_url
+
+9. Validate URL integrity""","""1. Payment page loads successfully
+
+2. Payment can complete OR be cancelled
+
+3. Long cancel_url does NOT cause failure
+
+4. Database - gateway_request_log:
+-> URL length: ~320+ characters
+-> All parameters stored correctly
+
+5. If payment completed:
+-> transaction_status_id: 1 (success)
+-> cancel_url stored but not used
+
+6. If payment cancelled:
+-> User redirected to full cancel_url
+-> All query parameters preserved:
+  * reason=user_cancelled ✓
+  * merchant_id=12345 ✓
+  * session_id=... ✓
+  * timestamp=1234567890 ✓
+  * signature=... ✓
+  * All other parameters ✓
+
+7. No URL truncation
+
+8. Gateway handles long cancel URLs
+
+9. Merchant tracking parameters intact
+
+10. Payment processing NOT affected by long cancel URL
+
+11. URL encoding/decoding correct
+
+12. System robust for edge case URLs""","""moto_long_cancel_url;
+url_validation;
+edge_case;
+cancel_flow;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - O2M & External Reseller,CS-MP-02,CS-MP-02-001,Moto payment - O2M Sale with Partial Refund to Card - External Reseller Commission (Type 100),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- O2M external reseller configuration:
+  * Country table: ext_reseller_commission_enabled = 1
+  * Country table: ext_reseller_merchant_id populated
+  * Country table: ext_reseller_percentage_fee = 5.00
+  * Country table: ext_reseller_fixed_fee = 0.30
+
+- Customer table: merchant_type = 'O2M'
+
+- Split type_id: 100 (External Reseller Commission)
+
+- Fee Structure:
+  * Datman: 2.50% + $0.20
+  * O2M reseller: 5.00% + $0.30
+
+- CRITICAL: Reseller % (5.00%) MUST be higher than Datman % (2.50%)""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $100.00
+
+- Partial refund amount: $40.00
+
+- Merchant configuration:
+  * Merchant A (Sale Merchant) - merchant_type: 'O2M'
+  * Merchant B (O2M External Reseller)
+  * Datman Merchant (Platform)
+
+- Valid test card
+
+- All mandatory fields""","""1. Verify O2M configuration in database
+
+2. Open moto card page
+
+3. Complete transaction for $100.00
+
+4. System calculates O2M commission:
+   Step 1: Datman Commission = ($100.00 × 2.50% + $0.20) = $2.70
+   Step 2: Reseller Total = ($100.00 × 5.00% + $0.30) = $5.30
+   Step 3: Reseller Net = $5.30 - $2.70 = $2.60
+
+5. Verify three-way split in database (3 payment entries)
+
+6. Capture payment_id
+
+7. Initiate partial refund of $40.00
+
+8. Verify refund calculations:
+   - Datman refund: ($40.00 × 2.50% + $0.08) = $1.08
+   - Reseller Total refund: ($40.00 × 5.00% + $0.12) = $2.12
+   - Reseller Net refund: $2.12 - $1.08 = $1.04
+
+9. Verify refund splits across all 3 merchants""","""INITIAL SALE ($100.00):
+
+1. Three payment entries created:
+
+Entry 1 - Sale Merchant A:
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $100.00
+-> fee: [merchant_fee] + $5.30 (reseller total deducted)
+-> net: $100.00 - merchant_fee - $5.30
+-> transaction_status_id: 1
+
+Entry 2 - O2M Reseller B:
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $2.60 (net commission)
+-> fee: $0.00
+-> net: $2.60
+
+Entry 3 - Datman Commission:
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $2.70
+-> fee: $0.00
+-> net: $2.70
+
+2. payment_splits table:
+    ""datman_commission"": 2.70,
+    ""reseller_total"": 5.30,
+    ""reseller_net"": 2.60
+}
+
+3. Cardstream split array (3-way):
+[
+  {merchant: ""Merchant_A_ID"", amount: [net in cents], type: ""MarketPlace""},
+  {merchant: ""Reseller_B_ID"", amount: 260, type: ""Commission""},
+  {merchant: ""Datman_ID"", amount: 270, type: ""Commission""}
+]
+
+PARTIAL REFUND ($40.00):
+
+4. Three refund entries created:
+
+Refund Entry 1 - Sale Merchant A:
+-> gross: -$40.00
+-> fee: -[proportional_merchant_fee] - $2.12
+-> net: calculated
+-> transaction_status_id: 2 (refund)
+
+Refund Entry 2 - O2M Reseller B:
+-> gross: -$1.04 (proportional net refund)
+-> fee: $0.00
+-> net: -$1.04
+-> transaction_status_id: 2
+
+Refund Entry 3 - Datman:
+-> gross: -$1.08 (proportional refund)
+-> fee: $0.00
+-> net: -$1.08
+-> transaction_status_id: 2
+
+5. Original payments updated:
+-> Sale Merchant: transaction_status_id = 5 (partially refunded)
+
+6. Cardstream refund split (3-way):
+[
+  {merchant: ""Merchant_A_ID"", amount: -[refund_amount], type: ""MarketPlace""},
+  {merchant: ""Reseller_B_ID"", amount: -104, type: ""Commission""},
+  {merchant: ""Datman_ID"", amount: -108, type: ""Commission""}
+]
+
+7. Financial Summary:
+Original: $100.00 (Merchant: net, Reseller: $2.60, Datman: $2.70)
+Refunded: $40.00 (Merchant: -net, Reseller: -$1.04, Datman: -$1.08)
+Remaining: $60.00 (Proportionally split)
+
+8. webhook_log: partial_refund with split details
+
+9. Cardstream dashboard: Three-way refund visible""","""moto_o2m;
+external_reseller;
+split_type_100;
+partial_refund;
+three_way_split;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - O2M & External Reseller,CS-MP-02,CS-MP-02-002,Moto payment - O2M Sale with Full Refund to Card - External Reseller Commission (Type 100),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- O2M configuration:
+  * ext_reseller_commission_enabled = 1
+  * ext_reseller_merchant_id populated
+  * ext_reseller_percentage_fee = 5.00
+  * ext_reseller_fixed_fee = 0.30
+
+- merchant_type = 'O2M'
+
+- Split type_id: 100
+
+- Fee rates: Datman 2.50% + $0.20, Reseller 5.00% + $0.30""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Transaction: $100.00
+
+- Full refund: $100.00
+
+- Merchants:
+  * Merchant A (Sale)
+  * Merchant B (O2M Reseller)
+  * Datman
+
+- Valid test card""","""1. Complete O2M sale for $100.00
+
+2. Verify three-way split:
+   - Datman: $2.70
+   - Reseller Net: $2.60
+   - Reseller Total: $5.30
+
+3. Capture payment_id
+
+4. Initiate full refund of $100.00
+
+5. Verify refund reversal across all three merchants
+
+6. Check database entries
+
+7. Verify Cardstream dashboard""","""INITIAL SALE (same as TC010)
+
+FULL REFUND ($100.00):
+
+1. Three refund entries:
+
+Refund 1 - Sale Merchant:
+-> gross: -$100.00
+-> Complete reversal of original sale
+
+Refund 2 - O2M Reseller:
+-> gross: -$2.60
+-> Full commission refunded
+
+Refund 3 - Datman:
+-> gross: -$2.70
+-> Full commission refunded
+
+2. Original payments updated:
+-> All transaction_status_id = 2 (fully refunded)
+
+3. Net result after refund: $0.00 for all parties
+
+4. Cardstream refund split (3-way) matching original split amounts
+
+5. webhook_log: full_refund
+
+6. cardstream_webhook_notification_log: REFUND events for all splits
+
+7. Financial reconciliation:
+   Original: $100.00
+   Refunded: $100.00
+   Net: $0.00 ✓""","""moto_o2m;
+external_reseller;
+split_type_100;
+full_refund;
+three_way_split;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - O2M & External Reseller,CS-MP-02,CS-MP-02-003,Moto payment - US: O2M Sale Refund to Card - External Reseller Commission Type 100,"""- Merchant in United States (country_id: 7) pointed to Cardstream
+
+- Moto payment enabled for US merchant
+
+- O2M external reseller configuration:
+  * Country table (US): ext_reseller_commission_enabled = 1
+  * Country table: ext_reseller_merchant_id populated
+  * Country table: ext_reseller_percentage_fee = 5.00
+  * Country table: ext_reseller_fixed_fee = 0.30
+
+- Customer table: merchant_type = 'O2M'
+
+- Split type_id: 100 (External Reseller Commission)
+
+- Fee Structure:
+  * Datman: 2.50% + $0.20
+  * O2M reseller: 5.00% + $0.30
+
+- Currency: USD
+
+- CRITICAL: Reseller % (5.00%) MUST be higher than Datman % (2.50%)""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $100.00 USD
+
+- Full refund amount: $100.00 USD
+
+- Merchant configuration:
+  * Merchant A (Sale Merchant) - merchant_type: 'O2M'
+  * Merchant B (O2M External Reseller)
+  * Datman Merchant (Platform)
+
+- Valid US test card
+
+- All mandatory fields""","""1. Verify O2M configuration for US merchant
+
+2. Open moto card page for US merchant
+
+3. Complete transaction for $100.00 USD
+
+4. System calculates O2M commission:
+   Step 1: Datman Commission = ($100.00 × 2.50% + $0.20) = $2.70
+   Step 2: Reseller Total = ($100.00 × 5.00% + $0.30) = $5.30
+   Step 3: Reseller Net = $5.30 - $2.70 = $2.60
+
+5. Verify three-way split in database (3 payment entries)
+
+6. Verify currency = USD in all entries
+
+7. Capture payment_id
+
+8. Initiate full refund of $100.00 USD
+
+9. Verify refund reversal across all three merchants
+
+10. Check Cardstream US dashboard""","""INITIAL SALE ($100.00 USD):
+
+1. Three payment entries created:
+
+Entry 1 - Sale Merchant A (US):
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: 'US'
+-> currency_code: 'USD'
+-> gross: $100.00
+-> fee: [merchant_fee] + $5.30 (reseller total deducted)
+-> net: $100.00 - merchant_fee - $5.30
+-> transaction_status_id: 1
+
+Entry 2 - O2M Reseller B:
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $2.60 (net commission)
+-> fee: $0.00
+-> net: $2.60
+-> currency_code: 'USD'
+
+Entry 3 - Datman Commission:
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $2.70
+-> fee: $0.00
+-> net: $2.70
+-> currency_code: 'USD'
+
+2. payment_splits table:
+    ""datman_commission"": 2.70,
+    ""reseller_total"": 5.30,
+    ""reseller_net"": 2.60,
+    ""currency"": ""USD""
+}
+
+3. Cardstream split array (3-way) - USD:
+[
+  {merchant: ""US_Merchant_A_ID"", amount: [net in cents], type: ""MarketPlace""},
+  {merchant: ""O2M_Reseller_B_ID"", amount: 260, type: ""Commission""},
+  {merchant: ""Datman_ID"", amount: 270, type: ""Commission""}
+]
+
+FULL REFUND ($100.00 USD):
+
+4. Three refund entries created:
+
+Refund Entry 1 - Sale Merchant A (US):
+-> gross: -$100.00
+-> fee: -[merchant_fee] - $5.30
+-> net: calculated
+-> currency_code: 'USD'
+-> transaction_status_id: 2 (refund)
+
+Refund Entry 2 - O2M Reseller B:
+-> gross: -$2.60
+-> fee: $0.00
+-> net: -$2.60
+-> currency_code: 'USD'
+-> transaction_status_id: 2
+
+Refund Entry 3 - Datman:
+-> gross: -$2.70
+-> fee: $0.00
+-> net: -$2.70
+-> currency_code: 'USD'
+-> transaction_status_id: 2
+
+5. Original payments updated:
+-> All transaction_status_id = 2 (fully refunded)
+
+6. Cardstream refund split (3-way) - USD:
+[
+  {merchant: ""US_Merchant_A_ID"", amount: -[amount], type: ""MarketPlace""},
+  {merchant: ""O2M_Reseller_B_ID"", amount: -260, type: ""Commission""},
+  {merchant: ""Datman_ID"", amount: -270, type: ""Commission""}
+]
+
+7. Financial reconciliation (USD):
+   Original: $100.00
+   Refunded: $100.00
+   Net: $0.00 ✓
+
+8. webhook_log:
+-> full_refund notification
+-> All three merchants notified
+
+9. Cardstream US dashboard verification:
+-> Three-way refund visible
+-> Transaction type: Moto ✓
+-> O2M commission refunded
+-> Settlement in USD
+
+10. US specific validation:
+-> Currency symbol: $ (USD)
+-> US merchant account
+-> US regional settings""","""moto_o2m;
+external_reseller;
+split_type_100;
+full_refund;
+three_way_split;
+region_us;
+currency_usd;
+US_specific;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - O2M & External Reseller,CS-MP-02,CS-MP-02-004,O2M payment - O2M Sale with Partial Refund (External Reseller Type 100),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- O2M external reseller configuration:
+  * ext_reseller_commission_enabled = 1
+  * ext_reseller_percentage_fee = 5.00
+  * ext_reseller_fixed_fee = 0.30
+
+- merchant_type = 'O2M'
+
+- Split type_id: 100""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Transaction: $100.00
+
+- Partial refund: $30.00
+
+- Fee structure:
+  * Datman: 2.50% + $0.20
+  * O2M: 5.00% + $0.30
+
+- Valid card""","""1. Complete O2M sale for $100.00
+
+2. Verify three-way split:
+   - Datman: $2.70
+   - Reseller Net: $2.60
+   - Total commission: $5.30
+
+3. Capture payment_id
+
+4. Initiate partial refund of $30.00
+
+5. Calculate proportional commission refund:
+   - Datman: ($30 × 2.50% + $0.06) = $0.81
+   - Reseller Total: ($30 × 5.00% + $0.09) = $1.59
+   - Reseller Net: $1.59 - $0.81 = $0.78
+
+6. Verify three-way refund
+
+7. Check database entries""","""INITIAL O2M SALE ($100.00): [Same as TC027]
+
+PARTIAL REFUND ($30.00):
+
+1. Three refund entries created:
+
+Refund 1 - Sale Merchant:
+-> gross: -$30.00
+-> fee: -[proportional] - $1.59
+
+Refund 2 - O2M Reseller:
+-> gross: -$0.78
+
+Refund 3 - Datman:
+-> gross: -$0.81
+
+2. Original payments updated:
+-> transaction_status_id: 5 (partially refunded)
+
+3. O2M commission adjusted:
+-> Original commission: $5.30
+-> Refunded commission: $1.59
+-> Remaining commission: $3.71
+
+4. Cardstream refund split (three-way):
+-> Proportional to original split
+-> All three parties refunded
+
+5. Financial reconciliation:
+external_reseller;
+split_type_100;
+partial_refund;
+three_way_split;
+region_us;""",P1,,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-001,Moto payment - Sale with Split Payment and Full Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Split payment functionality enabled
+
+- Split merchants configured and active
+
+- Split type_id: 1 (Food/Goods split)
+
+- Cardstream marketplace split capability enabled""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $100.00
+
+- Split details:
+  * Sale Merchant A: Main merchant
+  * Split Merchant B: $30.00 (Food/Goods)
+
+- Split configuration:
+  * split_type_id: 1
+  * split_amount: $30.00
+  * partner_merchant_id: Split_Merchant_B_ID
+
+- Sale merchant fee tier: 3.00% + $0.20
+
+- Valid test card
+
+- All mandatory fields""","""1. Prepare split payment payload:
+   {
+     ""amount"": 10000,  // $100 in cents
+     ""splits"": [
+       {
+         ""type_id"": 1,
+         ""partner_merchant_id"": ""Split_Merchant_B_ID"",
+         ""amount"": 3000  // $30 in cents
+       }
+     ]
+   }
+
+2. Open moto card page with split payload
+
+3. Complete transaction
+
+4. Verify two-way split created (Sale + Split Merchant)
+
+5. Calculate expected fees:
+   - Sale Merchant: $100 × 3% + $0.20 = $3.20
+   - Split recovery: $30 deducted from sale merchant
+   - Sale Merchant Net: $100 - $3.20 - $30 = $66.80
+
+6. Capture payment_id
+
+7. Initiate full refund of $100.00
+
+8. Verify refund splits across both merchants
+
+9. Check database entries
+
+10. Verify Cardstream dashboard""","""INITIAL SALE ($100.00):
+
+1. Two payment entries created:
+
+Entry 1 - Sale Merchant A:
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $100.00
+-> fee: $3.20
+-> net: $66.80 ($100 - $3.20 - $30)
+-> transaction_status_id: 1
+
+Entry 2 - Split Merchant B:
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $30.00
+-> fee: $0.00
+-> net: $30.00
+-> transaction_status_id: 1
+
+2. payment_splits table:
+-> merchant_id: [CS-CH Merchant ID]
+
+3. Cardstream split array (3-way):
+[
+  {
+    ""merchant"": ""Sale_Merchant_A_ID"",
+    ""amount"": 6680,  // $66.80 in cents
+    ""type"": ""MarketPlace""
+  },
+  {
+    ""merchant"": ""DL_Merchant_ID"",
+    ""amount"": 320,  // $3.20 fee in cents
+    ""type"": ""Commission"",
+    ""description"": ""Platform fees""
+  },
+  {
+    ""merchant"": ""Split_Merchant_B_ID"",
+    ""amount"": 3000,  // $30.00 in cents
+    ""type"": ""MarketPlace""
+  }
+]
+
+Total: $66.80 + $3.20 + $30.00 = $100.00 ✓
+
+FULL REFUND ($100.00):
+
+4. Two refund entries created:
+
+Refund Entry 1 - Sale Merchant A:
+-> gross: -$100.00
+-> fee: -$3.20 (fee refunded)
+-> net: -$66.80
+-> transaction_status_id: 2 (refund)
+
+Refund Entry 2 - Split Merchant B:
+-> gross: -$30.00
+-> fee: $0.00
+-> net: -$30.00
+-> transaction_status_id: 2 (refund)
+
+5. Original payments updated:
+-> Both transaction_status_id = 2 (fully refunded)
+
+6. Cardstream refund split (3-way):
+[
+  {merchant: ""Merchant_A_ID"", amount: -6680, type: ""MarketPlace""},
+  {merchant: ""DL_Merchant_ID"", amount: -320, type: ""Commission""},
+  {merchant: ""Split_Merchant_B_ID"", amount: -3000, type: ""MarketPlace""}
+]
+
+7. Financial reconciliation:
+   Original: Sale $66.80, Fee $3.20, Split $30.00 = $100.00
+   Refunded: -$66.80, -$3.20, -$30.00 = -$100.00
+   Net: $0.00 ✓
+
+8. webhook_log: full_refund with split details
+
+9. Both merchants receive refund notification
+
+10. Cardstream dashboard: Two-way refund visible""","""moto_split_payment;
+split_type_1;
+full_refund;
+two_way_split;
+marketplace;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-002,Moto payment - Sale with Split Payment (No Refund),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Split payment configured
+
+- Split merchants active
+
+- Split type_id: 1 (Food/Goods)""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Transaction: $100.00
+
+- Split: $30.00 to Split Merchant B
+
+- Sale merchant fee: 3.00% + $0.20
+
+- Valid test card""","""1. Prepare split payment payload
+
+2. Complete transaction with split
+
+3. Verify two payment entries
+
+4. Verify payment_splits table
+
+5. Check Cardstream split allocation
+
+6. Verify both merchants receive settlement
+
+7. NO refund initiated (success case only)
+
+8. Verify webhook delivery to both merchants""","""1. Two payment entries (same as TC012 initial sale)
+
+Entry 1 - Sale Merchant:
+-> gross: $100.00
+-> fee: $3.20
+-> net: $66.80
+-> transaction_status_id: 1
+
+Entry 2 - Split Merchant:
+-> gross: $30.00
+-> fee: $0.00
+-> net: $30.00
+-> transaction_status_id: 1
+
+2. payment_splits:
+
+3. Cardstream split array (3-way):
+-> DL Fee: $3.20
+Total: $100.00 ✓
+
+4. webhook_log:
+-> Two webhooks (one per merchant)
+
+5. cardstream_webhook_notification_log:
+-> Split details included
+
+6. Settlement:
+-> Sale Merchant receives $66.80
+-> Split Merchant receives $30.00
+-> DL receives $3.20
+
+7. No refund entries
+
+8. Cardstream dashboard: Two-way split successful
+
+9. Both merchants can view transaction in portal""","""moto_split_payment;
+split_type_1;
+no_refund;
+success_only;
+marketplace;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-003,Moto payment - Sale with Split Payment and Partial Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Split payment configured
+
+- Partial refund enabled
+
+- Split type_id: 1""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Transaction: $100.00
+
+- Split: $30.00 to Split Merchant
+
+- Partial refund: $40.00
+
+- Sale merchant fee: 3.00% + $0.20""","""1. Complete split payment sale for $100.00
+
+2. Verify two-way split
+
+3. Calculate proportional refund:
+   - Total: $100
+   - Split: $30 (30% of total)
+   - Refund: $40
+   - Split portion of refund: $40 × 30% = $12
+   - Sale merchant refund: $40 - $12 = $28
+
+4. Initiate partial refund of $40.00
+
+5. Verify proportional split refund
+
+6. Check both merchants receive proportional refund
+
+7. Verify remaining amounts""","""INITIAL SALE (same as TC012/TC013)
+
+PARTIAL REFUND ($40.00):
+
+1. Refund calculation:
+   - Total refund: $40.00
+   - Split portion (30%): $12.00
+   - Sale merchant portion: $28.00
+   - Fee refund: $40 × 3% + $0.08 = $1.28
+
+2. Two refund entries:
+
+Refund Entry 1 - Sale Merchant:
+-> gross: -$40.00
+-> fee: -$1.28
+-> net: -$28.00 (includes proportional adjustment)
+-> transaction_status_id: 2
+
+Refund Entry 2 - Split Merchant:
+-> gross: -$12.00 (30% of $40)
+-> fee: $0.00
+-> net: -$12.00
+-> transaction_status_id: 2
+
+3. Original payments updated:
+-> transaction_status_id: 5 (partially refunded)
+
+4. Remaining amounts:
+   Original: Sale $66.80, Split $30.00 = $96.80 net to merchants
+   Refunded: Sale -$28.00, Split -$12.00 = -$40.00
+   Remaining: Sale $38.80, Split $18.00 = $56.80
+
+5. Cardstream partial refund split (proportional)
+
+6. webhook_log: partial_refund
+
+7. Both merchants notified of proportional refund
+
+8. Financial reconciliation:
+   Original gross: $100.00
+   Refunded: $40.00
+   Remaining: $60.00 ✓""","""moto_split_payment;
+split_type_1;
+partial_refund;
+proportional_refund;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-004,Moto payment - Sale with Split and Price Uplift,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Split payment functionality enabled
+
+- Price uplift functionality enabled
+
+- Split type_id: 1 (Food/Goods split)
+
+- Split type_id: 7 (Price Uplift)
+
+- Multiple split merchants configured
+
+- Cardstream marketplace split capability enabled""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $100.00 (includes price uplift)
+
+- Split configuration:
+  * Base amount: $85.00
+  * Split Merchant 1 (Food/Goods): $5.00 (type_id: 1)
+  * Split Merchant 2 (Price Uplift): $10.00 (type_id: 7)
+
+- Fee Structure:
+  * Sale Merchant: 3.00% + $0.20 on base
+  * Price Uplift Merchant: 10% fee on uplift amount
+
+- Valid test card
+
+- All mandatory fields""","""1. Prepare payment payload with splits:
+   {
+     ""amount"": 10000,  // $100 in cents
+     ""splits"": [
+       {
+         ""type_id"": 1,  // Food/Goods
+         ""partner_merchant_id"": ""Split_Merchant_1_ID"",
+         ""amount"": 500  // $5 in cents
+       },
+       {
+         ""type_id"": 7,  // Price Uplift
+         ""partner_merchant_id"": ""Split_Merchant_2_ID"",
+         ""amount"": 1000  // $10 in cents
+       }
+     ]
+   }
+
+2. Open moto card page with split payload
+
+3. Complete transaction
+
+4. System calculates:
+   - Base for Sale Merchant: $90 ($100 - $10 uplift)
+   - Sale Merchant fee: $90 × 3% + $0.20 = $2.90
+   - Split 1 recovery: $5.00
+   - Sale Merchant Net: $90 - $2.90 - $5.00 = $82.10
+   
+   - Price Uplift: $10.00
+   - Price Uplift fee: $10 × 10% = $1.00
+   - Price Uplift Net: $10 - $1 = $9.00
+
+5. Verify three payment entries
+
+6. Verify payment_splits table (2 entries)
+
+7. Check Cardstream 4-way split array
+
+8. Verify database entries
+
+9. Check Customer Portal display""","""1. Three payment entries created:
+
+Entry 1 - Sale Merchant A:
+-> gross: $90.00 (displayed as $100 - $10 uplift shown separately)
+-> fee: $7.90 ($2.90 + $5.00 split recovery)
+-> net: $82.10
+-> transaction_status_id: 1
+
+Entry 2 - Split Merchant 1 (Food/Goods):
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $5.00
+-> fee: $0.00
+-> net: $5.00
+-> transaction_status_id: 1
+
+Entry 3 - Split Merchant 2 (Price Uplift):
+-> merchant_id: [CS-CH Merchant ID]
+-> gross: $10.00
+-> fee: $1.00 (10% of $10)
+-> net: $9.00
+-> transaction_status_id: 1
+
+2. payment_splits table (2 entries):
+
+Entry 1:
+-> merchant_id: [CS-CH Merchant ID]
+
+Entry 2:
+-> merchant_id: [CS-CH Merchant ID]
+
+3. Cardstream split array (4-way):
+[
+  {
+    ""merchant"": ""Sale_Merchant_ID"",
+    ""amount"": 8210,  // $82.10 in cents
+    ""type"": ""MarketPlace""
+  },
+  {
+    ""merchant"": ""DL_Merchant_ID"",
+    ""amount"": 390,  // $2.90 + $1.00 = $3.90 in cents
+    ""type"": ""Commission"",
+    ""description"": ""Platform fees""
+  },
+  {
+    ""merchant"": ""Split_Merchant_1_ID"",
+    ""amount"": 500,  // $5.00 in cents
+    ""type"": ""MarketPlace""
+  },
+  {
+    ""merchant"": ""Split_Merchant_2_ID"",
+    ""amount"": 900,  // $9.00 in cents
+    ""type"": ""Commission""
+  }
+]
+
+Total: $82.10 + $3.90 + $5.00 + $9.00 = $100.00 ✓
+
+4. Customer Portal Display:
+
+Sale Merchant Report:
+
+Split Merchant 1 Report:
+
+Split Merchant 2 (Price Uplift) Report:
+
+5. Price Uplift Logic:
+-> Additional amount added to base transaction
+-> Has its own partner merchant
+-> Subject to fee (10% in this example)
+-> Shown separately in reporting
+
+6. Financial Flow:
+Customer Pays: $100
+-> Sale Merchant: $82.10
+-> DL/Datman Fees: $3.90
+-> Split 1: $5.00
+-> Split 2 (Uplift): $9.00
+Total: $100.00 ✓
+
+7. webhook_log: payment_success with all split details
+
+8. Cardstream dashboard: Four-way split visible
+
+9. All three merchants receive separate notifications""","""moto_price_uplift;
+split_payment;
+split_type_1;
+split_type_7;
+four_way_split;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-005,"Moto payment - Sale with Split, Price Uplift and Full Refund to Card","""- Same as TC015
+
+- Full refund functionality enabled""","""- Same as TC015
+
+- Full refund amount: $100.00""","""1. Complete sale with split and price uplift (refer TC015)
+
+2. Verify three payment entries and 4-way Cardstream split
+
+3. Capture payment_id
+
+4. Initiate full refund of $100.00
+
+5. System calculates refund reversal:
+   - Sale Merchant: -$82.10 net
+   - Fees: -$3.90
+   - Split 1: -$5.00
+   - Split 2 (Uplift): -$9.00
+
+6. Verify three refund entries
+
+7. Check Cardstream refund split
+
+8. Verify all merchants receive refund""","""INITIAL SALE (same as TC015)
+
+FULL REFUND ($100.00):
+
+1. Three refund entries created:
+
+Refund Entry 1 - Sale Merchant:
+-> gross: -$100.00
+-> fee: -$7.90
+-> net: -$82.10
+-> transaction_status_id: 2 (refund)
+
+Refund Entry 2 - Split Merchant 1:
+-> gross: -$5.00
+-> fee: $0.00
+-> net: -$5.00
+-> transaction_status_id: 2
+
+Refund Entry 3 - Split Merchant 2 (Price Uplift):
+-> gross: -$10.00
+-> fee: -$1.00
+-> net: -$9.00
+-> transaction_status_id: 2
+
+2. Original payments updated:
+-> All transaction_status_id = 2 (fully refunded)
+
+3. Cardstream refund split (4-way):
+[
+  {merchant: ""Sale_Merchant_ID"", amount: -8210, type: ""MarketPlace""},
+  {merchant: ""DL_Merchant_ID"", amount: -390, type: ""Commission""},
+  {merchant: ""Split_Merchant_1_ID"", amount: -500, type: ""MarketPlace""},
+  {merchant: ""Split_Merchant_2_ID"", amount: -900, type: ""Commission""}
+]
+
+4. Financial reconciliation:
+   Original: $82.10 + $3.90 + $5 + $9 = $100
+   Refunded: -$82.10 - $3.90 - $5 - $9 = -$100
+   Net: $0.00 ✓
+
+5. webhook_log: full_refund
+
+6. All three merchants notified
+
+7. Payment splits table entries remain for audit
+
+8. Cardstream dashboard: Complete refund visible""","""moto_price_uplift;
+full_refund;
+split_payment;
+split_type_7;
+four_way_refund;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-006,"Moto payment - Sale with Split, Price Uplift and Partial Refund to Card","""- Same as TC015
+
+- Partial refund functionality enabled""","""- Same as TC015
+
+- Partial refund amount: $40.00""","""1. Complete sale with split and price uplift (TC015)
+
+2. Capture payment_id
+
+3. Initiate partial refund of $40.00
+
+4. System calculates proportional refund:
+   - Total: $100
+   - Split 1: $5 (5%)
+   - Split 2 Uplift: $10 (10%)
+   - Refund: $40
+   - Split 1 portion: $40 × 5% = $2.00
+   - Split 2 portion: $40 × 10% = $4.00
+   - Sale merchant: $40 - $2 - $4 = $34.00
+
+5. Verify proportional refund splits
+
+6. Check remaining amounts
+
+7. Verify Cardstream partial refund split""","""INITIAL SALE (same as TC015)
+
+PARTIAL REFUND ($40.00):
+
+1. Proportional calculation:
+   - Split 1: 5% of transaction
+   - Split 2 Uplift: 10% of transaction
+   - Sale Merchant: 85% of transaction
+   
+   Refund allocation:
+   - Split 1: $40 × 5% = $2.00
+   - Split 2: $40 × 10% = $4.00
+   - Sale Merchant: $40 × 85% = $34.00
+   - Fee refund (proportional): ~$1.56
+
+2. Three refund entries:
+
+Refund Entry 1 - Sale Merchant:
+-> gross: -$40.00 (or -$34.00 net portion)
+-> fee: -$1.56 (proportional)
+-> net: -$32.44
+-> transaction_status_id: 2
+
+Refund Entry 2 - Split Merchant 1:
+-> gross: -$2.00
+-> fee: $0.00
+-> net: -$2.00
+-> transaction_status_id: 2
+
+Refund Entry 3 - Split Merchant 2 (Uplift):
+-> gross: -$4.00
+-> fee: -$0.40 (10% of $4)
+-> net: -$3.60
+-> transaction_status_id: 2
+
+3. Original payments updated:
+-> transaction_status_id: 5 (partially refunded)
+
+4. Remaining amounts:
+   Original: Sale $82.10, Split1 $5, Uplift $9 = $96.10 net
+   Refunded: Sale $32.44, Split1 $2, Uplift $3.60 = $38.04
+   Remaining: Sale $49.66, Split1 $3, Uplift $5.40 = $58.06
+
+5. Cardstream partial refund split (proportional 4-way)
+
+6. webhook_log: partial_refund
+
+7. All merchants notified of proportional refund
+
+8. Financial reconciliation:
+   Original gross: $100
+   Refunded: $40
+   Remaining: $60 ✓""","""moto_price_uplift;
+partial_refund;
+split_payment;
+proportional_refund;
+split_type_7;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-001,Moto payment - Sale with Card Encryption using Visa Card - No sensitive card data in UI or Network Tab,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Card encryption enabled (encryption toggle ON)
+
+- Client-side encryption (CSE) configured
+
+- Cardstream encryption library loaded
+
+- Store created in Cardstream""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Visa Test Card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- Browser: Chrome/Firefox with Developer Tools
+
+- All mandatory fields""","""1. Open moto card page
+
+2. Open browser Developer Tools (F12)
+
+3. Go to Network tab and start recording
+
+4. Enter Visa card details:
+   - Card Number: 4111 1111 1111 1111
+   - CVV: 737
+   - Expiry: 03/2030
+
+5. Submit payment
+
+6. Inspect Network tab requests/responses:
+   - Check XHR/Fetch requests
+   - Check Form Data
+   - Check Request Payload
+   - Check Response Payload
+
+7. Inspect page source (View Page Source)
+
+8. Inspect DOM elements
+
+9. Check browser console logs
+
+10. Verify payment completes successfully
+
+11. Check database for encrypted data""","""1. Payment completes successfully
+
+2. CRITICAL - Network Tab Inspection:
+-> NO plain text card number visible (NOT 4111111111111111)
+-> NO plain text CVV visible (NOT 737)
+-> Card data sent as encrypted string/token
+-> Encrypted payload format: ""cs_encrypted_[encrypted_string]""
+-> Request contains encrypted card data only
+-> Response does NOT contain card details
+
+3. CRITICAL - UI/DOM Inspection:
+-> Card input fields do NOT store plain text in value attribute
+-> No card data visible in HTML source
+-> No card data in hidden fields
+-> Input fields cleared or masked after submission
+-> No sensitive data in JavaScript variables (check console)
+
+4. CRITICAL - Security Validations:
+❌ Full card number NOT visible anywhere
+❌ CVV NOT visible anywhere
+❌ Expiry NOT visible in plain text
+✓ Only encrypted blob transmitted
+✓ Last 4 digits may be visible (1111) - acceptable
+✓ Card brand visible (Visa) - acceptable
+
+5. Database verification - gateway_request_log:
+-> raw_payload contains encrypted card data
+-> NOT plain text card number
+-> Encryption format: ""encryptedCardNumber"": ""cs_encrypted_...""
+-> Encryption format: ""encryptedSecurityCode"": ""cs_encrypted_...""
+-> Encryption format: ""encryptedExpiryMonth"": ""cs_encrypted_...""
+-> Encryption format: ""encryptedExpiryYear"": ""cs_encrypted_...""
+
+6. Database verification - payments table:
+-> transaction_status_id: 1 (success)
+-> last_4_digits: 1111 (acceptable to store)
+-> NO full card number stored
+-> NO CVV stored
+
+7. Encryption validation:
+-> Cardstream client-side encryption working
+-> Card data encrypted before transmission
+-> PCI DSS compliance maintained
+-> Sensitive data never exposed to merchant server in plain text
+
+8. Network traffic shows:
+-> Encrypted data transmitted via HTTPS
+-> No card data in query parameters
+-> No card data in URL
+-> No card data in headers
+
+9. Payment successful with Visa card
+
+10. Cardstream dashboard shows successful Moto transaction""","""moto_encryption;
+card_encryption;
+visa_card;
+security_validation;
+pci_compliance;
+no_sensitive_data;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-002,Moto payment - Sale with Card Encryption using Mastercard - No sensitive card data in UI or Network Tab,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Card encryption enabled (encryption toggle ON)
+
+- Client-side encryption (CSE) configured
+
+- Cardstream encryption library loaded
+
+- Store created in Cardstream""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Mastercard Test Card: 5555 4444 3333 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- Browser: Chrome/Firefox with Developer Tools
+
+- All mandatory fields""","""1. Open moto card page
+
+2. Open browser Developer Tools (F12)
+
+3. Go to Network tab and start recording
+
+4. Enter Mastercard details:
+   - Card Number: 5555 4444 3333 1111
+   - CVV: 737
+   - Expiry: 03/2030
+
+5. Submit payment
+
+6. Inspect Network tab:
+   - Check all XHR/Fetch requests
+   - Check Form Data
+   - Check Request Payload
+   - Check Response Payload
+
+7. Inspect page source
+
+8. Inspect DOM elements
+
+9. Check console logs
+
+10. Verify payment completes
+
+11. Check database encryption""","""1. Payment completes successfully with Mastercard
+
+2. CRITICAL - Network Tab Inspection:
+-> NO plain text card number (NOT 5555444433331111)
+-> NO plain text CVV (NOT 737)
+-> Card data sent as encrypted token
+-> Only encrypted payload in request
+-> No card data in response
+
+3. CRITICAL - UI/DOM Inspection:
+-> Card input fields do NOT store plain text
+-> No card data in HTML source
+-> No card data in hidden fields
+-> Input fields masked/cleared
+-> No sensitive data in JavaScript variables
+
+4. CRITICAL - Security Validations:
+❌ Full card number NOT visible
+❌ CVV NOT visible
+❌ Expiry NOT in plain text
+✓ Only encrypted data transmitted
+✓ Last 4 digits (1111) may be visible - acceptable
+✓ Card brand (Mastercard) visible - acceptable
+
+5. Database verification - gateway_request_log:
+-> raw_payload contains encrypted card data
+-> NOT plain text card number
+-> ""encryptedCardNumber"": ""cs_encrypted_...""
+-> ""encryptedSecurityCode"": ""cs_encrypted_...""
+-> ""encryptedExpiryMonth"": ""cs_encrypted_...""
+-> ""encryptedExpiryYear"": ""cs_encrypted_...""
+
+6. Database verification - payments table:
+-> transaction_status_id: 1 (success)
+-> last_4_digits: 1111
+-> NO full card number stored
+-> NO CVV stored
+
+7. Encryption validation:
+-> Client-side encryption working for Mastercard
+-> Card data encrypted before transmission
+-> PCI DSS compliance maintained
+-> Sensitive data protected
+
+8. Network traffic:
+-> HTTPS encrypted transmission
+-> No card data in URLs
+-> No card data in query params
+-> No card data in headers
+
+9. Payment successful with Mastercard
+
+10. Cardstream dashboard shows Moto transaction
+
+11. Mastercard specific encryption validated""","""moto_encryption;
+card_encryption;
+mastercard;
+security_validation;
+pci_compliance;
+no_sensitive_data;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-005,Moto payment - Failed Sale with Card Encryption Enabled,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Card encryption ENABLED (toggle ON)
+
+- Client-side encryption configured
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Declined Card: 4000 3000 0000 3003
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- Encryption toggle: ENABLED
+
+- All mandatory fields""","""1. Verify encryption toggle ENABLED
+
+2. Open moto card page
+
+3. Open Developer Tools
+
+4. Enter declined test card
+
+5. Submit payment
+
+6. Inspect Network tab during failure
+
+7. Verify encrypted data sent even for failed transaction
+
+8. Check error message does not expose card data
+
+9. Verify database entries""","""1. Payment declined as expected
+
+2. Encryption validation during failure:
+-> Card data encrypted client-side
+-> Encrypted payload sent to backend
+-> Backend forwarded encrypted data to Cardstream
+-> Cardstream declined the encrypted transaction
+-> Encryption working even for failed payments
+
+3. CRITICAL - Network Tab on Failure:
+-> NO plain text card number visible
+-> Only encrypted data transmitted
+-> Decline response does NOT contain card data
+
+4. Database verification - payments table:
+-> transaction_status_id: 7 (declined) or 9 (failed)
+-> last_4_digits: 3003
+-> gross: $50.00
+-> fee: $0.00
+-> NO full card number stored
+-> NO CVV stored
+
+5. Security validation on failure:
+❌ Card number NOT exposed in UI
+❌ CVV NOT exposed
+❌ No plain text in network traffic
+✓ Encrypted data only
+✓ Generic error message shown
+✓ May show: ""Card ending in 3003 declined""
+
+6. gateway_request_log:
+-> Failed transaction with encrypted payload
+-> ""encryptedCardNumber"": ""cs_encrypted_...""
+-> Encryption maintained during failure
+
+7. cardstream_webhook_notification_log:
+-> No sensitive data in webhook
+
+8. Error handling:
+-> User sees generic decline message
+-> ""Your payment could not be processed. Please try another card.""
+-> NO card details exposed in error
+
+9. Cardstream dashboard:
+-> Declined transaction visible
+-> Moto type
+-> Encrypted data processed
+
+10. PCI compliance maintained even on failure
+
+11. Client-side encryption working correctly for declined transactions""","""moto_failed;
+card_encryption;
+declined_transaction;
+security_validation;
+error_handling;
+pci_compliance;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-006,Moto payment - Sale Not Saving Card - Master Token Validation (Card Not Tokenised),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Card tokenisation/saving DISABLED for Moto transactions
+
+- Store created in Cardstream
+
+- Master token generation should be disabled for Moto""","""- Refer Git repository for test script
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Visa Test Card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- Moto transaction (no save card option)
+
+- All mandatory fields""","""1. Open moto card page
+
+2. Verify NO ""Save card for future use"" checkbox present
+
+3. Complete payment transaction
+
+4. Capture payment_id
+
+5. Check database for token/master_token fields
+
+6. Verify no recurring token created
+
+7. Query customer_payment_methods table
+
+8. Verify Cardstream dashboard
+
+9. Attempt to retrieve saved cards for customer
+
+10. Validate no card saved""","""1. Payment completes successfully
+
+2. CRITICAL - No Save Card Option:
+-> Moto payment page does NOT show ""Save card"" checkbox
+-> No option to tokenise card
+-> One-time payment only
+-> Card details NOT saved for future use
+
+3. Database verification - payments table:
+-> transaction_status_id: 1 (success)
+-> payment_provider_id: 3 (Cardstream)
+-> transaction_method_id: 3 (Moto)
+-> gross: $50.00
+-> last_4_digits: 1111
+-> NO tokenisation occurred ✓
+
+4. Database verification - customer_payment_methods table:
+-> NO new entry created for this card
+-> OR if entry exists, is_active: 0
+-> No saved payment method for this customer
+-> Moto transactions do NOT create saved cards
+
+5. Database verification - payment_tokens table (if exists):
+-> NO new token entry for this transaction
+-> No master token generated
+
+6. Tokenisation validation:
+❌ master_token is NULL/EMPTY ✓
+❌ recurring_detail_reference is NULL/EMPTY ✓
+❌ No saved card entry ✓
+✓ One-time payment processed
+✓ Card not stored for future use
+✓ Customer cannot reuse this card
+
+7. Cardstream dashboard verification:
+-> Transaction shows as one-time Moto payment
+-> No recurring token generated
+-> No ""RECURRING"" flag on transaction
+-> Standard authorization only
+
+8. Customer account check:
+-> Customer has NO saved cards from this transaction
+-> Card must be re-entered for future Moto payments
+-> No payment methods stored
+
+9. Security benefit:
+-> Reduced PCI scope
+-> No stored card data
+-> Each transaction requires full card entry
+
+10. Moto behavior confirmed:
+-> Moto = Mail Order/Telephone Order
+-> By design, Moto does NOT save cards
+-> Card details required for each transaction
+-> No tokenisation for Moto payment type
+
+11. webhook_log:
+-> payment_success without token information
+-> No saved card notification""","""moto_no_save_card;
+master_token_empty;
+no_tokenisation;
+one_time_payment;
+security_validation;
+pci_scope_reduction;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-002,Moto payment - Transaction with Special Characters in Customer Data,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- UTF-8 encoding support
+
+- Special character handling configured
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing+special@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Customer Name: François O'Brien-Müller
+
+- Address: 123 Café Street, Apt #5-B
+
+- Special characters: é, ü, ', -, #
+
+- Valid test card""","""1. Open moto card page
+
+2. Enter customer details with special characters:
+   - Name: François O'Brien-Müller
+   - Address: 123 Café Street, Apt #5-B
+
+3. Enter card details
+
+4. Submit payment
+
+5. Verify special characters handled correctly
+
+6. Check database encoding
+
+7. Verify Cardstream dashboard display""","""1. Payment successful with special characters
+
+2. Character encoding validation:
+-> UTF-8 encoding maintained
+-> Special characters preserved: é, ü, ', -, #
+-> No character corruption
+-> Accents displayed correctly
+-> Apostrophes handled
+-> Hyphens and symbols preserved
+
+3. Database verification - payments table:
+-> address: ""123 Café Street, Apt #5-B""
+-> Special characters stored correctly
+-> No SQL injection issues
+-> Escaped properly
+
+4. Security validation:
+-> Special characters sanitized
+-> No XSS vulnerabilities
+-> No SQL injection
+-> Input validation working
+-> Safe storage
+
+5. Cardstream dashboard:
+-> Customer name displayed correctly
+-> Address with special characters visible
+-> No encoding issues
+
+6. webhook_log:
+-> Special characters in payload
+-> JSON encoding proper
+-> No character loss""","""moto_special_characters;
+utf8_encoding;
+input_validation;
+security_validation;
+international_names;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-003,Moto payment - High Value Transaction - Above Standard Limit,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- High-value transaction limit configured
+
+- Additional verification may be required
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $5,000.00 (high value)
+
+- Valid test card
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- All mandatory fields""","""1. Open moto card page
+
+2. Enter high transaction amount: $5,000.00
+
+3. Complete card details
+
+4. Submit payment
+
+5. May trigger additional checks
+
+6. Verify payment processes
+
+7. Check database entries
+
+8. Verify Cardstream dashboard
+
+9. Validate merchant limits not exceeded""","""1. Payment successful for high value
+
+2. High-value handling:
+-> Transaction amount: $5,000.00
+-> Above standard Moto limit
+-> Additional risk checks may apply
+-> 3DS may be triggered
+-> Fraud screening performed
+-> Manual review flags possible
+
+3. Database verification - payments table:
+-> transaction_status_id: 1 (success)
+-> gross: $5,000.00
+-> fee: calculated on $5,000
+
+4. Merchant limit validation:
+-> Transaction within configured limits
+-> Daily limit not exceeded
+-> Monthly volume tracking
+-> High-value threshold checked
+
+5. Risk management:
+-> Fraud detection rules applied
+-> Velocity checks performed
+-> Amount threshold validated
+-> Issuer authorization obtained
+
+6. Cardstream dashboard:
+-> High-value transaction flagged
+-> Additional security indicators
+-> Proper authorization shown
+-> Settlement planned
+
+7. Compliance:
+-> AML (Anti-Money Laundering) checks
+-> Transaction monitoring
+-> High-value reporting (if required)
+
+8. webhook_log: includes high-value indicators""","""moto_high_value;
+large_transaction;
+risk_management;
+fraud_detection;
+limit_validation;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-004,Moto payment - Transaction with Missing Optional Fields,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Optional fields not enforced
+
+- Minimum required fields only
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Card details: Complete
+
+- Missing optional fields:
+  * Address line 2: Empty
+  * Phone number: Empty
+  * Company name: Empty
+  * Customer notes: Empty
+
+- Only mandatory fields provided""","""1. Open moto card page
+
+2. Fill only mandatory fields:
+   - Card number
+   - CVV
+   - Expiry
+   - Name
+   - Address line 1
+   - Postcode
+
+3. Leave optional fields empty
+
+4. Submit payment
+
+5. Verify payment processes successfully
+
+6. Check database for null/empty optional fields""","""1. Payment successful with minimum fields
+
+2. Validation:
+-> Mandatory fields present and valid
+-> Optional fields empty/null
+-> No validation errors
+-> Payment processes normally
+
+3. Database verification - payments table:
+-> All mandatory fields populated
+-> Optional fields: NULL or empty
+-> Transaction still successful
+
+4. Field validation:
+-> Required field validation working
+-> Optional fields not blocking payment
+-> No unnecessary friction
+-> Customer can skip optional data
+
+5. Cardstream dashboard:
+-> Transaction shows with available data
+-> Missing optional fields not an issue
+-> Payment authorized successfully
+
+6. Best practice validation:
+-> Minimum friction checkout
+-> Only essential data required
+-> Improved conversion rate
+-> Compliance maintained
+
+7. webhook_log: includes only populated fields""","""moto_optional_fields;
+minimum_fields;
+field_validation;
+user_experience;
+conversion_optimization;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-005,Moto payment - Concurrent Transactions - Same Merchant Multiple Payments,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Concurrent transaction support
+
+- No transaction locking issues
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Transaction 1: $50.00
+
+- Transaction 2: $75.00
+
+- Transaction 3: $100.00
+
+- Different cards for each
+
+- Submitted simultaneously""","""1. Open 3 browser tabs/windows
+
+2. Load moto card page in each
+
+3. Enter different card details in each:
+   - Tab 1: Card A, $50.00
+   - Tab 2: Card B, $75.00
+   - Tab 3: Card C, $100.00
+
+4. Submit all 3 payments simultaneously
+
+5. Verify all process successfully
+
+6. Check for race conditions
+
+7. Verify database entries
+
+8. Check transaction isolation""","""1. All 3 payments successful
+
+2. Concurrent processing:
+-> All transactions processed independently
+-> No locking issues
+-> No race conditions
+-> No transaction conflicts
+-> Each payment isolated
+
+3. Database verification - payments table:
+-> 3 separate entries created
+-> Entry 1: $50.00, unique payment_id
+-> Entry 2: $75.00, unique payment_id
+-> Entry 3: $100.00, unique payment_id
+-> All transaction_status_id: 1
+-> Unique internal_references
+-> No data corruption
+
+4. Transaction isolation:
+-> Each transaction independent
+-> No shared state issues
+-> Proper database isolation level
+-> ACID properties maintained
+-> No deadlocks
+
+5. Webhook validation:
+-> 3 separate webhooks sent
+-> Each with correct payment data
+-> No webhook mixing
+-> Proper order maintained
+
+6. Cardstream dashboard:
+-> All 3 transactions visible
+-> Correct timestamps
+-> No processing conflicts
+-> Proper sequencing
+
+7. Performance validation:
+-> No degradation with concurrent load
+-> Response times acceptable
+-> System scalability confirmed
+
+8. Merchant account:
+-> All 3 transactions credited
+-> No duplicate charges
+-> Accurate accounting""","""moto_concurrent;
+multiple_transactions;
+race_conditions;
+transaction_isolation;
+scalability_test;
+performance;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-006,Moto payment - Expired Card Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Card expiry validation configured
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Expired Card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 01/2020 (expired)
+
+- All other fields valid""","""1. Open moto card page
+
+2. Enter expired card details:
+   - Expiry: 01/2020 (past date)
+
+3. Submit payment
+
+4. Verify validation error
+
+5. Check error message
+
+6. Verify payment NOT processed
+
+7. Check database entries""","""1. Payment declined - expired card
+
+2. Validation error:
+-> Client-side validation may catch expired card
+-> OR server-side validation rejects
+-> OR Cardstream rejects expired card
+-> Clear error message displayed
+
+3. Error message:
+-> ""Card has expired""
+-> ""Please use a valid card""
+-> ""Expiry date is in the past""
+-> User-friendly message
+-> No technical jargon
+
+4. Database verification - payments table:
+-> transaction_status_id: 7 (declined) or 9 (failed)
+-> gross: $50.00 (attempted amount)
+-> fee: $0.00 (no fee for declined)
+
+5. gateway_request_log:
+-> Request logged
+-> Validation failure recorded
+
+6. No authorization attempted:
+-> Payment gateway validation catches expiry
+-> OR Cardstream immediately rejects
+-> No authorization code generated
+-> Customer NOT charged
+
+7. User experience:
+-> Clear feedback provided
+-> Customer can correct and retry
+-> Helpful error messaging
+
+8. Cardstream dashboard:
+-> Declined transaction may be visible
+-> No settlement
+
+9. Security note:
+-> Card expiry checked before processing
+-> Prevents unnecessary authorization attempts
+-> Reduces processing costs""","""moto_expired_card;
+card_validation;
+declined_transaction;
+error_handling;
+expiry_validation;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-007,Moto payment - Invalid CVV Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CVV validation configured
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Valid Card: 4111 1111 1111 1111
+
+- Invalid CVV: 000 (Cardstream test for CVV decline)
+
+- Valid Expiry: 03/2030""","""1. Open moto card page
+
+2. Enter valid card with invalid CVV:
+   - CVV: 000
+
+3. Submit payment
+
+4. Verify CVV validation error
+
+5. Check error message
+
+6. Verify payment declined
+
+7. Check database entries""","""1. Payment declined - invalid CVV
+
+2. CVV validation:
+-> Cardstream validates CVV with issuer
+-> CVV does not match
+-> Authorization declined
+-> Clear error message
+
+3. Error message:
+-> ""Invalid security code""
+-> ""CVV verification failed""
+-> ""Please check your CVV and try again""
+-> User-friendly messaging
+
+4. Database verification - payments table:
+-> transaction_status_id: 7 (declined) or 9 (failed)
+-> gross: $50.00
+-> fee: $0.00
+
+5. Security validation:
+-> CVV checked with issuer
+-> Card present (CVV entered)
+-> Failed CVV match
+-> Fraud prevention working
+-> Customer NOT charged
+
+6. gateway_request_log:
+-> CVV submitted (encrypted)
+-> Validation failed
+-> Decline reason: CVV mismatch
+
+7. cardstream_webhook_notification_log:
+
+8. Cardstream dashboard:
+-> Declined transaction
+-> No settlement
+
+9. Fraud prevention:
+-> CVV validation working
+-> Security check passed
+-> Prevents unauthorized transactions""","""moto_invalid_cvv;
+cvv_validation;
+declined_transaction;
+security_validation;
+fraud_prevention;""",P2,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-009,Moto payment - Sale with AVS (Address Verification Service) - Success,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- AVS (Address Verification Service) enabled
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Valid card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Correct billing address:
+  * house_number: 123
+  * street: Main Street
+  * city: New York
+  * state: NY
+  * zip_code: 10001
+
+- AVS data matches card billing address""","""1. Open moto card page
+
+2. Enter card details with CVV
+
+3. Enter CORRECT billing address matching card
+
+4. Submit payment
+
+5. Cardstream performs AVS check
+
+6. Verify AVS match successful
+
+7. Check payment authorized
+
+8. Verify AVS result codes in database""","""1. Payment successful with AVS match
+
+2. AVS validation:
+-> Address submitted to Cardstream
+-> Cardstream validates with card issuer
+-> AVS check: MATCH
+-> Enhanced security
+-> Lower fraud risk
+
+3. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+-> gross: $50.00
+
+4. AVS result codes:
+-> Y = Full match (address and ZIP)
+-> A = Address match only
+-> Z = ZIP match only
+-> N = No match
+-> For this test: Y (full match)
+
+5. gateway_request_log:
+-> AVS data included in request
+-> AVS check requested
+
+6. cardstream_webhook_notification_log:
+-> AVS details included
+
+7. Cardstream dashboard:
+-> Transaction successful
+-> Reduced fraud risk indicator
+-> Lower chargeback probability
+
+8. Security benefits:
+-> AVS match confirms cardholder address
+-> Reduced fraud likelihood
+-> May qualify for lower interchange fees
+-> Enhanced transaction security
+
+9. webhook_log: payment_success with AVS data""","""moto_avs;
+avs_success;
+address_verification;
+fraud_prevention;
+region_us;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-010,Moto payment - Sale with AVS (Address Verification Service) - Failure/Mismatch,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- AVS enabled
+
+- AVS mismatch handling configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Valid card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- INCORRECT billing address:
+  * house_number: 999 (wrong)
+  * street: Fake Street (wrong)
+  * zip_code: 00000 (wrong)
+
+- Address does NOT match card billing address""","""1. Open moto card page
+
+2. Enter valid card details
+
+3. Enter INCORRECT billing address
+
+4. Submit payment
+
+5. Cardstream performs AVS check
+
+6. Verify AVS mismatch detected
+
+7. Check transaction outcome
+
+8. Verify AVS result codes""","""1. Transaction outcome depends on merchant configuration:
+
+2. Scenario A - AVS Enforced (Strict):
+-> Payment DECLINED due to AVS mismatch
+-> ""Address verification failed""
+-> Transaction NOT authorized
+-> Customer NOT charged
+
+3. Scenario B - AVS Warning Only (Lenient):
+-> Payment AUTHORIZED but flagged
+-> AVS mismatch recorded
+-> Transaction proceeds with warning
+-> Higher fraud risk flagged
+
+4. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (if lenient) or 7 (if strict)
+-> gross: $50.00
+
+5. AVS mismatch codes:
+-> N = No match
+-> A = Address only match
+-> Z = ZIP only match
+-> U = Address info unavailable
+
+6. Risk management:
+-> Higher fraud risk
+-> May require manual review
+-> Potential chargeback risk
+-> Merchant should investigate
+
+7. gateway_request_log:
+-> AVS data submitted
+-> Mismatch detected
+-> Warning or decline logged
+
+8. cardstream_webhook_notification_log:
+-> AVS result: ""N""
+-> Risk indicators present
+
+9. Cardstream dashboard:
+-> High risk indicator
+-> Manual review may be suggested
+
+10. Merchant action:
+-> Review transaction
+-> Contact customer to verify address
+-> Potential fraud investigation
+-> May void/refund if suspicious""","""moto_avs;
+avs_failure;
+avs_mismatch;
+fraud_detection;
+high_risk;
+region_us;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-011,Moto payment - Void/Cancel Transaction before Settlement,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Void/Cancel functionality enabled
+
+- Transaction NOT yet settled
+
+- Store created in Cardstream""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- Transaction amount: $50.00
+
+- Valid test card
+
+- Void/Cancel request within settlement window (same day)""","""1. Complete successful moto payment for $50.00
+
+2. Verify payment authorized
+
+3. Capture payment_id and psp_reference
+
+4. BEFORE settlement (same day):
+
+5. Initiate Void/Cancel request:
+   - payment_id: [captured_payment_id]
+   - Reason: ""Customer requested cancellation""
+
+6. Submit void request to Cardstream
+
+7. Verify void/cancel successful
+
+8. Check database entries
+
+9. Verify customer NOT charged""","""1. Void/Cancel successful
+
+2. Void/Cancel behavior:
+-> Authorization cancelled before capture
+-> Transaction voided in Cardstream
+-> Customer card hold released
+-> NO settlement occurs
+-> NO actual charge to customer
+-> Different from refund (refund = after settlement)
+
+3. Database - payments table:
+
+Original payment entry:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 10 (voided) or 11 (cancelled)
+
+OR new void entry created:
+-> transaction_status_id: 10 (void)
+-> gross: -$50.00 (reversal)
+
+4. Void vs Refund:
+
+5. gateway_request_log:
+-> Void request logged
+-> Cardstream void API called
+-> psp_reference used for void
+
+6. cardstream_webhook_notification_log:
+-> Void confirmed
+
+7. Cardstream dashboard:
+-> Transaction status: Cancelled/Voided
+-> Authorization reversed
+-> No settlement planned
+-> Customer NOT charged
+
+8. Customer experience:
+-> Card hold released (may take 1-7 days for bank)
+-> Never actually charged
+-> Funds never left account
+-> Authorization removed
+
+9. Timing critical:
+-> Void only possible before settlement
+-> After settlement: must use refund
+-> Settlement typically occurs daily
+-> Check merchant settlement schedule
+
+10. webhook_log:
+-> void_success or cancellation notification""","""moto_void;
+moto_cancel;
+before_settlement;
+authorization_reversal;
+no_charge;
+region_us;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-013,Moto payment - Duplicate Transaction Prevention,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- Duplicate detection configured
+
+- Idempotency key support enabled""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Valid card
+
+- Same transaction submitted twice (duplicate)
+
+- Idempotency key: same for both requests""","""1. Complete first transaction for $50.00
+
+2. Capture payment_id and order_id
+
+3. IMMEDIATELY submit SAME transaction again:
+   - Same card
+   - Same amount
+   - Same merchant
+   - Same order_id (if provided)
+   - Same idempotency key
+
+4. System should detect duplicate
+
+5. Verify second transaction handling
+
+6. Check database entries
+
+7. Verify customer charged only ONCE""","""1. First transaction successful
+
+2. Second transaction - Duplicate detected:
+
+3. Duplicate detection methods:
+
+Method A - Idempotency Key:
+-> Same idempotency key provided
+-> System recognizes duplicate request
+-> Returns original transaction result
+-> NO new payment processed
+-> Customer NOT charged twice
+
+Method B - Transaction Fingerprint:
+-> Same card + amount + merchant + timeframe
+-> Duplicate detected by fingerprint
+-> Transaction rejected or returns original
+
+4. Database - payments table:
+-> Only ONE entry for successful payment ✓
+-> Second request does NOT create new entry
+-> OR second entry has status: duplicate/rejected
+
+5. API response for duplicate:
+-> Returns original transaction details
+-> OR error: ""Duplicate transaction detected""
+-> Same payment_id returned
+
+6. gateway_request_log:
+-> Both requests logged
+
+7. Customer protection:
+-> Charged only ONCE ✓
+-> No duplicate charge
+-> Account balance correct
+-> Only one authorization
+
+8. Cardstream dashboard:
+-> Only one transaction visible
+-> Duplicate attempts may be logged
+-> No double settlement
+
+9. Idempotency implementation:
+-> Unique idempotency key per transaction
+-> Key stored with transaction
+-> Duplicate keys rejected
+-> Key expires after time period (e.g., 24 hours)
+-> Prevents accidental duplicate charges
+
+10. Use cases:
+-> Network timeout retry
+-> User double-clicks submit
+-> Browser back/forward
+-> API retry logic
+-> Connection issues
+
+11. Best practices:
+-> Generate unique idempotency key per transaction
+-> Store key with order
+-> Use UUID or similar
+-> Implement on client and server side""","""moto_duplicate_prevention;
+idempotency;
+duplicate_detection;
+customer_protection;
+error_prevention;""",P1,,US,,
+Cardstream Moto Payments,Moto Payment - Reversal,CS-MP-REVERSAL,CS-MP-REVERSAL-002,Moto MIT Sale Reversal - Void Attempt,"- Merchant in US pointed to Cardstream
+- MIT sale completed using stored token (status=1)","MIT sale: amount=25.00 USD, transaction_status_id=1, xref=[unique_xref]","1. Verify MIT sale with status=1.
+2. Call reversal API within settlement window.
+3. Verify reversal returns success.
+4. Confirm no charge to customer (authorization released).
+5. Verify original MIT token still valid for future use.
+6. Check audit_log.","1. Reversal API success.
+2. Void status recorded in payment table.
+3. MIT token status: active (unchanged).
+4. Audit_log: MIT Sale (status=1) → Reversal event.",moto_reversal,P1,,US,,
+Cardstream Moto Payments,Moto Payment - Refund After Cycle,CS-MP-REFUND-CYCLE,CS-MP-REFUND-CYCLE-001,Moto CIT Sale Full Refund After Settlement,"- Merchant in US pointed to Cardstream
+- Moto CIT sale completed and settled (status=1)","Settled sale: amount=20.00 USD, transaction_status_id=1; Full refund: 20.00 USD","1. Verify Moto CIT sale with status=1 and settled.
+2. Call refund API with amount=20.00.
+3. Verify refund API returns success.
+4. Verify refunded_amount=20.00 in refund table.
+5. Check webhook: REFUND event.
+6. Check audit_log.","1. Refund API success.
+2. Refunded_amount: 20.00.
+3. Webhook: REFUND event.
+4. Audit_log: Refund event recorded.",moto_refund,P0,,US,,
+Cardstream Moto Payments,Moto Payment - Refund After Cycle,CS-MP-REFUND-CYCLE,CS-MP-REFUND-CYCLE-002,Moto MIT Sale Partial Refund,"- Merchant in US pointed to Cardstream
+- MIT sale completed (status=1)
+- captured_amount=50.00 USD","MIT sale: amount=50.00 USD, transaction_status_id=1; Partial refund: 20.00 USD","1. Verify MIT sale with status=1 and captured_amount=50.00.
+2. Call refund API with amount=20.00 (partial).
+3. Verify partial refund succeeds.
+4. Verify partial_refunded_amount=20.00 and remaining=30.00.
+5. Confirm MIT token status unaffected by partial refund.","1. Partial refund success.
+2. partial_refunded_amount: 20.00.
+3. Remaining refundable: 30.00.
+4. MIT token: still active and usable.",moto_refund,P1,,US,,
+Cardstream Moto Payments,Moto Payment - Invalid Payload,CS-MP-INVALID,CS-MP-INVALID-001,Moto Payment with Missing Card Number,- Merchant in US pointed to Cardstream,"Payload: amount=20.00 USD, currency=USD, cvv=123 (card number missing)","1. Submit Moto payment payload without card number field.
+2. Verify API returns validation error.
+3. Confirm no payment record created.","1. API error:
+   - error_code: MISSING_REQUIRED_FIELD
+   - error_message: card_number is required
+2. No payment record created.",moto_invalid_payload,P1,,US,,
+Cardstream Moto Payments,Moto Payment - Invalid Payload,CS-MP-INVALID,CS-MP-INVALID-004,Moto Payment with Negative Amount,- Merchant in US pointed to Cardstream,"Payload: amount=-20.00 USD, card=4111111111111111, expiry=03/2030","1. Submit Moto payment with negative amount.
+2. Verify API returns validation error.
+3. Confirm no payment record created.","1. API error:
+   - error_code: INVALID_AMOUNT
+   - error_message: Amount must be a positive value
+2. No payment record created.",moto_invalid_payload,P1,,US,,
+Cardstream Moto Payments,White Label - Branding,CS-MP-WL,CS-MP-WL-001,Partner branding displays correctly on Moto payment page,"Any partner merchant with white_label_enabled = 1
+customer_type set for active partner
+Moto payment enabled for merchant","- Email: testing@datman.je
+- Merchant: any active partner (EDININGEXPRESS / ASK4DISH / FASTFOOD)
+- white_label_enabled: 1
+- Card: Visa 4929 4212 3460 0821
+- CVV: 356
+- Expiry: 03/2030
+- Amount: £50.00","1. Open datman_checkout Moto payment page for partner merchant
+2. Inspect UI for branding elements
+3. Verify logo, brand name and privacy policy
+4. Enter card details and complete Moto payment","1. Partner logo and brand name shown correctly
+2. Datman branding not visible
+3. Privacy policy URL from white_label_reseller_config displayed
+4. Moto payment completes successfully
+5. Redirect to partner domain_base_url",white_label;branding;moto;positive,P1,,US,,
+Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-001,Moto CIT Sale – End-to-End (UI + Dashboard),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Store created in Cardstream
+
+- cardstream_store_id_enabled = 1
+
+- txnType: CREATE_MIT_TOKEN pass in moto payload
+
+- No existing token for the customer_id""","""- Refer Git repository for CIT/MIT test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CIT Transaction amount: $100.00
+
+- Valid test card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true (in CIT payload)
+
+- All mandatory fields""","""1. Launch the Moto card page with CREATE_MIT_TOKEN flag in the payload.
+
+2. Enter customer contact details from the test data and proceed to the payment form.
+
+3. Input the card credentials with CVV, submit the payment.
+
+4. Capture the PSP reference displayed on the UI once the transaction is approved.
+
+5. Validate that the customer is redirected to the redirect_url provided in the payload.
+
+6. Record the identifiers required for dashboard and database validation (psp_reference, payment_id, customer_id).""","""1. Payment completes successfully with status approved.
+
+2. Payment form displays correctly for MOTO transaction (no Google Pay/Apple Pay buttons).
+
+3. CVV is collected and validated.
+
+4. Pay button transitions to the success (green) state, confirming the transaction approval and displaying the PSP reference.
+
+5. Customer is redirected to the payload redirect_url without errors.
+
+6. Back-office records reflect the sale:
+   6.a Payment table: transaction_status_id=1, payment_provider_id=5, transaction_mode_id=1, transaction_method_id=30, gross=100.00, fee=fee tier value, net=gross-fee, customer_id, customer email/name, psp_reference, source_ip, last_4_digit, order_ref, merchant_id.
+   6.b Webhook log: https_status=200, payload stored, encrypted_data populated, webhook_url matches configuration, payload contains token_type: MIT_TOKEN, payload contains shopperInteraction: MOTO.
+   6.c Gateway request log captures the request and response payloads for the transaction with shopperInteraction: Moto.
+   6.d Customer table persists the newly created customer profile tied to the transaction.
+   6.e Transaction fee info table contains the calculated fee details for this payment.
+
+7. PSP dashboard displays the transaction with the recorded PSP reference, payment cycle shows MOTO type.
+
+8. Cardstream dashboard shows shopperInteraction as Moto.""","""moto_cit_sale;
+cit_transaction;
+mit_token;
+shopperInteraction_moto;
+region_us;
+currency_usd;""",P1,,US,,
+Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-002,Moto CIT Sale – Token Creation & Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Token creation feature is enabled for the merchant
+
+- txnType: CREATE_MIT_TOKEN pass in moto payload
+
+- No existing token for the customer_id""","""- Refer Git repository for CIT/MIT test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CIT Transaction amount: $75.00
+
+- Card: Mastercard 5555555555554444
+
+- CVV: 123
+
+- Expiry: 05/2030
+
+- Billing Address: avs_house_number=10, avs_postcode=10001, address1=Fifth Avenue, city=New York
+
+- CREATE_MIT_TOKEN: true (in CIT payload)
+
+- All mandatory fields""","""1. Launch the Moto card page with CREATE_MIT_TOKEN flag in the payload.
+
+2. Enter customer details and card credentials from the test data.
+
+3. Complete the payment transaction.
+
+4. Capture the PSP reference and payment_id from the successful transaction response.
+
+5. Query the mit_token_info database table using the customer_id and verify token creation.
+
+6. Validate token entries for Cardstream gateway.
+
+7. Cross-reference the token with the payment table entry to ensure proper linkage.
+
+8. Verify the token can be retrieved via API/dashboard for future use.""","""1. Payment completes successfully with status approved.
+
+2. mit_token_info table contains new token entry:
+   2.a Cardstream token entry:
+       - id: auto-generated unique identifier
+       - merchant_id: from test data
+       - customer_id: from test data
+       - token: Cardstream-specific token value
+       - last_4_digit: '4444'
+       - expiry_date: '05/2030'
+       - scheme_name: 'Mastercard'
+       - created_at: current timestamp
+       - updated_at: current timestamp
+       - delete_status: 0
+
+3. Payment table links to the mit_token_info via token reference.
+
+4. Webhook log: https_status=200, payload stored, payload contains token_type: MIT_TOKEN, payload contains shopperInteraction: MOTO.
+
+5. gateway_request_log shows shopperInteraction: Moto in request payload.
+
+6. Token is visible in merchant dashboard under saved payment methods.
+
+7. Token status shows as active and available for future MIT transactions.
+
+8. All billing address fields from the transaction are associated with the token.
+
+9. Cardstream dashboard displays shopperInteraction as Moto.""","""moto_cit_sale;
+cit_transaction;
+mit_token_creation;
+token_validation;
+shopperInteraction_moto;
+region_us;
+currency_usd;""",P1,,US,,
+Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-003,Moto CIT Sale – Webhook End-to-End Processing with shopperInteraction Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Webhook URL is configured and accessible
+
+- Webhook listener is ready to capture requests
+
+- txnType: CREATE_MIT_TOKEN pass in moto payload""","""- Refer Git repository for CIT/MIT test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook URL: https://webhook.site/unique-id
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CIT Transaction amount: $150.00
+
+- Valid test card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true (in CIT payload)
+
+- All mandatory fields""","""1. Launch the Moto card page with CREATE_MIT_TOKEN flag in the payload.
+
+2. Enter customer contact details from the test data and proceed to the payment form.
+
+3. Input the card credentials with CVV, submit the payment.
+
+4. Capture the PSP reference displayed on the UI once the transaction is approved.
+
+5. Wait for webhook to be dispatched to configured URL.
+
+6. Capture and inspect the webhook request.
+
+7. Verify all webhook payload fields including shopperInteraction: MOTO.
+
+8. Validate webhook_log table entries.""","""1. Payment completes successfully with status approved.
+
+2. Pay button transitions to the success (green) state, confirming the transaction approval and displaying the PSP reference.
+
+3. Customer is redirected to the payload redirect_url without errors.
+
+4. Back-office records reflect the sale:
+   4.a Payment table: transaction_status_id=1, payment_provider_id=5, transaction_mode_id=1, transaction_method_id=30, gross=150.00, fee=fee tier value, net=gross-fee, customer_id, psp_reference, merchant_id.
+   4.b Webhook log:
+       - https_status=200
+       - payload stored with all transaction details
+       - payload contains token_type: MIT_TOKEN
+       - payload contains shopperInteraction: MOTO
+       - encrypted_data populated
+       - webhook_url matches configuration
+       - action: payment_success
+   4.c Gateway request log captures the request and response payloads for the transaction.
+   4.d cardstream_webhook_notification_log: AUTHORISATION event logged with success=true, shopperInteraction: Moto.
+
+5. Webhook payload contains:
+   - order_id: matches checkout order_id
+   - transaction_id: unique payment identifier
+   - amount: 150.00
+   - currency: USD
+   - status: success/approved
+   - psp_reference: Cardstream reference
+   - token_type: MIT_TOKEN
+   - shopperInteraction: MOTO
+
+6. PSP dashboard displays the transaction with shopperInteraction as Moto.""","""moto_cit_sale;
+webhook_validation;
+shopperInteraction_moto;
+mit_token;
+region_us;
+currency_usd;""",P1,,US,,
+Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-004,Moto CIT Sale – Split Payment Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Split payment configuration is enabled for the merchant
+
+- Partner merchant accounts are active and configured
+
+- Split rules are defined in the system
+
+- txnType: CREATE_MIT_TOKEN pass in moto payload""","""- Refer Git repository for CIT/MIT test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CIT Transaction amount: $200.00
+
+- Split configuration: [{partner_merchant_id: 'MID_001', type_id: '2', value: '20.00', value_type: 'amount'}, {partner_merchant_id: 'MID_002', type_id: '1', value: '5.00', value_type: 'percentage'}]
+
+- Valid test card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 06/2030
+
+- CREATE_MIT_TOKEN: true (in CIT payload)
+
+- All mandatory fields""","""1. Launch the Moto card page with CREATE_MIT_TOKEN flag and split payment configuration in the payload.
+
+2. Enter customer details and card credentials from the test data.
+
+3. Complete the payment transaction.
+
+4. Capture the PSP reference and payment_id from the transaction response.
+
+5. Query the payment table and verify the main transaction entry.
+
+6. Query the payment_split_commission table and validate all split entries.
+
+7. Verify split calculations against the original transaction amount.
+
+8. Cross-check partner merchant balances to ensure funds allocation is recorded.
+
+9. Validate webhook contains shopperInteraction: MOTO.""","""1. Payment completes successfully with total amount $200.00.
+
+2. Payment table contains the main transaction entry:
+   - transaction_status_id: 1 (approved)
+   - gross: 200.00
+   - fee: calculated platform fee
+   - net: gross - fee - split amounts
+   - psp_reference: Cardstream PSP reference
+   - split_payment_flag: 1 (indicating split transaction)
+   - transaction_method_id: 30 (CIT)
+
+3. Payment_split_commission table contains split breakdown:
+   3.a Split entry for MID_001 (type_id=2, fixed amount):
+       - payment_id: links to main payment
+       - partner_merchant_id: 'MID_001'
+       - commission_type_id: 2
+       - commission_value: 20.00
+       - commission_value_type: 'amount'
+       - calculated_amount: 20.00
+       - currency: 'USD'
+       - status: 'processed'
+       - created_at: transaction timestamp
+   3.b Split entry for MID_002 (type_id=1, percentage):
+       - payment_id: links to main payment
+       - partner_merchant_id: 'MID_002'
+       - commission_type_id: 1
+       - commission_value: 5.00
+       - commission_value_type: 'percentage'
+       - calculated_amount: 10.00 (5% of 200.00)
+       - currency: 'USD'
+       - status: 'processed'
+       - created_at: transaction timestamp
+
+4. Total split amount ($30.00) is deducted from merchant's net settlement.
+
+5. Partner merchant balance tables reflect the allocated amounts.
+
+6. Webhook log: https_status=200, payload stored, payload contains token_type: MIT_TOKEN, payload contains shopperInteraction: MOTO, split notifications sent to partner merchants.
+
+7. gateway_request_log shows shopperInteraction: Moto.
+
+8. PSP dashboard displays the transaction with split payment indicator and shopperInteraction as Moto.
+
+9. Merchant statement shows split commission breakdown.""","""moto_cit_sale;
+split_payment;
+shopperInteraction_moto;
+mit_token;
+commission_validation;
+region_us;
+currency_usd;""",P2,,US,,
+Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-005,Moto CIT Sale – CVV Validation Scenarios,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- CVV validation configured
+
+- txnType: CREATE_MIT_TOKEN pass in moto payload""","""Test Scenarios with specific cards:
+Scenario A - Valid CVV: Card: Visa 4111111111111111, amount=$50.00 USD, expiry=03/2030, cvc=737
+Scenario B - Invalid CVV: Card: Visa 4111111111111111, amount=$50.00 USD, expiry=03/2030, cvc=000 (Cardstream test for CVV decline)
+Scenario C - Without CVV: Card: Visa 4111111111111111, amount=$50.00 USD, expiry=03/2030, cvc=(empty)
+
+- Email: testing@datman.je
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CREATE_MIT_TOKEN: true (in CIT payload)""","""Scenario A - Valid CVV:
+1. Launch Moto card page with CREATE_MIT_TOKEN flag.
+2. Enter card details with valid CVV (737) and submit payment.
+3. Capture PSP reference and validate transaction completion.
+4. Query payment table and verify transaction_status_id=1.
+5. Verify webhook contains shopperInteraction: MOTO.
+
+Scenario B - Invalid CVV:
+1. Launch Moto card page with CREATE_MIT_TOKEN flag.
+2. Enter card details with invalid CVV (000) and submit payment.
+3. Capture the decline response.
+4. Query payment table and verify transaction_status_id=7 (DECLINE).
+5. Verify gateway_request_log captures the CVV failure.
+
+Scenario C - Without CVV:
+1. Launch Moto card page with CREATE_MIT_TOKEN flag.
+2. Enter card details without CVV and submit payment.
+3. Verify validation error or decline response.
+4. Query payment table and verify transaction handling.""","""Scenario A - Valid CVV:
+1. Payment completes successfully with PSP reference displayed.
+2. Payment table entry:
+   - transaction_status_id: 1 (OK)
+   - transaction_mode_id: 1 (Non-3DS MOTO)
+   - transaction_method_id: 30 (CIT)
+   - psp_reference: populated
+   - gross: 50.00
+3. Gateway_request_log contains CVV validation request and response.
+4. Webhook log: https_status=200, payload contains token_type: MIT_TOKEN, payload contains shopperInteraction: MOTO.
+5. CVV verified successfully.
+6. Cardstream dashboard shows shopperInteraction as Moto.
+
+Scenario B - Invalid CVV:
+1. Payment form shows decline message.
+2. Payment table entry:
+   - transaction_status_id: 7 (DECLINE)
+   - decline_reason: 'CVV verification failed' or 'CVC Declined'
+3. Gateway_request_log captures CVV failure response.
+4. No MIT token created for declined transaction.
+5. Webhook log shows declined status with shopperInteraction: MOTO.
+
+Scenario C - Without CVV:
+1. Depending on merchant configuration:
+   - If CVV required: Validation error displayed, payment not processed
+   - If CVV optional: Payment may proceed with higher risk
+2. Payment table entry reflects outcome (success or declined based on configuration).
+3. gateway_request_log shows CVV not provided.
+4. If processed, webhook contains shopperInteraction: MOTO.""","""moto_cit_sale;
+cvv_validation;
+shopperInteraction_moto;
+mit_token;
+decline_scenarios;
+region_us;
+currency_usd;""",P1,,US,,
+Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-006,Moto CIT Sale – Different Card Types Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Multiple card types accepted
+
+- txnType: CREATE_MIT_TOKEN pass in moto payload""","""Test Cards:
+Card A - Visa: 4111111111111111, expiry=03/2030, cvc=737, amount=$60.00
+Card B - Mastercard: 5555555555554444, expiry=05/2030, cvc=123, amount=$70.00
+Card C - Visa Debit: 4917610000000000, expiry=03/2030, cvc=737, amount=$80.00
+Card D - Mastercard Corporate: 5500000000000004, expiry=03/2030, cvc=737, amount=$90.00
+
+- Email: testing@datman.je
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CREATE_MIT_TOKEN: true (in CIT payload)""","""For each card type:
+1. Launch Moto card page with CREATE_MIT_TOKEN flag.
+2. Enter card details from test data.
+3. Submit payment and capture PSP reference.
+4. Query payment table and verify transaction_status_id=1.
+5. Query mit_token_info table and verify token created with correct scheme_name.
+6. Verify webhook contains shopperInteraction: MOTO.
+7. Verify gateway_request_log shows correct card type and shopperInteraction: Moto.""","""Card A - Visa:
+1. Payment completes successfully.
+2. Payment table: transaction_status_id=1, last_4_digit='1111'.
+3. mit_token_info: scheme_name='Visa', last_4_digit='1111'.
+4. Webhook: token_type: MIT_TOKEN, shopperInteraction: MOTO.
+5. Cardstream dashboard: shopperInteraction=Moto, card type=Visa.
+
+Card B - Mastercard:
+1. Payment completes successfully.
+2. Payment table: transaction_status_id=1, last_4_digit='4444'.
+3. mit_token_info: scheme_name='Mastercard', last_4_digit='4444'.
+4. Webhook: token_type: MIT_TOKEN, shopperInteraction: MOTO.
+5. Cardstream dashboard: shopperInteraction=Moto, card type=Mastercard.
+
+Card C - Visa Debit:
+1. Payment completes successfully.
+2. Payment table: transaction_status_id=1.
+3. mit_token_info: scheme_name='Visa Debit'.
+4. Webhook: token_type: MIT_TOKEN, shopperInteraction: MOTO.
+5. Cardstream dashboard: shopperInteraction=Moto, card type=Visa Debit.
+
+Card D - Mastercard Corporate:
+1. Payment completes successfully.
+2. Payment table: transaction_status_id=1.
+3. mit_token_info: scheme_name='Mastercard'.
+4. Webhook: token_type: MIT_TOKEN, shopperInteraction: MOTO.
+5. Cardstream dashboard: shopperInteraction=Moto, card type=MC Corporate.
+
+All transactions show shopperInteraction: MOTO in webhook_log payload and gateway_request_log.""","""moto_cit_sale;
+card_types;
+shopperInteraction_moto;
+mit_token;
+visa;
+mastercard;
+region_us;
+currency_usd;""",P2,,US,,
+Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-007,Moto CIT Sale – Full and Partial Refund Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Refund functionality enabled
+
+- txnType: CREATE_MIT_TOKEN pass in moto payload""","""- Refer Git repository for CIT/MIT test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CIT Transaction amount: $100.00
+
+- Full Refund amount: $100.00
+
+- Partial Refund amount: $40.00
+
+- Valid test card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true (in CIT payload)""","""Scenario A - Full Refund:
+1. Launch Moto card page with CREATE_MIT_TOKEN flag.
+2. Complete CIT transaction for $100.00.
+3. Capture payment_id and PSP reference.
+4. Initiate full refund of $100.00.
+5. Verify refund processed in database.
+6. Verify webhook notifications.
+7. Confirm shopperInteraction: MOTO in original transaction webhook.
+
+Scenario B - Partial Refund:
+1. Launch Moto card page with CREATE_MIT_TOKEN flag.
+2. Complete CIT transaction for $100.00.
+3. Capture payment_id and PSP reference.
+4. Initiate partial refund of $40.00.
+5. Verify refund processed in database.
+6. Verify remaining balance.
+7. Verify webhook notifications.""","""Scenario A - Full Refund:
+1. CIT Payment successful with $100.00.
+2. Original payment webhook_log: token_type: MIT_TOKEN, shopperInteraction: MOTO.
+3. Full refund initiated and processed.
+4. Payment table (Refund entry):
+   - transaction_status_id: 2 (refund)
+   - gross: -$100.00
+   - fee: -[proportional fee]
+5. Original payment updated:
+   - transaction_status_id: 2 (refunded)
+6. Refund webhook sent with correct amount.
+7. Cardstream dashboard shows refund processed.
+8. MIT token remains active for future use.
+
+Scenario B - Partial Refund:
+1. CIT Payment successful with $100.00.
+2. Original payment webhook_log: token_type: MIT_TOKEN, shopperInteraction: MOTO.
+3. Partial refund of $40.00 initiated and processed.
+4. Payment table (Refund entry):
+   - transaction_status_id: 2 (refund)
+   - gross: -$40.00
+   - fee: -[proportional fee for $40]
+5. Original payment:
+   - transaction_status_id: 3 (partial refund) or remains 1 with refund flag
+   - Remaining balance: $60.00
+6. Refund webhook sent with $40.00 amount.
+7. Cardstream dashboard shows partial refund.
+8. Further refunds possible for remaining $60.00.
+9. MIT token remains active.""","""moto_cit_sale;
+refund_validation;
+full_refund;
+partial_refund;
+shopperInteraction_moto;
+mit_token;
+region_us;
+currency_usd;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-001,CIT/MIT payment - End to End - CIT Sale with MIT Token Creation and MIT Sale with Refund (with CVV),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Store created in Cardstream
+
+- cardstream_store_id_enabled = 1
+
+- MIT token storage configured
+
+- ""CREATE_MIT_TOKEN"" key for CIT transaction
+
+- ""MERCHANT_INITIATED_TRANSACTION"" key for MIT transaction
+
+- CVV collection enabled for CIT""","""- Refer Git repository for CIT/MIT test script
+
+- Email: testing@datman.je
+
+- api_key: (refer to QA team)
+
+- Webhook url: webhook_url
+
+- Country: United States (country_id: 7)
+
+- Currency: USD
+
+- CIT Transaction amount: $50.00
+
+- MIT Transaction amount: $75.00
+
+- Refund amount: $75.00 (full)
+
+- Valid test card with CVV
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- Address objects
+
+- CREATE_MIT_TOKEN: true (in CIT payload)
+
+- MERCHANT_INITIATED_TRANSACTION: true (in MIT payload)
+
+- All mandatory fields""","""1. PHASE 1 - CIT Transaction (Customer Initiated):
+
+2. Open moto card page with CREATE_MIT_TOKEN flag
+
+3. Enter card details WITH CVV (737)
+
+4. Complete CIT transaction for $50.00
+
+5. Verify redirect and capture order_id
+
+6. Verify MIT token created in database
+
+7. Capture MIT token and customer_id
+
+8. PHASE 2 - MIT Transaction (Merchant Initiated):
+
+9. Use Express checkout/API with:
+   - MIT token (from step 7)
+   - customer_id
+   - MERCHANT_INITIATED_TRANSACTION flag
+   - NO CVV required
+   - NO 3DS required
+
+10. Process MIT sale for $75.00
+
+11. Verify MIT transaction successful
+
+12. Capture MIT payment_id
+
+13. PHASE 3 - Refund MIT Transaction:
+
+14. Initiate full refund of $75.00 for MIT transaction
+
+15. Verify refund processed
+
+16. Check all database entries
+
+17. Verify Cardstream dashboard""","""PHASE 1 - CIT TRANSACTION ($50.00):
+
+1. CIT Payment successful
+
+2. Database - payments table (CIT):
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+-> payment_provider_id: 3 (Cardstream)
+-> transaction_method_id: 30 (CIT) or similar
+-> transaction_mode_id: 1 (Non-3DS) or 2 (3DS)
+-> country_code: 'US'
+-> currency_code: 'USD'
+-> gross: $50.00
+-> last_4_digits: captured
+
+3. Database - mit_token_info table:
+-> NEW entry created
+-> merchant_id: [CS-CH Merchant ID]
+
+4. gateway_request_log (CIT):
+-> CREATE_MIT_TOKEN flag present
+-> Card details encrypted
+-> CVV collected
+
+PHASE 2 - MIT TRANSACTION ($75.00):
+
+5. MIT Payment successful WITHOUT CVV
+
+6. Database - payments table (MIT):
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+-> payment_provider_id: 3 (Cardstream)
+-> transaction_method_id: 31 (MIT)
+-> transaction_mode_id: 1 (Non-3DS)
+-> country_code: 'US'
+-> currency_code: 'USD'
+-> gross: $75.00
+-> last_4_digits: from token
+
+7. gateway_request_log (MIT):
+-> MERCHANT_INITIATED_TRANSACTION flag present ✓
+-> MIT token used
+-> NO CVV in payload ✓
+-> NO 3DS challenge ✓
+-> recurring payment indicator
+
+8. MIT validation:
+-> CVV NOT required ✓
+-> 3DS NOT required ✓
+-> Token authentication used
+-> Subsequent transaction flow
+-> Lower friction payment
+
+PHASE 3 - REFUND ($75.00):
+
+9. Refund successful
+
+10. Database - payments table (Refund):
+-> NEW refund entry
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 2 (refund)
+-> gross: -$75.00
+-> fee: -[proportional fee]
+-> currency_code: 'USD'
+
+11. Original MIT payment updated:
+-> transaction_status_id: 2 (refunded)
+
+12. webhook_log:
+-> CIT payment_success
+-> MIT payment_success
+-> Refund notification
+
+13. cardstream_webhook_notification_log:
+
+14. Cardstream dashboard:
+-> CIT transaction: $50.00, ECOM, CVV verified
+-> MIT transaction: $75.00, ECOM, ContAuth (Continuous Authority)
+-> MIT shows as recurring/subsequent transaction
+-> Token stored for future MIT transactions
+
+15. MIT Token remains active for future use
+
+16. Security validation:
+-> CVV collected during CIT only
+-> CVV NOT stored
+-> Token securely stored
+-> MIT uses tokenized card data""","""cit_mit_sale;
+cit_transaction;
+mit_transaction;
+mit_token;
+with_cvv;
+full_refund;
+recurring_payment;
+region_us;
+currency_usd;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-002,CIT/MIT payment - CIT Sale and MIT Sale with Refund (without CVV),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- CVV NOT collected during CIT
+
+- Store created in Cardstream
+
+- MIT token storage configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US (country_id: 7)
+
+- Currency: USD
+
+- CIT amount: $50.00
+
+- MIT amount: $60.00
+
+- Refund: $60.00
+
+- Valid card
+
+- NO CVV provided in CIT
+
+- CREATE_MIT_TOKEN: true
+
+- MERCHANT_INITIATED_TRANSACTION: true (MIT)""","""1. PHASE 1 - CIT without CVV:
+
+2. Open moto page with CREATE_MIT_TOKEN
+
+3. Enter card details WITHOUT CVV
+
+4. Complete CIT for $50.00
+
+5. Verify MIT token created
+
+6. PHASE 2 - MIT Transaction:
+
+7. Use MIT token for $60.00 transaction
+
+8. Process without CVV (as expected for MIT)
+
+9. PHASE 3 - Refund:
+
+10. Refund $60.00 MIT transaction
+
+11. Verify all database entries""","""PHASE 1 - CIT without CVV ($50.00):
+
+1. CIT successful without CVV
+
+2. Database - payments (CIT):
+-> transaction_status_id: 1
+-> gross: $50.00
+-> transaction_method_id: 30 (CIT)
+
+3. Database - mit_token_info:
+-> Token created successfully
+-> No CVV associated with token
+-> Token valid for MIT transactions
+
+PHASE 2 - MIT ($60.00):
+
+4. MIT successful without CVV
+
+5. Database - payments (MIT):
+-> transaction_status_id: 1
+-> gross: $60.00
+-> transaction_method_id: 31 (MIT)
+
+6. Both CIT and MIT completed without CVV
+
+PHASE 3 - Refund:
+
+7. Refund successful
+
+8. Database - payments (Refund):
+-> gross: -$60.00
+-> transaction_status_id: 2
+
+9. Cardstream dashboard:
+
+10. Validation:
+-> CVV NOT required for CIT in this flow ✓
+-> CVV NOT required for MIT ✓
+-> Token-based authentication working
+-> Refund processed successfully""","""cit_mit_sale;
+without_cvv;
+mit_token;
+full_refund;
+no_cvv_validation;
+region_us;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-003,CIT/MIT payment - CIT Sale and MIT Sale with Refund (with invalid CVV),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- CVV validation configured
+
+- Invalid CVV scenario""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- CIT amount: $50.00
+
+- Invalid CVV: 000 (Cardstream test for CVV failure)
+
+- Valid card: 4111 1111 1111 1111
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true""","""1. Open moto page with CREATE_MIT_TOKEN
+
+2. Enter card details with INVALID CVV: 000
+
+3. Submit CIT transaction
+
+4. Expect CVV validation failure
+
+5. Verify transaction declined
+
+6. Check error handling
+
+7. Verify NO MIT token created
+
+8. Check database entries""","""1. CIT transaction DECLINED due to invalid CVV
+
+2. CVV validation failure:
+-> CVV mismatch detected
+-> Cardstream rejects transaction
+-> Authorization failed
+
+3. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 7 (declined) or 9 (failed)
+-> gross: $50.00 (attempted)
+-> fee: $0.00
+-> transaction_method_id: 30 (CIT attempt)
+
+4. Database - mit_token_info:
+-> NO entry created ✓
+-> Token NOT generated for failed CIT ✓
+-> No recurring detail reference
+
+5. Error handling:
+-> User sees: ""Invalid security code""
+-> Clear error message
+-> CVV verification failed
+-> Customer NOT charged
+
+6. gateway_request_log:
+-> CIT attempt logged
+-> Invalid CVV submitted (encrypted)
+-> Decline response from Cardstream
+
+7. cardstream_webhook_notification_log:
+
+8. Security validation:
+-> CVV validation working correctly ✓
+-> Invalid CVV rejected ✓
+-> No token created for failed transaction ✓
+-> Fraud prevention active
+
+9. Cardstream dashboard:
+-> Declined transaction visible
+-> No token stored
+-> No settlement
+
+10. No MIT transaction possible:
+-> CIT failed, so no token created
+-> MIT cannot proceed without valid CIT
+-> Customer must retry with valid CVV""","""cit_failed;
+invalid_cvv;
+cvv_validation_failed;
+no_mit_token;
+declined_transaction;
+error_handling;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-004,CIT/MIT payment - CIT Sale and MIT Sale with Refund (without CVV for 3DS card),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- 3DS enabled card
+
+- CVV NOT provided during CIT
+
+- MIT bypasses 3DS""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- CIT amount: $50.00
+
+- MIT amount: $80.00
+
+- Refund: $80.00
+
+- 3DS Test Card: 4917 3000 0000 0008
+
+- NO CVV provided
+
+- CREATE_MIT_TOKEN: true
+
+- MERCHANT_INITIATED_TRANSACTION: true""","""1. PHASE 1 - CIT with 3DS card (no CVV):
+
+2. Enter 3DS-enabled card WITHOUT CVV
+
+3. May trigger 3DS authentication
+
+4. Complete 3DS if triggered
+
+5. Complete CIT for $50.00
+
+6. Verify MIT token created
+
+7. PHASE 2 - MIT Transaction:
+
+8. Use MIT token for $80.00
+
+9. Verify NO 3DS challenge for MIT ✓
+
+10. Verify NO CVV required for MIT ✓
+
+11. Complete MIT transaction
+
+12. PHASE 3 - Refund:
+
+13. Refund $80.00
+
+14. Verify refund successful""","""PHASE 1 - CIT with 3DS card ($50.00):
+
+1. CIT may trigger 3DS authentication
+
+2. 3DS flow (if triggered):
+-> User redirected to 3DS challenge
+-> User completes authentication
+-> CIT authorized after 3DS
+
+3. Database - payments (CIT):
+-> transaction_status_id: 1
+-> transaction_method_id: 30 (CIT)
+-> gross: $50.00
+
+4. Database - mit_token_info:
+-> Token created successfully
+-> Associated with 3DS-authenticated card
+-> Token valid for future MIT
+
+PHASE 2 - MIT with 3DS card ($80.00):
+
+5. MIT bypasses 3DS authentication ✓
+
+6. Database - payments (MIT):
+-> transaction_status_id: 1
+-> transaction_method_id: 31 (MIT)
+-> gross: $80.00
+-> recurring payment flow
+
+7. MIT validation:
+-> 3DS NOT triggered for MIT ✓
+-> CVV NOT required ✓
+-> Token authentication sufficient
+-> Lower friction for recurring payment
+
+PHASE 3 - Refund ($80.00):
+
+8. Refund successful
+
+9. Database - payments (Refund):
+-> gross: -$80.00
+-> transaction_status_id: 2
+
+10. Cardstream dashboard:
+
+11. Key validation:
+-> Initial CIT may require 3DS (Strong Customer Authentication)
+-> MIT bypasses 3DS using stored credential ✓
+-> No CVV for both CIT and MIT ✓
+-> MIT exempt from SCA requirements
+-> Token-based recurring payment compliant""","""cit_mit_sale;
+3ds_card;
+no_cvv;
+mit_bypass_3ds;
+recurring_payment;
+full_refund;
+sca_exempt;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-005,CIT/MIT payment - CIT Sale and MIT Sale with Refund (with CVV for Visa card),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- CVV collection for Visa
+
+- MIT token storage""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- CIT amount: $50.00
+
+- MIT amount: $70.00
+
+- Refund: $70.00
+
+- Visa Card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true""","""1. PHASE 1 - CIT with Visa + CVV:
+
+2. Enter Visa card WITH CVV (737)
+
+3. Complete CIT for $50.00
+
+4. Verify CVV validated
+
+5. Verify MIT token created
+
+6. PHASE 2 - MIT with Visa:
+
+7. Use MIT token for $70.00
+
+8. No CVV required for MIT
+
+9. Complete MIT transaction
+
+10. PHASE 3 - Refund:
+
+11. Refund $70.00
+
+12. Verify all validations""","""PHASE 1 - CIT Visa with CVV ($50.00):
+
+1. CIT successful with Visa
+
+2. Database - payments (CIT):
+-> transaction_status_id: 1
+-> gross: $50.00
+-> transaction_method_id: 30 (CIT)
+-> last_4_digits: 1111
+
+3. CVV validation:
+-> CVV checked with issuer
+-> CVV matched successfully
+-> Security check passed
+
+4. Database - mit_token_info:
+-> Token created for Visa card
+
+PHASE 2 - MIT Visa ($70.00):
+
+5. MIT successful without CVV
+
+6. Database - payments (MIT):
+-> transaction_status_id: 1
+-> gross: $70.00
+-> transaction_method_id: 31 (MIT)
+-> last_4_digits: 1111 (from token)
+
+PHASE 3 - Refund ($70.00):
+
+7. Refund successful
+
+8. Database - payments (Refund):
+-> gross: -$70.00
+
+9. Cardstream dashboard:
+
+10. Visa-specific validation:
+-> CVV required for initial CIT ✓
+-> CVV NOT stored permanently
+-> MIT uses token without CVV ✓
+-> Visa network rules complied
+-> Recurring transaction processed""","""cit_mit_sale;
+visa_card;
+with_cvv;
+mit_token;
+full_refund;
+card_scheme_validation;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-006,CIT/MIT payment - CIT Sale and MIT Sale with Refund (with CVV for Corporate card),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- Corporate card support
+
+- CVV collection
+
+- MIT token storage""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- CIT amount: $100.00 (corporate transaction)
+
+- MIT amount: $150.00
+
+- Refund: $150.00
+
+- Corporate Card: 5200 0000 0000 0007 (Mastercard Corporate)
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true""","""1. PHASE 1 - CIT Corporate Card:
+
+2. Enter Corporate card WITH CVV
+
+3. Complete CIT for $100.00
+
+4. Verify corporate card identified
+
+5. Verify MIT token created
+
+6. PHASE 2 - MIT Corporate:
+
+7. Use MIT token for $150.00
+
+8. Complete MIT transaction
+
+9. PHASE 3 - Refund:
+
+10. Refund $150.00
+
+11. Verify corporate card handling""","""PHASE 1 - CIT Corporate ($100.00):
+
+1. CIT successful with Corporate card
+
+2. Database - payments (CIT):
+-> transaction_status_id: 1
+-> gross: $100.00
+-> transaction_method_id: 30 (CIT)
+-> last_4_digits: 0007
+
+3. Corporate card identification:
+-> BIN indicates corporate card
+-> Higher transaction limits may apply
+-> Different fee structure possible
+-> Level 2/Level 3 data may be required
+
+4. Database - mit_token_info:
+-> Token created for Corporate card
+
+PHASE 2 - MIT Corporate ($150.00):
+
+5. MIT successful
+
+6. Database - payments (MIT):
+-> transaction_status_id: 1
+-> gross: $150.00
+-> transaction_method_id: 31 (MIT)
+
+7. Corporate MIT validation:
+-> Higher value transaction typical for corporate
+-> MIT token works with corporate cards
+-> Business rules applied
+
+PHASE 3 - Refund ($150.00):
+
+8. Refund successful
+
+9. Database - payments (Refund):
+-> gross: -$150.00
+
+10. Cardstream dashboard:
+
+11. Corporate card validation:
+-> Corporate card identified correctly ✓
+-> CVV validated for CIT ✓
+-> MIT works with corporate cards ✓
+-> Higher transaction amounts supported
+-> Refund processed successfully
+-> Level 2/3 data handling (if applicable)""","""cit_mit_sale;
+corporate_card;
+mastercard;
+with_cvv;
+mit_token;
+full_refund;
+high_value;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-007,CIT/MIT payment - CIT Sale and MIT Sale with Refund and Payment Split (Type 1),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- Split payment configured
+
+- Split type_id: 1 (Food/Goods)
+
+- MIT token storage""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- CIT amount: $100.00
+
+- MIT amount: $120.00
+
+- Split amount: $30.00 (to Split Merchant B)
+
+- Refund: $120.00 (full)
+
+- Valid card with CVV
+
+- CREATE_MIT_TOKEN: true
+
+- Split payload configured""","""1. PHASE 1 - CIT with Split:
+
+2. Enter card details with CVV
+
+3. Include split configuration:
+   - Split type_id: 1
+   - Split amount: $30.00
+   - Partner merchant B
+
+4. Complete CIT for $100.00
+
+5. Verify two-way split
+
+6. Verify MIT token created
+
+7. PHASE 2 - MIT with Split:
+
+8. Use MIT token for $120.00
+
+9. Include split: $30.00
+
+10. Complete MIT without CVV
+
+11. Verify two-way split
+
+12. PHASE 3 - Refund with Split:
+
+13. Refund $120.00
+
+14. Verify proportional refund to both merchants""","""PHASE 1 - CIT with Split ($100.00):
+
+1. CIT successful with split
+
+2. Database - payments (CIT - 2 entries):
+
+Entry 1 - Sale Merchant:
+-> transaction_status_id: 1
+-> gross: $100.00
+-> fee: calculated
+-> net: $100 - fee - $30
+-> transaction_method_id: 30 (CIT)
+
+Entry 2 - Split Merchant B:
+-> gross: $30.00
+-> fee: $0.00
+-> net: $30.00
+
+3. Database - payment_splits:
+
+4. Database - mit_token_info:
+-> Token created for recurring split payments
+
+PHASE 2 - MIT with Split ($120.00):
+
+5. MIT successful with split
+
+6. Database - payments (MIT - 2 entries):
+
+Entry 1 - Sale Merchant:
+-> transaction_status_id: 1
+-> gross: $120.00
+-> net: $120 - fee - $30
+-> transaction_method_id: 31 (MIT)
+
+Entry 2 - Split Merchant B:
+-> gross: $30.00
+-> net: $30.00
+
+7. Cardstream split array (MIT):
+[
+  {merchant: ""Sale_Merchant"", amount: [net], type: ""MarketPlace""},
+  {merchant: ""DL_Merchant"", amount: [fee], type: ""Commission""},
+  {merchant: ""Split_Merchant_B"", amount: 3000, type: ""MarketPlace""}
+]
+
+PHASE 3 - Refund with Split ($120.00):
+
+8. Refund successful - proportional to both merchants
+
+9. Database - payments (Refund - 2 entries):
+
+Refund 1 - Sale Merchant:
+-> gross: -$120.00
+-> net: calculated
+
+Refund 2 - Split Merchant B:
+-> gross: -$30.00
+-> net: -$30.00
+
+10. Cardstream dashboard:
+
+11. Split + MIT validation:
+-> CIT creates MIT token ✓
+-> MIT supports split payments ✓
+-> Refund splits correctly ✓
+-> Both merchants refunded proportionally
+-> Recurring split payment working""","""cit_mit_sale;
+split_payment;
+split_type_1;
+mit_with_splits;
+full_refund;
+two_way_split;
+marketplace;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-008,CIT/MIT payment - CIT Sale with CVV Collection (CVV Verification Focus),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- CVV collection mandatory for CIT
+
+- CVV verification configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Valid card: 4111 1111 1111 1111
+
+- CVV: 737
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true
+
+- Focus on CVV validation""","""1. Open moto page with CREATE_MIT_TOKEN
+
+2. Enter card details
+
+3. Enter CVV: 737
+
+4. Submit CIT transaction
+
+5. Verify CVV sent to Cardstream (encrypted)
+
+6. Verify CVV validation with issuer
+
+7. Check CVV result code
+
+8. Verify payment successful
+
+9. Verify CVV NOT stored
+
+10. Check MIT token created""","""1. CIT successful with CVV validation
+
+2. CVV handling:
+-> CVV collected from customer
+-> CVV encrypted client-side
+-> CVV transmitted securely to Cardstream
+-> Cardstream validates CVV with card issuer
+-> CVV verification result returned
+
+3. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1
+-> gross: $50.00
+-> transaction_method_id: 30 (CIT)
+
+4. Database - gateway_request_log:
+-> CVV included in request (encrypted)
+-> ""encryptedSecurityCode"": ""cs_encrypted_...""
+-> CVV NOT stored in plain text ✓
+
+5. CVV validation:
+-> CVV checked by issuer
+-> Security enhanced
+-> Fraud prevention active
+
+6. Database - mit_token_info:
+-> Token created
+-> CVV NOT included in token ✓
+-> CVV NOT stored permanently ✓
+
+7. Security validation:
+❌ CVV NOT stored in database ✓
+❌ CVV NOT in token ✓
+❌ CVV NOT visible in UI ✓
+❌ CVV NOT in network tab ✓
+✓ CVV encrypted during transmission
+✓ CVV verified by issuer
+✓ PCI DSS compliant
+
+8. Cardstream dashboard:
+-> Transaction successful
+-> CVV check: Matched
+-> CIT transaction type
+
+9. Key points:
+-> CVV collected during CIT for security
+-> CVV verified but NOT stored
+-> MIT token created WITHOUT CVV
+-> Future MIT transactions use token (no CVV)
+-> Compliance with PCI DSS requirements""","""cit_sale;
+cvv_collection;
+cvv_verification;
+security_validation;
+pci_compliance;
+mit_token_creation;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-009,CIT/MIT payment - CIT Sale and MIT Sale with Partial Refund,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- Partial refund configured
+
+- MIT token storage""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- CIT amount: $50.00
+
+- MIT amount: $100.00
+
+- Partial refund: $40.00
+
+- Valid card with CVV
+
+- CREATE_MIT_TOKEN: true""","""1. PHASE 1 - CIT:
+
+2. Complete CIT for $50.00 with CVV
+
+3. Verify MIT token created
+
+4. PHASE 2 - MIT:
+
+5. Use MIT token for $100.00
+
+6. Complete MIT without CVV
+
+7. PHASE 3 - Partial Refund:
+
+8. Initiate partial refund of $40.00
+
+9. Verify partial refund processed
+
+10. Check remaining balance""","""PHASE 1 - CIT ($50.00): [Same as TC038]
+
+PHASE 2 - MIT ($100.00): [Same as TC038]
+
+PHASE 3 - PARTIAL REFUND ($40.00):
+
+1. Partial refund successful
+
+2. Database - payments (Refund entry):
+-> transaction_status_id: 2 (refund)
+-> gross: -$40.00
+-> fee: -[proportional fee]
+-> currency_code: 'USD'
+
+3. Original MIT payment updated:
+-> transaction_status_id: 5 (partially refunded)
+
+4. Refund calculation:
+-> Customer received back: $40.00
+
+5. MIT token status:
+-> Token remains ACTIVE ✓
+-> Can still be used for future MIT ✓
+-> Not affected by partial refund
+
+6. Cardstream dashboard:
+-> MIT transaction: $100.00
+-> Partial refund: -$40.00
+
+7. webhook_log:
+-> partial_refund notification
+-> MIT transaction details
+
+8. Customer account:
+-> Original charge: $100.00
+-> Refund credited: $40.00
+-> Net charge: $60.00""","""cit_mit_sale;
+mit_transaction;
+partial_refund;
+token_active;
+recurring_payment;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-010,CIT/MIT payment - CIT Sale without MIT Key (Negative Test),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT functionality enabled
+
+- CREATE_MIT_TOKEN flag NOT provided""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Valid card with CVV
+
+- CREATE_MIT_TOKEN: NOT provided (missing) ✓
+
+- All other mandatory fields""","""1. Open moto card page
+
+2. DO NOT include CREATE_MIT_TOKEN flag
+
+3. Enter card details with CVV
+
+4. Submit transaction
+
+5. Verify transaction processes as standard payment
+
+6. Verify NO MIT token created
+
+7. Check database entries
+
+8. Verify payment successful but NO token""","""1. Payment successful as STANDARD transaction
+
+2. Transaction behavior:
+-> Processed as regular moto/ecom payment
+-> NOT treated as CIT
+-> NO MIT token generation attempted
+-> Standard authorization flow
+
+3. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 (success)
+-> gross: $50.00
+-> transaction_method_id: 3 (Moto) or standard method
+-> NOT marked as CIT
+-> No recurring indicators
+
+4. Database - mit_token_info:
+-> NO entry created ✓
+-> No token generated ✓
+-> No recurring detail reference ✓
+
+5. Validation:
+-> CREATE_MIT_TOKEN flag missing
+-> System defaults to standard payment
+-> No token storage attempted
+-> Payment successful but one-time only
+
+6. Expected behavior:
+-> Payment completes successfully
+-> Customer charged normally
+-> NO token for future MIT transactions
+-> Cannot perform MIT without this token
+
+7. gateway_request_log:
+-> No CREATE_MIT_TOKEN in payload
+-> Standard payment request
+-> No tokenisation flags
+
+8. Cardstream dashboard:
+-> Standard transaction
+-> No recurring setup
+-> No token stored
+
+9. Use case:
+-> Standard one-time payment
+-> Customer must re-enter card for future payments
+-> No recurring payment capability
+
+10. Negative test validation:
+-> Confirms CREATE_MIT_TOKEN is required for tokenisation ✓
+-> System handles missing flag gracefully ✓
+-> No errors, processes as standard payment ✓""","""cit_without_mit_key;
+negative_test;
+no_token_creation;
+standard_payment;
+missing_flag;""",P2,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-011,CIT/MIT payment - MIT Sale without CIT Key (Negative Test),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- MIT functionality enabled
+
+- No prior CIT transaction performed
+
+- MERCHANT_INITIATED_TRANSACTION flag provided but NO token exists""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- MERCHANT_INITIATED_TRANSACTION: true
+
+- customer_id: provided
+
+- NO MIT token exists (no prior CIT)
+
+- Attempting MIT without CIT setup""","""1. Prepare MIT transaction payload
+
+2. Include MERCHANT_INITIATED_TRANSACTION flag
+
+3. Include customer_id
+
+4. DO NOT include MIT token (none exists)
+
+5. Attempt to process MIT transaction
+
+6. Verify transaction fails
+
+7. Check error message
+
+8. Verify database entries""","""1. MIT transaction FAILS - no token available
+
+2. Error response:
+-> ""MIT token not found""
+-> ""No stored payment method""
+-> ""Customer must complete initial transaction first""
+-> ""CIT required before MIT""
+
+3. Validation error:
+-> MIT requires prior CIT with token creation
+-> No token in mit_token_info table
+-> Cannot process merchant-initiated payment without token
+-> Customer credential not on file
+
+4. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 9 (failed) or not created
+-> OR no entry created
+-> Validation failed before authorization
+
+5. Error handling:
+-> Clear error message to merchant
+-> Explains CIT prerequisite
+-> Provides guidance on token creation
+-> No customer charged
+
+6. gateway_request_log:
+-> MIT attempt logged
+-> Validation failure
+
+7. Security validation:
+-> System correctly prevents MIT without token ✓
+-> Cannot bypass CIT requirement ✓
+-> Customer card details required first ✓
+-> Fraud prevention working
+
+8. Merchant action required:
+-> Must perform CIT first
+-> Customer must authorize initial transaction
+-> Token must be created via CIT
+-> Then MIT can be used for subsequent transactions
+
+9. Negative test validation:
+-> Confirms CIT is mandatory before MIT ✓
+-> Cannot process MIT without stored token ✓
+-> System security working correctly ✓
+-> Proper error handling ✓
+
+10. Use case:
+-> Prevents unauthorized merchant-initiated charges
+-> Ensures customer consent (via CIT)
+-> Complies with payment network rules
+-> Protects customer from unauthorized recurring charges""","""mit_without_cit;
+negative_test;
+no_token_available;
+validation_error;
+error_handling;
+security_validation;""",P1,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-012,CIT/MIT payment - CIT Sale with Invalid Customer ID,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- Customer ID validation configured""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Valid card with CVV
+
+- Invalid customer_id: ""invalid_123"" (non-existent)
+
+- CREATE_MIT_TOKEN: true""","""1. Prepare CIT transaction
+
+2. Include CREATE_MIT_TOKEN flag
+
+3. Provide INVALID customer_id
+
+4. Enter valid card details
+
+5. Submit transaction
+
+6. Verify validation error OR
+
+7. Verify transaction fails OR
+
+8. Verify token created but cannot be associated
+
+9. Check error handling""","""1. Transaction fails or succeeds with warning
+
+2. Scenario A - Validation Error (Strict validation):
+-> customer_id validation fails
+-> ""Invalid customer ID""
+-> ""Customer not found""
+-> Transaction NOT processed
+-> No payment entry created
+
+3. Scenario B - Transaction Success (Loose validation):
+-> Payment processes
+-> BUT token cannot be properly associated
+-> MIT token created but orphaned
+-> Warning logged
+
+4. Database - payments table:
+If transaction processes:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 1 or 9
+-> Payment may complete
+
+5. Database - mit_token_info:
+If token created:
+-> Token entry created
+-> Token exists but cannot be retrieved for valid customer
+-> Orphaned token
+
+6. Error handling:
+-> System validates customer_id
+-> If validation fails: clear error message
+-> If validation passes: token may be orphaned
+-> Proper logging for troubleshooting
+
+7. Expected behavior (best practice):
+-> Validate customer_id before processing
+-> Return error if customer not found
+-> Prevent orphaned tokens
+-> Clear error message to merchant
+
+8. gateway_request_log:
+-> Invalid customer_id logged
+-> Validation error or warning
+
+9. Negative test validation:
+-> Tests customer_id validation
+-> Ensures proper association
+-> Prevents orphaned data
+-> Error handling validated
+
+10. Recommendation:
+-> Validate customer_id before CIT
+-> Ensure customer exists in system
+-> Proper error response
+-> Prevent data integrity issues""","""cit_invalid_customer_id;
+negative_test;
+validation_error;
+invalid_customer;
+error_handling;
+data_integrity;""",P2,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-014,CIT/MIT payment - CIT Failed Sale without CVV,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT enabled
+
+- CVV NOT provided
+
+- Card will be declined""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- Declined Test Card: 4000 3000 0000 3003
+
+- NO CVV provided
+
+- Expiry: 03/2030
+
+- CREATE_MIT_TOKEN: true""","""1. Prepare CIT transaction
+
+2. Include CREATE_MIT_TOKEN flag
+
+3. Enter declined test card
+
+4. DO NOT provide CVV
+
+5. Submit transaction
+
+6. Verify transaction declined
+
+7. Check error handling
+
+8. Verify NO MIT token created""","""1. CIT transaction DECLINED
+
+2. Decline reason:
+-> Card declined by issuer
+-> Insufficient funds OR
+-> Card refused OR
+-> General decline
+-> (Not CVV-related since CVV not provided)
+
+3. Database - payments table:
+-> id: generated
+-> order_ref: captured
+-> merchant_id: [CS-CH Merchant ID]
+-> country_code: from test data
+-> transaction_status_id: 7 (declined) or 9 (failed)
+-> gross: $50.00 (attempted)
+-> fee: $0.00
+-> transaction_method_id: 30 (CIT attempt)
+-> last_4_digits: 3003
+
+4. Database - mit_token_info:
+-> NO entry created ✓
+-> Token NOT generated for declined CIT ✓
+-> No recurring detail reference
+
+5. Error handling:
+-> User sees: ""Transaction declined""
+-> ""Please try another payment method""
+-> Clear error message
+-> No technical details exposed
+
+6. gateway_request_log:
+-> CIT attempt logged
+-> No CVV in request
+-> Decline response from Cardstream
+
+7. cardstream_webhook_notification_log:
+
+8. Validation:
+-> CIT failed, no token created ✓
+-> Customer NOT charged ✓
+-> Cannot proceed to MIT ✓
+-> Must retry with valid card
+
+9. Cardstream dashboard:
+-> Declined transaction visible
+-> No token stored
+-> No settlement
+
+10. Negative test validation:
+-> Failed CIT does NOT create token ✓
+-> Proper error handling ✓
+-> No MIT possible without successful CIT ✓
+-> Customer protection working ✓""","""cit_failed;
+no_cvv;
+declined_transaction;
+no_token_creation;
+error_handling;
+negative_test;""",P2,,US,,
+Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-016,CIT/MIT payment - CIT/MIT Sale with Invalid API Key,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
+
+- Moto payment enabled
+
+- CIT/MIT functionality enabled
+
+- Invalid or expired API key""","""- Refer Git repository
+
+- Email: testing@datman.je
+
+- Country: US
+
+- Currency: USD
+
+- Amount: $50.00
+
+- api_key: ""invalid_api_key_123"" (wrong/expired key)
+
+- Valid card with CVV
+
+- CREATE_MIT_TOKEN: true
+
+- All other fields valid""","""1. Prepare CIT transaction
+
+2. Use INVALID api_key in request
+
+3. Include all other valid data
+
+4. Submit transaction
+
+5. Verify authentication error
+
+6. Check error response
+
+7. Verify NO payment processed
+
+8. Check error handling""","""1. Transaction FAILS - authentication error
+
+2. Authentication error:
+-> ""Invalid API key""
+-> ""Authentication failed""
+-> ""Unauthorized""
+-> HTTP 401 (Unauthorized) or 403 (Forbidden)
+
+3. Error response:
+-> Clear authentication error
+-> No payment processing attempted
+-> Security check passed
+-> Request blocked at authentication layer
+
+4. Database - payments table:
+-> NO entry created ✓
+-> Authentication failed before payment processing
+-> No database insert
+
+5. Database - mit_token_info:
+-> NO entry created ✓
+-> Request blocked at API level
+
+6. Database - gateway_request_log:
+-> Request attempt logged (if logged before auth)
+-> Authentication failure
+-> No Cardstream API call made
+
+7. Security validation:
+-> Invalid API key rejected immediately ✓
+-> No payment data processed ✓
+-> No card details sent to Cardstream ✓
+-> Authentication layer working correctly ✓
+
+8. Error handling:
+-> Clear error message
+-> ""Invalid or expired API key""
+-> ""Please check your credentials""
+-> No sensitive data in error
+
+9. Expected behavior:
+-> Validate API key before any processing
+-> Reject invalid keys immediately
+-> Return authentication error
+-> No payment processing without valid auth
+-> Log authentication attempts
+
+10. Negative test validation:
+-> API key validation working ✓
+-> Unauthorized requests blocked ✓
+-> Security measures effective ✓
+-> Clear error messaging ✓
+
+11. Security note:
+-> Prevents unauthorized payment processing
+-> Protects merchant and customer data
+-> Rate limiting may apply to failed auth attempts
+-> API key rotation recommended for security""","""cit_mit_invalid_api_key;
+negative_test;
+authentication_error;
+invalid_credentials;
+security_validation;
+unauthorized;""",P1,,US,,

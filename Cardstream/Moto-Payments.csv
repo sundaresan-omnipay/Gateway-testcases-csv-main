@@ -1,0 +1,1764 @@
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Cardstream Moto Payments,MOTO - OMT Reference Validation,CS-PHONE,CS-PHONE-001,CARDSTREAM - MOTO sale - Validation of OMT reference in metadata,"""- Merchant configured with Cardstream gateway
+
+- MOTO payment enabled
+
+- OMT reference tracking enabled""
+
+- payments table accessible (migrated from card_payment)","""- Refer Git repository for MOTO test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cardstream MOTO enabled
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £50.00
+
+- Card: Visa valid test card XXXX
+
+- CVV: valid
+
+- Expiry: valid future date""","""1. Using the payload for MOTO try
+
+2. Open the link Pluto card page
+
+3. Process the payment by entering the valid card details
+
+4. Verify the entries in DB:
+   - Card-payment: Verify Order-id, Payment provider, Origin, Method, master-token-id, Cross reference
+   - Webhook-log
+
+5. Verify in Dashboard
+
+6. Verify the OMT reference in metadata in AWS logs""","""1. The payment should be processed without any issue
+
+2. DB Validations:
+   - Payment-provider should be updated as cardstream
+   - Origin should be displayed as WebForm-CS-3D-V2
+   - Method should be updated as CardOnFile
+   - Master token id should be updated as per the token used
+   - The webhook log should be updated in the DB
+   - No duplicate entry should be added in the table
+
+3. Dashboard: User should able to see the sale entry displayed successfully
+
+4. OMT Reference should be shown in metadata in AWS logs""
+
+DB - payments table (sale row):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1 (Success)
+-> transaction_mode_id: 1 (MOTO)
+-> transaction_method_id: 3 (New Card)
+-> psp_reference: populated from Cardstream response
+-> internal_reference: populated (O<order_ref>M<merchant_id>T<id>)
+-> cs_mid: 122468 (from SSM motoCsMid)
+-> country_code / currency_code: as per merchant config
+-> last_4_digits: populated
+-> delete_status: 0, withdrawn_status: 0","""Automated;
+sanity;""",P1,Pending
+Cardstream Moto Payments,MOTO - cs_mid Validation,CS-PHONE,CS-PHONE-002,CARDSTREAM - MOTO sale - Cashflow MID cs_mid validation (122468),"""- Merchant configured with Cashflow MID
+
+- MOTO payment enabled
+
+- Cardstream gateway configured
+
+- payments table accessible (migrated from card_payment)
+
+- motoCsMid configured in SSM = 122468""","""- Refer Git repository for MOTO test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cashflow MID
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £50.00
+
+- Card: Visa valid test card XXXX
+
+- CVV: valid
+
+- Expiry: valid future date
+
+- Expected cs_mid: 122468""","""1. Open MOTO card page for Cashflow MID merchant
+
+2. Enter valid card details:
+   - Card: valid test card XXXX
+   - CVV: valid
+   - Expiry: valid future date
+
+3. Submit payment and verify transaction Pending
+
+4. Query card_payment table for this transaction
+
+5. Verify cs_mid column value = '122468'
+
+6. Verify in MMS Dashboard that sale is captured and settled""","""1. MOTO payment successful
+
+2. payments table validation:
+   - cs_mid = '122468'
+   - NOT picked from customers.cardstream_id
+   - Hardcoded value for Cashflow MOTO sales
+
+3. Transaction completed via Cardstream gateway
+
+4. Dashboard shows sale entry successfully""
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1
+-> transaction_mode_id: 1 (MOTO)
+-> transaction_method_id: 3 (New Card)","""Automated;
+sanity;
+cs_mid_validation;""",P1,Pending
+Cardstream Moto Payments,MOTO - cs_mid Validation,CS-PHONE,CS-PHONE-003,CARDSTREAM - MOTO sale - Failed sale cs_mid validation (122468),"""- Merchant configured with Cashflow MID
+
+- MOTO payment enabled
+
+- Cardstream gateway configured
+
+- payments table accessible (migrated from card_payment)""","""- Refer Git repository for MOTO test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cashflow MID
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £50.00
+
+- Card: Decline test card decline test card
+
+- CVV: valid
+
+- Expiry: valid future date
+
+- Expected cs_mid: 122468""","""1. Open MOTO card page for Cashflow MID merchant
+
+2. Enter decline test card details:
+   - Card: decline test card (decline card)
+   - CVV: valid
+   - Expiry: valid future date
+
+3. Submit payment
+
+4. Verify transaction is declined/failed
+
+5. Query card_payment table for this failed transaction
+
+6. Verify cs_mid column value = '122468' even for failed sale""","""1. MOTO payment FAILED/DECLINED
+
+2. payments table validation:
+   - Entry created for failed transaction in payments table
+   - cs_mid = '122468'
+   - cs_mid is seeded even for failed sales
+
+3. Failed transaction logged with correct cs_mid""","""Automated;
+sanity;
+cs_mid_validation;
+negative_test;""",P1,Pending
+Cardstream Moto Payments,MOTO - CIT/MIT cs_mid Validation,CS-PHONE,CS-PHONE-004,CARDSTREAM - CIT Phone payment sale - cs_mid validation (122468),"""- Merchant configured with Cashflow MID
+
+- CIT payment enabled with txnType: CREATE_MIT_TOKEN
+
+- Cardstream gateway configured
+
+- MIT token storage configured""
+
+- payments table accessible (migrated from card_payment)","""- Refer Git repository for CIT test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cashflow MID
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £50.00
+
+- Card: Visa valid test card XXXX
+
+- CVV: valid
+
+- Expiry: valid future date
+
+- CREATE_MIT_TOKEN: true
+
+- Expected cs_mid: 122468""","""1. Open Phone payment page for Cashflow MID merchant with CREATE_MIT_TOKEN flag
+
+2. Enter valid card details:
+   - Card: valid test card XXXX
+   - CVV: valid
+   - Expiry: valid future date
+
+3. Submit CIT payment
+
+4. Verify transaction Pending and MIT token created
+
+5. Query card_payment table for this CIT transaction
+
+6. Verify cs_mid column value = '122468'""","""1. CIT Phone payment successful
+
+2. payments table validation:
+   - cs_mid = '122468'
+   - CIT transaction uses same cs_mid as regular MOTO
+
+3. MIT token created successfully
+
+4. Token available for future MIT transactions""
+-> transaction_method_id: 30 (CIT)
+-> transaction_mode_id: 1 (MOTO)","""Automated;
+sanity;
+cs_mid_validation;
+cit_sale;""",P1,Pending
+Cardstream Moto Payments,MOTO - CIT/MIT cs_mid Validation,CS-PHONE,CS-PHONE-005,CARDSTREAM - MIT sale - cs_mid validation (122468),"""- Merchant configured with Cashflow MID
+
+- MIT token exists from previous CIT transaction
+
+- MERCHANT_INITIATED_TRANSACTION flag enabled
+
+- Cardstream gateway configured""
+
+- payments table accessible (migrated from card_payment)","""- Refer Git repository for MIT test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cashflow MID
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £75.00
+
+- MIT token from previous CIT
+
+- MERCHANT_INITIATED_TRANSACTION: true
+
+- No CVV required
+
+- Expected cs_mid: 122468""","""1. Ensure MIT token exists from previous CIT transaction
+
+2. Initiate MIT sale using existing token:
+   - Use saved MIT token
+   - MERCHANT_INITIATED_TRANSACTION flag
+   - No CVV required
+
+3. Process MIT sale for Cashflow MID merchant
+
+4. Verify transaction Pending
+
+5. Query card_payment table for this MIT transaction
+
+6. Verify cs_mid column value = '122468'""","""1. MIT sale successful (no CVV/3DS required)
+
+2. payments table validation:
+   - cs_mid = '122468'
+   - MIT transaction uses same cs_mid as CIT/MOTO
+
+3. Token used from mit_token_info table
+
+4. Merchant initiated transaction completed""
+-> transaction_method_id: 31 (MIT)
+-> master_token_id: populated from CIT token","""Automated;
+sanity;
+cs_mid_validation;
+mit_sale;""",P1,Pending
+Cardstream Moto Payments,MOTO - cs_mid Validation with Refund,CS-PHONE,CS-PHONE-006,CARDSTREAM - MOTO sale with Refund - cs_mid validation (122468),"""- Merchant configured with Cashflow MID
+
+- MOTO payment enabled
+
+- Refund functionality enabled
+
+- Cardstream gateway configured""
+
+- payments table accessible (migrated from card_payment)","""- Refer Git repository for MOTO test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cashflow MID
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £100.00
+
+- Refund amount: £100.00 (full)
+
+- Card: Visa valid test card XXXX
+
+- CVV: valid
+
+- Expiry: valid future date
+
+- Expected cs_mid: 122468""","""1. Complete MOTO sale for Cashflow MID merchant
+
+2. Verify original transaction cs_mid = '122468'
+
+3. Initiate full refund for the transaction
+
+4. Verify refund processed successfully
+
+5. Query card_payment table for refund entry
+
+6. Verify cs_mid column value = '122468' for refund""","""1. Original MOTO payment successful
+   - cs_mid = '122468'
+
+2. Refund processed successfully
+
+3. payments table validation for refund:
+   - Refund entry created
+   - cs_mid = '122468'
+   - Same cs_mid used for refund as original sale""
+
+DB - payments table (refund row):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 2 (Refund)
+-> transaction_mode_id: 1 (MOTO)
+-> transaction_method_id: 3 (New Card)
+-> gross: negative value
+-> psp_reference: NULL (Cardstream refund)
+-> internal_reference: NULL
+-> cs_mid: 122468","""Automated;
+sanity;
+cs_mid_validation;
+refund;""",P1,Pending
+Cardstream Moto Payments,MOTO - SSM Configuration Validation,CS-PHONE,CS-PHONE-007,CARDSTREAM - MOTO sale - Invalid motoCsMid in SSM - Sale fails,"""- Merchant configured with Cashflow MID
+
+- MOTO payment enabled
+
+- Invalid motoCsMid value configured in SSM
+
+- Cardstream gateway configured""
+
+- payments table accessible (migrated from card_payment)","""- Refer Git repository for MOTO test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cashflow MID
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £50.00
+
+- Card: Visa valid test card XXXX
+
+- CVV: valid
+
+- Expiry: valid future date
+
+- SSM motoCsMid: INVALID_VALUE""","""1. Configure invalid motoCsMid value in SSM parameter store
+   - Set motoCsMid to invalid/non-existent value
+
+2. Open MOTO card page for Cashflow MID merchant
+
+3. Enter valid card details:
+   - Card: valid test card XXXX
+   - CVV: valid
+   - Expiry: valid future date
+
+4. Submit payment
+
+5. Verify transaction FAILS
+
+6. Check error response/logs for cs_mid related error
+
+7. Restore correct motoCsMid value (122468) in SSM""","""1. MOTO payment FAILS
+
+2. Error validation:
+   - Sale fails due to invalid motoCsMid
+   - Error logged in gateway_request_log
+   - Invalid cs_mid causes transaction failure
+
+3. SSM configuration validation:
+   - motoCsMid must be valid for Cardstream
+   - Invalid value blocks MOTO sales
+
+4. After restoring correct value (122468):
+   - MOTO sales work again""","""Automated;
+sanity;
+cs_mid_validation;
+negative_test;
+ssm_config;""",P1,Pending
+Cardstream Moto Payments,MOTO - SSM Configuration Validation,CS-PHONE,CS-PHONE-008,CARDSTREAM - MOTO sale - motoCsMid not configured in SSM - cs_mid from customers table,"""- Merchant configured with Cashflow MID
+
+- MOTO payment enabled
+
+- motoCsMid NOT configured in SSM parameter store
+
+- customers.cardstream_id has value for this MID""
+
+- payments table accessible (migrated from card_payment)","""- Refer Git repository for MOTO test script
+
+- Email: testuser@datman.je
+
+- Merchant: Cashflow MID
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Transaction amount: £50.00
+
+- Card: Visa valid test card XXXX
+
+- CVV: valid
+
+- Expiry: valid future date
+
+- SSM motoCsMid: NOT CONFIGURED
+
+- Expected cs_mid: customers.cardstream_id value""","""1. Ensure motoCsMid is NOT configured in SSM parameter store
+
+2. Query customers table for merchant's cardstream_id value
+
+3. Open MOTO card page for Cashflow MID merchant
+
+4. Enter valid card details:
+   - Card: valid test card XXXX
+   - CVV: valid
+   - Expiry: valid future date
+
+5. Submit payment
+
+6. Verify transaction Pending
+
+7. Query card_payment table for this transaction
+
+8. Verify cs_mid = customers.cardstream_id (NOT 122468)""","""1. MOTO payment successful
+
+2. Routing validation:
+   - Sale goes through Cashflow
+   - motoCsMid not configured so default behavior
+
+3. payments table validation:
+   - cs_mid = customers.cardstream_id value
+   - NOT '122468'
+   - Picked from customers table for that MID
+
+4. Default behavior when motoCsMid not in SSM:
+   - Uses cardstream_id from customers table""","""Automated;
+sanity;
+cs_mid_validation;
+ssm_config;""",P1,Pending
+Cardstream Moto Payments,Phone Payment - Split Commission,CS-PHONE,PS-CS-PP-001,Phone Payment - Global Split Type Sale Succeeds,"- Merchant pointed to Cardstream
+- Global split type exists (ex: type_id=3 'Delivery Fee Restaurant')
+- Sale payload includes global split_fee","split_fee: [{type_id: ex 3, value_type: 'amount', value: 2.50}]
+Note: Global split types (IDs 1-8, 11, 100) can be used across all providers. New global splits can also be created via FH API token.","1. Process a Phone Payment sale with a global split type (ex: type_id=3) in the split_fee payload.
+2. Complete the payment successfully.
+3. Verify the sale is successful with transaction_status_id=1.
+4. Query payments_split_commission table for the split entry.
+5. Verify the commission amount matches the split_fee payload.","1. Sale succeeds with global split type ✓
+2. payments_split_commission table contains entry with commission_type_id matching the split used ✓
+3. commission_amount = 2.50 as per payload ✓
+4. split_payment_flag=1 in payments table ✓
+5. All global split types are usable across all providers ✓",split_commission;global_split;positive,P1,Pending
+Cardstream Moto Payments,Phone Payment - Split Commission,CS-PHONE,PS-CS-PP-002,Phone Payment - Invalid Split Type ID Rejected,"- Merchant pointed to Cardstream
+- Sale payload includes invalid/non-existent split type_id","split_fee: [{type_id: 9999, value_type: 'amount', value: 2.50}]
+Note: Only valid global split type IDs (ex: 1-8, 11, 100) or newly created splits via API are accepted. Partner-specific merchants (FASTFOOD/EDININGEXPRESS) transact through Adyen only.","1. Process a Phone Payment sale with an invalid/non-existent split type_id (ex: type_id=9999) in the split_fee payload.
+2. Verify the transaction is rejected before authorization.
+3. Confirm no payments_split_commission entry is created.
+4. Verify no payment record is created.","1. Sale is rejected ✓
+2. API responds with error: 'invalid type id' ✓
+3. No payments_split_commission record created ✓
+4. No payment record created ✓
+5. Only valid split type IDs from split_commission_types table are accepted ✓",split_commission;invalid_type;negative,P0,Pending
+Cardstream Moto Payments,Phone Payment - Split Commission,CS-PHONE,PS-CS-PP-003,Phone Payment - Soft-Deleted Split Type (delete_status=0) Blocks Sale,"- Merchant pointed to Cardstream
+- An existing split type has been soft-deleted via DELETE API
+- delete_status=0 in split_commission_types table for the target split","split_fee: [{type_id: <soft_deleted_split_id>, value_type: 'amount', value: 2.50}]
+Precondition: Use DELETE API on an existing split type → verify delete_status=0 in split_commission_types table","1. Use the DELETE API to soft-delete an existing split type.
+2. Verify the split_commission_types table shows delete_status=0 for the deleted split type.
+3. Process a Phone Payment sale using the soft-deleted split type_id in the split_fee payload.
+4. Verify the transaction is rejected before authorization.
+5. Confirm no payments_split_commission entry is created.","1. DELETE API successfully soft-deletes the split type ✓
+2. split_commission_types table shows delete_status=0 for the target split ✓
+3. Sale using soft-deleted split type is rejected ✓
+4. API responds with error: 'invalid type id' ✓
+5. No payments_split_commission record created ✓
+6. No payment record created ✓",split_commission;deleted_split;negative,P0,Pending
+Cardstream Moto Payments,Phone Payment - Split Commission,CS-PHONE,PS-CS-PP-004,Phone Payment - Updated Split Type via API Used in Sale Succeeds,"- Merchant pointed to Cardstream
+- An existing split type has been updated via Update API
+- Updated values reflected in split_commission_types table","split_fee: [{type_id: <updated_split_id>, value_type: 'amount', value: 3.00}]
+Precondition: Use Update API to modify an existing split type → verify updated values in split_commission_types table","1. Use the Update API to modify an existing split type.
+2. Verify the split_commission_types table reflects the updated values.
+3. Process a Phone Payment sale using the updated split type_id in the split_fee payload.
+4. Complete the payment successfully.
+5. Query payments_split_commission table for the split entry.
+6. Verify the commission entry reflects the updated split type.","1. Update API successfully modifies the split type ✓
+2. split_commission_types table reflects updated values ✓
+3. Sale with updated split type succeeds with transaction_status_id=1 ✓
+4. payments_split_commission table contains entry with updated commission_type_id ✓
+5. commission_amount = 3.00 as per payload ✓
+6. split_payment_flag=1 in payments table ✓",split_commission;updated_split;positive,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Basic Operations,CS-MP-01,CS-MP-01-001,CARDSTREAM - MOTO Sale - Successful end-to-end MOTO payment (GB/GBP),"- Merchant in GB (country_id: 1) pointed to Cardstream
+
+- MOTO payment enabled
+
+- payments table accessible (migrated from card_payment)
+
+- motoCsMid configured in SSM = 122468","- Refer Git repository for MOTO test script
+
+- Email: testuser@datman.je
+
+- Country: United Kingdom
+
+- Currency: GBP
+
+- Card: Visa valid test card XXXX","1. Initiate MOTO payment via Pluto card page
+
+2. Enter valid card details (Visa)
+
+3. Submit payment
+
+4. Verify transaction status
+
+5. Validate payments table entries
+
+6. Validate gateway_request_log","1. MOTO payment successful
+
+2. payments table validation:
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1 (Success)
+-> transaction_mode_id: 1 (Non-3ds)
+-> transaction_method_id: 3 (Moto)
+-> psp_reference: populated
+-> internal_reference: populated
+-> cs_mid: 122468
+-> country_code: GB
+-> currency_code: GBP
+-> last_4_digits: XXXX
+-> delete_status: 0
+-> withdrawn_status: 0
+
+3. gateway_request_log: entry created
+
+4. Dashboard: sale entry visible",moto_sale;basic;gb;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Basic Operations,CS-MP-01,CS-MP-01-002,CARDSTREAM - MOTO Sale - Full Refund after successful MOTO payment,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- Refund functionality enabled
+
+- payments table accessible","- Refer Git repository
+
+- Country: GB / Currency: GBP
+
+- Card: Visa valid test card XXXX
+
+- Refund: Full amount","1. Complete MOTO sale successfully
+
+2. Verify sale in payments table
+
+3. Initiate full refund
+
+4. Verify refund in payments table","1. MOTO sale successful
+
+2. Full refund processed successfully
+
+3. payments table - sale row:
+-> transaction_status_id: 1
+-> payment_provider_id: 1
+-> transaction_method_id: 3
+
+4. payments table - refund row:
+-> transaction_status_id: 2
+-> gross: negative value
+-> psp_reference: NULL
+-> internal_reference: NULL
+-> cs_mid: 122468",moto_sale;refund;full_refund;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Basic Operations,CS-MP-01,CS-MP-01-003,CARDSTREAM - MOTO Sale - Partial Refund after successful MOTO payment,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- Partial refund functionality enabled
+
+- payments table accessible","- Country: GB / Currency: GBP
+
+- Card: Visa valid test card XXXX
+
+- Partial refund amount < original sale","1. Complete MOTO sale
+
+2. Initiate partial refund
+
+3. Verify partial refund in payments table","1. Partial refund processed successfully
+
+2. payments table - refund row:
+-> transaction_status_id: 2
+-> gross: negative partial amount
+-> psp_reference: NULL
+-> cs_mid: 122468
+
+3. Original sale row unchanged with transaction_status_id: 1",moto_sale;refund;partial_refund;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Basic Operations,CS-MP-01,CS-MP-01-004,CARDSTREAM - MOTO Sale - Declined card payment handling,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- payments table accessible
+
+- Decline test card available","- Country: GB / Currency: GBP
+
+- Card: Decline test card (decline test card)","1. Initiate MOTO payment with decline card
+
+2. Submit payment
+
+3. Verify transaction declined
+
+4. Validate payments table entry","1. MOTO payment DECLINED
+
+2. payments table - failed row:
+-> transaction_status_id: 3 (Failed)
+-> payment_provider_id: 1
+-> transaction_method_id: 3
+-> cs_mid: 122468 (seeded even for declines)
+-> psp_reference: decline ref or NULL
+
+3. Error response returned to caller",moto_sale;declined;negative;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-001,CARDSTREAM - CIT Sale with MIT Token Creation and MIT Sale,"- Merchant in GB pointed to Cardstream
+
+- MOTO/CIT/MIT payment enabled
+
+- MIT token storage configured
+
+- CREATE_MIT_TOKEN key configured
+
+- MERCHANT_INITIATED_TRANSACTION key configured
+
+- payments table accessible","- Country: GB / Currency: GBP
+
+- Card: Visa valid test card XXXX
+
+- CVV collected for CIT
+
+- CREATE_MIT_TOKEN: true
+
+- MERCHANT_INITIATED_TRANSACTION: true (MIT)","1. Process CIT sale with CREATE_MIT_TOKEN flag
+
+2. Verify MIT token created in mit_token_info
+
+3. Use MIT token for subsequent MIT sale
+
+4. Validate payments table for both CIT and MIT rows","1. CIT sale successful
+
+2. payments table - CIT row:
+-> transaction_status_id: 1
+-> transaction_method_id: 30 (CIT)
+-> transaction_mode_id: 1 (MOTO)
+-> payment_provider_id: 1
+-> cs_mid: 122468
+
+3. mit_token_info: token created with card details
+
+4. MIT sale successful (no CVV/3DS)
+
+5. payments table - MIT row:
+-> transaction_status_id: 1
+-> transaction_method_id: 31 (MIT)
+-> master_token_id: populated from CIT token
+-> cs_mid: 122468",cit_mit;token_creation;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-002,CARDSTREAM - MIT Sale - Refund after MIT transaction,"- MIT token exists from prior CIT
+
+- MOTO/MIT payment enabled
+
+- Refund enabled
+
+- payments table accessible","- Country: GB / Currency: GBP
+
+- MIT token from prior CIT transaction
+
+- Full refund of MIT sale","1. Initiate MIT sale using saved token
+
+2. Process MIT sale (no CVV)
+
+3. Initiate full refund of MIT sale
+
+4. Validate payments table for MIT and refund rows","1. MIT sale successful
+
+2. payments table - MIT row:
+-> transaction_method_id: 31 (MIT)
+-> transaction_status_id: 1
+-> master_token_id: populated
+-> cs_mid: 122468
+
+3. Refund successful
+
+4. payments table - refund row:
+-> transaction_status_id: 2
+-> gross: negative value
+-> psp_reference: NULL
+-> internal_reference: NULL
+-> master_token_id: preserved from MIT row",cit_mit;refund;mit_refund;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-003,CARDSTREAM - MIT Sale - Attempt MIT with expired/invalid token,"- MIT token exists but is invalid/expired
+
+- MOTO/MIT payment enabled
+
+- payments table accessible","- Country: GB / Currency: GBP
+
+- Invalid or expired MIT token","1. Attempt MIT sale with expired or invalid token
+
+2. Verify Cardstream rejects the transaction
+
+3. Validate payments table entry","1. MIT sale FAILED
+
+2. Cardstream returns token invalid error
+
+3. payments table - failed row:
+-> transaction_status_id: 3 (Failed)
+-> transaction_method_id: 31 (MIT)
+-> payment_provider_id: 1
+-> cs_mid: 122468
+
+4. Error logged in gateway_request_log",cit_mit;negative;invalid_token;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Regional & Currency,CS-MP-04,CS-MP-04-001,CARDSTREAM - MOTO Sale - Multi-currency validation (USD merchant via Cardstream),"- Merchant in US (country_id: 7) pointed to Cardstream
+
+- MOTO payment enabled
+
+- payments table accessible","- Country: US / Currency: USD
+
+- Card: Visa test card","1. Initiate MOTO payment for USD merchant on Cardstream
+
+2. Verify transaction processed in USD
+
+3. Validate payments table currency fields","1. MOTO payment successful
+
+2. payments table:
+-> country_code: US
+-> currency_code: USD
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1
+-> transaction_mode_id: 1 (MOTO)",moto_sale;multi_currency;usd;cardstream;payments_table;regional,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Security & Encryption,CS-MP-05,CS-MP-05-001,CARDSTREAM - MOTO Sale - Verify psp_reference and internal_reference format in payments table,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- payments table accessible","- Country: GB / Currency: GBP
+
+- Card: Visa valid test card XXXX","1. Complete MOTO sale
+
+2. Query payments table
+
+3. Validate psp_reference format from Cardstream
+
+4. Validate internal_reference format O<order_ref>M<merchant_id>T<id>","1. MOTO sale successful
+
+2. payments table:
+-> psp_reference: non-null, Cardstream cross-reference format
+-> internal_reference: O<order_ref>M<merchant_id>T<id> format
+-> Both references unique per transaction
+
+3. No duplicate entries in payments table",moto_sale;references;psp_reference;internal_reference;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Split Commission,CS-MP-SPLIT,CS-MP-SPLIT-001,CARDSTREAM - MOTO Sale - Global Split Type sale succeeds and payments_split_commission populated,"- Merchant pointed to Cardstream
+
+- MOTO payment enabled
+
+- Global split type exists (e.g. type_id=3)
+
+- payments table accessible","- Country: GB / Currency: GBP
+
+- split_fee: [{type_id: 3, value_type: amount}]
+
+- Card: Visa valid test card XXXX","1. Process MOTO sale with global split type in payload
+
+2. Verify sale successful
+
+3. Validate payments table
+
+4. Validate payments_split_commission table","1. MOTO sale succeeds
+
+2. payments table:
+-> transaction_status_id: 1
+-> payment_provider_id: 1
+-> transaction_mode_id: 1 (MOTO)
+
+3. payments_split_commission:
+-> commission_type_id: 3
+-> commission_amount: as per payload
+-> split_payment_status: populated",split_commission;global_split;moto;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Split Commission,CS-MP-SPLIT,CS-MP-SPLIT-002,CARDSTREAM - MOTO Sale - Invalid split type ID rejected,"- Merchant pointed to Cardstream
+
+- MOTO payment enabled
+
+- Invalid split type provided in payload","- split_fee: [{type_id: 9999}]
+
+- Card: Visa valid test card XXXX","1. Process MOTO sale with invalid split type_id (9999)
+
+2. Verify transaction is rejected before authorisation
+
+3. Confirm no payments or payments_split_commission record created","1. Sale rejected before authorisation
+
+2. API responds with error: invalid type id
+
+3. No entry in payments table
+
+4. No entry in payments_split_commission table",split_commission;invalid_type;negative;moto;cardstream;payments_table,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Reversal,CS-MP-REVERSAL,CS-MP-REVERSAL-001,CARDSTREAM - MOTO Sale - Reversal of successful MOTO payment before settlement,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- Reversal functionality enabled
+
+- payments table accessible
+
+- Transaction not yet settled","- Country: GB / Currency: GBP
+
+- Card: Visa valid test card XXXX","1. Complete MOTO sale
+
+2. Verify sale in payments table
+
+3. Initiate reversal before settlement
+
+4. Validate payments table update","1. MOTO sale successful
+
+2. Reversal processed successfully
+
+3. payments table - sale row:
+-> transaction_status_id updated to reversed/cancelled
+-> payment_provider_id: 1
+-> cs_mid: 122468
+
+4. No refund row created (reversal, not refund)",reversal;moto;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Refund,CS-REFUND,CS-REFUND-001,CARDSTREAM - MOTO Full Refund - payments table validation,"- Merchant in GB (country_id: 1) pointed to Cardstream
+
+- MOTO payment enabled
+
+- Refund functionality enabled
+
+- payments table accessible (migrated from card_payment)
+
+- Successful MOTO sale exists to refund against
+
+- motoCsMid configured in SSM = 122468","- Email: testuser@datman.je
+
+- Merchant ID: <merchant_id>
+
+- Country: GB / Currency: GBP
+
+- Card: Visa xxxx xxxx xxxx XXXX
+
+- order_ref: <order_ref> (shared between sale and refund)
+
+- Original sale id: <original_sale_id>
+
+- Refund psp_reference: same as original sale (<psp_reference>)
+
+- internal_reference on refund: O<order_ref>M<merchant_id>T<original_sale_id> (points to sale id)","1. Process a successful MOTO sale
+
+2. Note the sale id, order_ref, psp_reference
+
+3. Initiate full refund via refund API
+
+4. Verify refund response is successful
+
+5. Query payments table for refund row
+
+6. Verify all refund-specific field values","1. Full refund processed successfully
+
+2. payments table - refund row:
+-> transaction_status_id: 2 (Refund)
+-> transaction_mode_id: 0
+-> transaction_method_id: 3 (New Card)
+-> payment_provider_id: 1 (Cardstream)
+-> gross: negative value (mirrors sale gross as negative)
+-> fee: negative value
+-> net: negative value
+-> psp_reference: same as original sale psp_reference
+-> internal_reference: O<order_ref>M<merchant_id>T<original_sale_id>
+-> source_ip: NULL
+-> last_4_digits: NULL
+-> cs_mid: NULL (not populated on refund row)
+-> refund_reason_id: 1
+-> reason: contains refund message + original txn ref (#<sale_id>)
+-> TxAuthNo: NULL
+-> master_token_id: NULL
+-> delete_status: 0, withdrawn_status: 0
+
+3. Original sale row: unchanged (transaction_status_id remains 1)",refund;full_refund;moto;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Refund,CS-REFUND,CS-REFUND-002,CARDSTREAM - MOTO Partial Refund - payments table validation,"- Merchant in GB (country_id: 1) pointed to Cardstream
+
+- MOTO payment enabled
+
+- Refund functionality enabled
+
+- payments table accessible (migrated from card_payment)
+
+- Successful MOTO sale exists to refund against
+
+- motoCsMid configured in SSM = 122468","- Email: testuser@datman.je
+
+- Merchant ID: <merchant_id>
+
+- Country: GB / Currency: GBP
+
+- Card: Visa xxxx xxxx xxxx XXXX
+
+- order_ref: <order_ref>
+
+- Original sale id: <original_sale_id>
+
+- Partial refund amount < original gross","1. Process a successful MOTO sale
+
+2. Initiate partial refund (amount < original gross)
+
+3. Verify partial refund response
+
+4. Query payments table for refund row
+
+5. Verify partial amounts reflected correctly","1. Partial refund processed successfully
+
+2. payments table - refund row:
+-> transaction_status_id: 2 (Refund)
+-> gross: negative partial amount (less than original)
+-> fee / net: negative, proportional to partial amount
+-> psp_reference: same as original sale psp_reference
+-> internal_reference: points to original sale id
+-> cs_mid: NULL
+-> source_ip: NULL, last_4_digits: NULL
+-> refund_reason_id: populated
+-> reason: contains refund message + original txn ref
+
+3. Original sale row: unchanged
+
+4. Multiple partial refunds: each creates a separate row in payments table",refund;partial_refund;moto;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Refund,CS-REFUND,CS-REFUND-003,CARDSTREAM - MOTO Refund - psp_reference carries over from original sale,"- Merchant in GB (country_id: 1) pointed to Cardstream
+
+- MOTO payment enabled
+
+- Refund functionality enabled
+
+- payments table accessible (migrated from card_payment)
+
+- Successful MOTO sale exists to refund against
+
+- motoCsMid configured in SSM = 122468","- Email: testuser@datman.je
+
+- Merchant ID: <merchant_id>
+
+- Country: GB / Currency: GBP
+
+- Card: Visa xxxx xxxx xxxx XXXX
+
+- order_ref: <order_ref> (shared between sale and refund)
+
+- Original sale id: <original_sale_id>
+
+- Refund psp_reference: same as original sale (<psp_reference>)
+
+- internal_reference on refund: O<order_ref>M<merchant_id>T<original_sale_id> (points to sale id)","1. Process MOTO sale and note the psp_reference from Cardstream response
+
+2. Initiate full refund
+
+3. Query payments table for both sale and refund rows
+
+4. Compare psp_reference on both rows","1. Refund processed successfully
+
+2. psp_reference on refund row = psp_reference on original sale row
+
+3. Cardstream uses the same cross-reference for refund linkage
+
+4. payments table - refund row:
+-> psp_reference: same value as sale (e.g. <psp_reference>)
+-> internal_reference: O<order_ref>M<merchant_id>T<sale_id>",refund;psp_reference;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Refund,CS-REFUND,CS-REFUND-004,CARDSTREAM - MOTO Refund - cs_mid is NULL on refund row (not inherited from sale),"- Merchant in GB (country_id: 1) pointed to Cardstream
+
+- MOTO payment enabled
+
+- Refund functionality enabled
+
+- payments table accessible (migrated from card_payment)
+
+- Successful MOTO sale exists to refund against
+
+- motoCsMid configured in SSM = 122468","- Email: testuser@datman.je
+
+- Merchant ID: <merchant_id>
+
+- Country: GB / Currency: GBP
+
+- Card: Visa xxxx xxxx xxxx XXXX
+
+- order_ref: <order_ref> (shared between sale and refund)
+
+- Original sale id: <original_sale_id>
+
+- Refund psp_reference: same as original sale (<psp_reference>)
+
+- internal_reference on refund: O<order_ref>M<merchant_id>T<original_sale_id> (points to sale id)","1. Process MOTO sale for Cashflow MID merchant (cs_mid = 122468 on sale)
+
+2. Initiate full refund
+
+3. Query payments table for refund row
+
+4. Verify cs_mid field on refund row","1. Refund processed successfully
+
+2. payments table - refund row:
+-> cs_mid: NULL (not inherited from sale row)
+-> cs_mid is only populated on sale/CIT/MIT rows, not on refund rows
+
+3. payments table - original sale row:
+-> cs_mid: 122468 (unchanged)
+
+4. Autowithdrawal jobs and payout logic reference sale row cs_mid, not refund row",refund;cs_mid;null_check;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Refund,CS-REFUND,CS-REFUND-005,CARDSTREAM - MOTO Refund - reason field contains refund message and original txn reference,"- Merchant in GB (country_id: 1) pointed to Cardstream
+
+- MOTO payment enabled
+
+- Refund functionality enabled
+
+- payments table accessible (migrated from card_payment)
+
+- Successful MOTO sale exists to refund against
+
+- motoCsMid configured in SSM = 122468","- Email: testuser@datman.je
+
+- Merchant ID: <merchant_id>
+
+- Country: GB / Currency: GBP
+
+- Card: Visa xxxx xxxx xxxx XXXX
+
+- order_ref: <order_ref> (shared between sale and refund)
+
+- Original sale id: <original_sale_id>
+
+- Refund psp_reference: same as original sale (<psp_reference>)
+
+- internal_reference on refund: O<order_ref>M<merchant_id>T<original_sale_id> (points to sale id)","1. Process MOTO sale and note sale id
+
+2. Initiate refund with a reason (e.g. refund_reason_id: 1)
+
+3. Query payments table reason field on refund row
+
+4. Verify reason field content and format","1. Refund processed successfully
+
+2. payments table - refund row:
+-> reason: contains the reason passed in the refund payload
+-> reason: appended with original txn reference (#<original_sale_id>)
+-> reason: appended with transaction date
+-> refund_reason_id: populated as per refund payload (not NULL)",refund;reason_field;refund_reason_id;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Refund,CS-REFUND,CS-REFUND-006,CARDSTREAM - MOTO Refund after CIT - MIT token linkage preserved on refund row,"- Merchant in GB pointed to Cardstream
+
+- CIT/MIT payment enabled
+
+- Refund functionality enabled
+
+- MIT token exists from prior CIT
+
+- payments table accessible","- Email: testuser@datman.je
+
+- CIT sale with MIT token creation
+
+- Refund of CIT transaction
+
+- master_token_id expected on CIT sale row","1. Process CIT sale with CREATE_MIT_TOKEN flag
+
+2. Verify master_token_id populated on CIT sale row in payments table
+
+3. Initiate full refund of CIT transaction
+
+4. Query payments table for refund row
+
+5. Verify master_token_id on refund row","1. CIT sale successful, MIT token created
+
+2. payments table - CIT sale row:
+-> transaction_method_id: 30 (CIT)
+-> master_token_id: populated
+
+3. Refund of CIT processed successfully
+
+4. payments table - refund row:
+-> transaction_status_id: 2
+-> psp_reference: same as CIT sale
+-> internal_reference: points to CIT sale id
+-> master_token_id: NULL on refund row (token not invalidated by refund)
+-> cs_mid: NULL
+
+5. MIT token in mit_token_info: still valid (refund does not revoke token)",refund;cit_refund;master_token_id;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-001,CARDSTREAM - MOTO Payload - Successful payment with all required fields,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- All payload fields populated with valid values
+
+- AvsPostcode: NN178YG
+
+- RedirectUrl, CancelUrl, WebhookUrl all configured","- host: configured endpoint
+
+- merchant_id: <merchant_id>
+
+- order_id: numeric (range 500000000–599999999)
+
+- customer_id: numeric (range 10000000–19999999)
+
+- provider: cardstream
+
+- email: valid email address
+
+- phoneNumber: valid UK format (07...)
+
+- name: business name
+
+- Amount: 10.00
+
+- AvsHouseNumber: 10
+
+- AvsPostcode: NN178YG
+
+- MerchantReference: alphanumeric reference
+
+- RedirectUrl / CancelUrl / WebhookUrl: valid URLs
+
+- customer_joining_date: valid datetime (Y-m-d H:i:s)
+
+- firstname: as per payload
+
+- lastname: as per payload
+
+- flat: 10
+
+- address1: <address1>
+
+- address2: valid street name
+
+- CashPaymentUrl: valid URL","1. Construct MOTO payment payload with all required fields
+
+2. Submit payload to MOTO payment endpoint
+
+3. Verify payment processed successfully
+
+4. Validate payments table entry
+
+5. Verify webhook received at WebhookUrl","1. Payment processed successfully
+
+2. payments table:
+-> merchant_id: <merchant_id>
+-> order_ref: matches order_id in payload
+-> firstname: as per payload
+-> lastname: as per payload
+-> email_address: as per payload
+-> address: flat + address1 populated
+-> country_code: GB
+-> currency_code: GBP
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1
+-> transaction_mode_id: 1 (MOTO)
+-> transaction_method_id: 3 (New Card)
+
+3. Webhook triggered at configured WebhookUrl
+
+4. RedirectUrl used on success flow",payload;valid_payload;all_fields;moto;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-002,CARDSTREAM - MOTO Payload - Missing required field: merchant_id,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- merchant_id omitted from payload","- Payload: all fields as CS-PAYLOAD-001 EXCEPT merchant_id removed
+
+- All other fields valid","1. Construct payload without merchant_id
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response
+
+4. Confirm no entry created in payments table","1. API rejects request with validation error
+
+2. HTTP 400 / error response returned
+
+3. No entry created in payments table
+
+4. Error message identifies missing merchant_id",payload;missing_field;merchant_id;negative;moto;cardstream,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-003,CARDSTREAM - MOTO Payload - Missing required field: Amount,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- Amount field omitted from payload","- Payload: all fields as CS-PAYLOAD-001 EXCEPT Amount removed
+
+- All other fields valid","1. Construct payload without Amount
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response
+
+4. Confirm no entry in payments table","1. API rejects request with validation error
+
+2. HTTP 400 / error response returned
+
+3. No entry created in payments table
+
+4. Error message identifies missing Amount",payload;missing_field;amount;negative;moto;cardstream,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-004,CARDSTREAM - MOTO Payload - Missing required field: order_id,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- order_id omitted from payload",- Payload: all fields as CS-PAYLOAD-001 EXCEPT order_id removed,"1. Construct payload without order_id
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response and payments table","1. API rejects with validation error
+
+2. No entry created in payments table
+
+3. Error message identifies missing order_id",payload;missing_field;order_id;negative;moto;cardstream,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-005,CARDSTREAM - MOTO Payload - Missing required field: email,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- email field omitted from payload",- Payload: all fields as CS-PAYLOAD-001 EXCEPT email removed,"1. Construct payload without email
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response","1. API rejects with validation error
+
+2. No entry created in payments table
+
+3. Error message identifies missing email",payload;missing_field;email;negative;moto;cardstream,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-006,CARDSTREAM - MOTO Payload - Missing required field: provider,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- provider field omitted from payload",- Payload: all fields as CS-PAYLOAD-001 EXCEPT provider removed,"1. Construct payload without provider
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response","1. API rejects with validation error
+
+2. No entry created in payments table
+
+3. Error message identifies missing provider",payload;missing_field;provider;negative;moto;cardstream,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-007,CARDSTREAM - MOTO Payload - Missing required field: WebhookUrl,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- WebhookUrl omitted from payload",- Payload: all fields as CS-PAYLOAD-001 EXCEPT WebhookUrl removed,"1. Construct payload without WebhookUrl
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response and webhook behaviour","1. API rejects OR payment proceeds without webhook trigger (confirm expected behaviour)
+
+2. If rejected: HTTP 400 with error identifying missing WebhookUrl
+
+3. If accepted: payment processes but no webhook event fired
+
+4. payments table: entry exists or absent depending on gateway validation",payload;missing_field;webhook_url;negative;moto;cardstream,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-008,CARDSTREAM - MOTO Payload - Invalid AvsPostcode format,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- AvsPostcode provided with invalid format","- AvsPostcode: INVALID123 (non-UK format)
+
+- AvsHouseNumber: 10
+
+- All other fields valid","1. Construct payload with invalid AvsPostcode
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API / Cardstream AVS response
+
+4. Validate payments table entry","1. Payment behaviour depends on AVS configuration:
+
+If strict AVS: transaction declined
+-> transaction_status_id: 3 (Failed)
+-> payments table entry created with failed status
+
+If lenient AVS: transaction proceeds
+-> transaction_status_id: 1 (Success)
+-> AVS mismatch logged in gateway_request_log
+
+2. Verify AVS response code in gateway_request_log",payload;avs;postcode;validation;moto;cardstream,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-009,CARDSTREAM - MOTO Payload - Invalid email format,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- email field contains invalid format","- email: not-an-email (invalid format)
+
+- All other fields valid","1. Construct payload with malformed email
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response","1. API rejects with validation error
+
+2. HTTP 400 returned
+
+3. No entry created in payments table
+
+4. Error message identifies invalid email format",payload;invalid_email;validation;negative;moto;cardstream,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-010,CARDSTREAM - MOTO Payload - order_id outside valid range (below 500000000),"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- order_id below valid range","- order_id: 100000 (below 500000000)
+
+- All other fields valid","1. Construct payload with out-of-range order_id
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response","1. API rejects with validation error
+
+2. Error identifies order_id out of accepted range
+
+3. No entry created in payments table",payload;order_id;range_validation;negative;moto;cardstream,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-011,CARDSTREAM - MOTO Payload - customer_id outside valid range (below 10000000),"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- customer_id below valid range","- customer_id: 999 (below 10000000)
+
+- All other fields valid","1. Construct payload with out-of-range customer_id
+
+2. Submit to MOTO payment endpoint
+
+3. Verify API response","1. API rejects with validation error
+
+2. Error identifies customer_id out of accepted range
+
+3. No entry created in payments table",payload;customer_id;range_validation;negative;moto;cardstream,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-012,CARDSTREAM - MOTO Payload - firstname and lastname correctly stored in payments table,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- firstname and lastname provided in payload
+
+- payments table accessible","- firstname: as per payload
+
+- lastname: as per payload
+
+- email: valid email address
+
+- All other fields valid","1. Submit valid MOTO payload with firstname and lastname
+
+2. Verify payment successful
+
+3. Query payments table
+
+4. Validate firstname, lastname, email_address fields","1. Payment processed successfully
+
+2. payments table:
+-> firstname: as per payload
+-> lastname: as per payload
+-> email_address: as per payload
+-> address: flat + address1 values stored
+
+3. No truncation or encoding issues in name fields",payload;firstname;lastname;db_validation;moto;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-013,"CARDSTREAM - MOTO Payload - address fields (flat, address1, address2) stored in payments table","- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- flat, address1, address2 provided in payload
+
+- payments table accessible","- flat: 10
+
+- address1: <address1>
+
+- address2: valid street name
+
+- AvsHouseNumber: 10
+
+- AvsPostcode: NN178YG","1. Submit valid MOTO payload with flat, address1, address2
+
+2. Verify payment successful
+
+3. Query payments table address field
+
+4. Verify address composition","1. Payment processed successfully
+
+2. payments table:
+-> address: composed from flat + address1 values
+-> address field non-null
+
+3. AvsHouseNumber used for AVS check, not stored separately
+
+4. AvsPostcode: NN178YG used for AVS check with Cardstream",payload;address;flat;address1;address2;avs;moto;cardstream;payments_table,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-014,CARDSTREAM - MOTO Payload - customer_joining_date accepted in Y-m-d H:i:s format,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- customer_joining_date provided in valid and invalid formats","- Valid: customer_joining_date: 2026-03-31 13:12:17
+
+- Invalid: customer_joining_date: 31-03-2026 (wrong format)
+
+- All other fields valid","1. Submit payload with valid customer_joining_date (Y-m-d H:i:s)
+
+2. Verify payment succeeds
+
+3. Submit payload with invalid date format
+
+4. Verify API response for invalid format","1. Valid format: payment processes successfully
+
+2. Invalid format:
+-> API rejects with validation error
+-> Error identifies invalid customer_joining_date format
+-> No entry in payments table",payload;customer_joining_date;date_format;validation;moto;cardstream,P1,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-015,CARDSTREAM - MOTO Payload - Wrong provider value (e.g. adyen) sent for Cardstream merchant,"- Merchant in GB configured for Cardstream
+
+- MOTO payment enabled
+
+- provider field set to incorrect gateway","- provider: adyen (incorrect for this merchant)
+
+- merchant_id: <merchant_id> (Cardstream merchant)
+
+- All other fields valid","1. Submit MOTO payload with provider: adyen for Cardstream merchant
+
+2. Verify API / routing response
+
+3. Validate payments table if entry created","1. Request rejected or routed incorrectly
+
+2. Expected: API returns error - provider mismatch for merchant config
+
+3. If payment proceeds: payment_provider_id must still reflect correct gateway (1 = Cardstream)
+
+4. No misrouted payment should appear in Adyen dashboard",payload;wrong_provider;provider_mismatch;negative;moto;cardstream,P0,Pending
+Cardstream Moto Payments,MOTO Payment - Payload Validation,CS-PAYLOAD,CS-PAYLOAD-016,CARDSTREAM - MOTO Payload - Duplicate order_id resubmission,"- Merchant in GB pointed to Cardstream
+
+- MOTO payment enabled
+
+- Successful payment already exists for an order_id
+
+- payments table accessible","- order_id: same as a previously successful MOTO payment
+
+- All other fields valid","1. Submit MOTO payment and note the order_id used
+
+2. Re-submit the same payload with identical order_id
+
+3. Verify API response
+
+4. Check payments table for duplicate entries","1. First submission: payment successful
+
+2. Second submission with same order_id:
+-> API rejects with duplicate order error
+-> No duplicate entry created in payments table
+
+3. same order_id should not result in double charge",payload;duplicate_order_id;idempotency;negative;moto;cardstream;payments_table,P0,Pending
+Cardstream Moto Payments,MOTO - Price Uplift,CS-MP-SPLIT,CS-PHONE-017,CARDSTREAM - MOTO sale with Price Uplift (type_id=7),"""- Merchant configured with Cardstream gateway
+
+- MOTO payment enabled
+
+- type_id=7 price uplift enabled on merchant
+
+- payments table accessible""","""- Refer Git repository for MOTO test script
+
+- Sale amount: £30.00
+
+- Price Uplift (type_id=7): £5.00
+
+- Merchant: MOTO-enabled Cardstream merchant""","""1. Open the MOTO card page (Pluto link or phone payment URL)
+
+2. Include price uplift split in the MOTO payload:
+   split_fee: [{type_id: 7, value_type: 'amount', value: 5}]
+
+3. Enter valid card details and process the payment
+
+4. Verify payment processed successfully
+
+5. Verify the payments table:
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1
+   - transaction_mode_id: 1 (MOTO)
+   - transaction_method_id: 3 (New Card / MOTO)
+   - cs_mid: 122468 (motoCsMid from SSM)
+
+6. Verify the payments_split_commission table:
+   - commission_type_id: 7
+   - commission_amount: 500 (£5.00)
+
+7. Verify the datman_commission table:
+   - Entry for main amount (datman_commission = 1)
+   - Entry for uplift amount (datman_commission = 16)
+
+8. Verify webhook_log is updated""","""1. MOTO sale with price uplift succeeds
+
+2. payments table:
+   - transaction_mode_id: 1 (MOTO)
+   - transaction_method_id: 3
+   - cs_mid: 122468
+
+3. payments_split_commission: commission_type_id=7, commission_amount=500
+
+4. datman_commission:
+   - Entry for main amount (id=1)
+   - Entry for uplift amount (id=16)
+
+5. webhook_log: entry created""","""Automated;
+sanity;
+price_uplift;
+type_id_7;""",P1,Pending
+Cardstream Moto Payments,MOTO - CIT/MIT,CS-CIT-MIT,CS-PHONE-018,CARDSTREAM - MOTO CIT Sale with Price Uplift (type_id=7) and subsequent MIT,"""- Merchant configured with Cardstream gateway
+
+- MOTO payment enabled
+
+- CIT/MIT token creation enabled
+
+- type_id=7 price uplift enabled
+
+- payments table accessible""","""- CIT sale amount: £30.00
+
+- Price Uplift (type_id=7): £5.00
+
+- MIT sale amount: £20.00
+
+- Cardstream MOTO merchant with CIT/MIT enabled""","""1. Process a CIT MOTO sale including price uplift split:
+   split_fee: [{type_id: 7, value_type: 'amount', value: 5}]
+
+2. Verify CIT sale processed successfully
+
+3. Verify a MIT token is created in the master_token table
+
+4. Verify the payments table for the CIT sale:
+   - transaction_mode_id: 1 (MOTO / CIT)
+   - cs_mid: 122468
+
+5. Verify payments_split_commission: type_id=7 entry for the CIT sale
+
+6. Process an MIT sale using the token created in step 3
+
+7. Verify MIT sale processed successfully
+
+8. Verify the payments table for the MIT sale
+
+9. Verify webhook_log is updated for both CIT and MIT sales""","""CIT sale:
+1. Payment processed successfully
+2. MIT token created in master_token table
+3. payments_split_commission: type_id=7 entry with correct amount
+4. cs_mid: 122468
+
+MIT sale:
+5. Payment processed successfully using MIT token
+6. payments table: correct transaction_mode_id for MIT
+
+Both: webhook_log entries created""","""Automated;
+cit_mit;
+price_uplift;
+type_id_7;""",P1,Pending
+Cardstream Moto Payments,MOTO - Payload Validation,CS-PAYLOAD,CS-PHONE-019,CARDSTREAM - MOTO sale - Price Uplift negative: invalid split values,"""- Merchant configured with Cardstream gateway
+
+- MOTO payment enabled
+
+- type_id=7 price uplift enabled
+
+- payments table accessible""","""Scenario 1: type_id=7, value=0
+Scenario 2: type_id=7, value > sale_amount
+Scenario 3: type_id=7, value field missing
+Scenario 4: type_id=9999 (invalid type)
+Cardstream MOTO merchant""","""1. Process MOTO sale with price uplift value = 0 (type_id=7, value=0)
+   - Verify error returned
+   - Verify no payments_split_commission entry
+
+2. Process MOTO sale where price uplift value > sale amount
+   - Verify error returned
+   - Verify no DB entry created
+
+3. Process MOTO sale with type_id=7 but value field missing
+   - Verify missing field error returned
+
+4. Process MOTO sale with invalid type_id=9999
+   - Verify 'invalid type id' error returned
+   - Verify no payments_split_commission entry
+
+5. For all scenarios: verify no successful payments table entry is created""","""1. value=0 → Error, no payments_split_commission entry
+
+2. value > sale → Error, no DB entry
+
+3. Missing value field → Missing required field error
+
+4. Invalid type_id → 'invalid type id' error, no payments_split_commission entry
+
+All scenarios: no successful payments table entry created""","""Automated;
+negative_test;
+price_uplift;
+type_id_7;""",P1,Pending
+Cardstream Moto Payments,MOTO - Multi-currency,CS-MP-04,CS-PHONE-020,CARDSTREAM - MOTO sale - Multi-currency (USD) with price uplift (type_id=7),"""- USD Cardstream MOTO merchant configured
+
+- MOTO payment enabled
+
+- type_id=7 price uplift enabled
+
+- payments table accessible""","""- USD Cardstream MOTO merchant ID
+
+- Sale amount: $30.00
+
+- Price Uplift (type_id=7): $5.00
+
+- Valid card details""","""1. Open the MOTO card page for a USD Cardstream merchant
+
+2. Include price uplift split in the MOTO payload:
+   split_fee: [{type_id: 7, value_type: 'amount', value: 5}]
+
+3. Enter valid card details and process the payment
+
+4. Verify payment processed successfully
+
+5. Verify the payments table:
+   - country_code: US
+   - currency_code: USD
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1
+   - transaction_mode_id: 1 (MOTO)
+   - cs_mid: 122468 (motoCsMid from SSM)
+
+6. Verify payments_split_commission: type_id=7 entry with correct commission_amount in USD
+
+7. Verify webhook_log is updated""","""1. USD MOTO sale with price uplift succeeds
+
+2. payments table:
+   - country_code: US, currency_code: USD
+   - payment_provider_id: 1
+   - cs_mid: 122468
+
+3. payments_split_commission: type_id=7, commission_amount in USD cents
+
+4. webhook_log: entry created""","""Automated;
+multi_currency;
+usd;
+price_uplift;
+type_id_7;""",P1,Pending
+Cardstream Moto Payments,MOTO - KOUNT DI,NC-KOUNT,CS-KOUNT-MOTO-001,CARDSTREAM - KOUNT DI - MOTO sale - UK,"""- Merchant configured with Cardstream gateway and KOUNT DI enabled
+- MOTO payment enabled
+- UK merchant (country_code: GB, currency: GBP)
+- payments table accessible""","""- MOTO test script: https://github.com/datmanltd/datman_test_scripts/blob/main/Stage/stage_moto_payment.php
+- Merchant ID: KOUNT DI enabled Cardstream UK merchant
+- update cardstream_settings set value = 122468 where name = 'merchant_id';
+- Amount: £20.00 (below £40)
+- Country: GB / Currency: GBP
+- Valid card details""","""1. Use the MOTO payment script and point to a KOUNT DI enabled Cardstream UK merchant
+
+2. Open the MOTO card page in browser
+
+3. Enter valid card details and process the payment (Amount: £20.00)
+
+4. Verify payment is processed successfully
+
+5. Verify payments table (1 entry):
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1 (Success)
+   - transaction_mode_id: 1 (MOTO)
+   - transaction_method_id: 3 (New Card / MOTO)
+   - country_code: GB / currency_code: GBP
+   - gross: 2000 (£20.00 in pence)
+   - cs_mid: 122468
+   - psp_reference: populated
+   - internal_reference: O<order_id>M<merchant_id>T<payment_id>
+   - delete_status: 0, withdrawn_status: 0
+
+6. Verify webhook_log is updated with no duplicate entries
+
+7. Verify MMS Dashboard shows the transaction""","""1. MOTO sale through KOUNT DI merchant processed successfully
+
+DB Validation - payments table (1 entry):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1 (Success)
+-> transaction_mode_id: 1 (MOTO)
+-> transaction_method_id: 3
+-> country_code: GB / currency_code: GBP
+-> gross: 2000
+-> cs_mid: 122468
+-> psp_reference: populated
+-> internal_reference: correct format
+-> delete_status: 0, withdrawn_status: 0
+
+2. webhook_log: entry created, no duplicates
+
+3. MMS Dashboard: entry visible""","""kount_di;moto;uk;cardstream;payments_table;""",P1,Pending
+Cardstream Moto Payments,MOTO - Price Uplift,NC-PU,CS-PU-MOTO-001,CARDSTREAM - Price Uplift (type_id=7) - MOTO sale - UK,"""- Merchant configured with Cardstream gateway and price uplift enabled
+- MOTO payment enabled
+- UK merchant (country_code: GB, currency: GBP)
+- payments table accessible""","""- MOTO test script: stage_moto_payment.php
+- Merchant ID: Cardstream UK merchant with price uplift
+- Sale amount: £30.00 (below £40)
+- Price Uplift (type_id = 7): £5.00
+- Main sale amount: £25.00
+- Country: GB / Currency: GBP""","""1. Use the MOTO payment script with split payload:
+   split_fee: [{type_id: 7, value_type: ""amount"", value: 5.00}]
+   Amount: £30.00 (UK merchant, GB, GBP)
+
+2. Open the MOTO card page, enter valid card details and process payment
+
+3. Verify payment processed successfully
+
+4. Verify payments table (1 entry):
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1 (Success)
+   - transaction_mode_id: 1 (MOTO)
+   - transaction_method_id: 3
+   - country_code: GB / currency_code: GBP
+   - gross: 3000 (£30.00 in pence)
+   - cs_mid: 122468
+   - psp_reference: populated
+
+5. Verify payments_split_commission table:
+   - commission_type_id: 7
+   - commission_amount: 500 (£5.00 in pence)
+   - payment_id: links to payments table entry
+
+6. Verify datman_commission table:
+   - Entry for main sale amount (datman_commission = 1)
+   - Fee calculated for £25.00 as per merchants fee_tier_id
+   - Entry for price uplift amount (datman_commission = 16)
+   - Fee calculated for £5.00 as per fee_tier_id for the merchant
+
+7. Verify webhook_log updated
+
+8. Verify MMS Dashboard shows the transaction""","""1. MOTO sale with price uplift processed successfully
+
+DB Validation - payments table (1 entry):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1
+-> transaction_mode_id: 1 (MOTO)
+-> transaction_method_id: 3
+-> country_code: GB / currency_code: GBP
+-> gross: 3000
+-> cs_mid: 122468
+-> psp_reference: populated
+
+payments_split_commission:
+-> commission_type_id: 7
+-> commission_amount: 500
+
+datman_commission:
+-> Entry for main amount (datman_commission = 1)
+-> Entry for uplift amount (datman_commission = 16)
+
+2. webhook_log: entry created
+
+3. MMS Dashboard: transaction visible""","""price_uplift;type_id_7;moto;uk;cardstream;payments_table;""",P1,Pending
+Cardstream Moto Payments,MOTO - Price Uplift,NC-PU,CS-PU-MOTO-002,CARDSTREAM - Price Uplift (type_id=7) - MOTO - Different fee_tiers - UK,"""- Merchant configured with Cardstream gateway and price uplift enabled
+- MOTO payment enabled
+- UK merchant (country_code: GB, currency: GBP)
+- payments table accessible""","""- Sale amount: £30.00 (below £40)
+- Price Uplift (type_id = 7): £5.00
+- Test fee_tier_ids: 1, 2, 19 (zero_fee_tier)
+- Country: GB / Currency: GBP""","""1. Update merchant fee_tier_id = 1 (UK Cardstream merchant)
+
+2. Initiate MOTO sale with price uplift split:
+   split_fee: [{type_id: 7, value_type: ""amount"", value: 5.00}]
+   Amount: £30.00
+
+3. Verify payments table:
+   - country_code: GB / currency_code: GBP
+   - gross: 3000 / fee: as per fee_tier_id=1 / net: gross - fee
+
+4. Verify payments_split_commission:
+   - commission_type_id: 7
+   - Main sale fee: calculated for £25 as per fee_tier_id
+   - Price uplift fee: calculated for £5 as per fee_tier_id
+
+5. Repeat steps 1-4 with fee_tier_id = 2
+
+6. Repeat steps 1-4 with fee_tier_id = 19 (zero_fee_tier):
+   - Verify fee = 0.00, net = gross""","""fee_tier_id = 1:
+-> payments table: country_code: GB, gross: 3000, fee: as per tier 1
+-> payments_split_commission: commission_type_id=7, fee split correctly
+
+fee_tier_id = 2:
+-> payments table: gross: 3000, fee: as per tier 2
+
+fee_tier_id = 19 (zero_fee_tier):
+-> payments table: gross: 3000, fee: 0, net: 3000
+
+All scenarios:
+-> Main sale fee: calculated for £25 per merchants fee_tier_id
+-> Price uplift fee: calculated for £5 per fee_tier_id passed""","""price_uplift;type_id_7;fee_tier;moto;uk;cardstream;payments_table;""",P1,Pending

@@ -1,0 +1,38 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing runtime deps"
+      - python3 --version
+      - pip3 install --upgrade pip
+      - pip3 install pymysql
+      # Optional (only needed if you use SSH tunneling in some environments)
+      - if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ]; then pip3 install sshtunnel; fi
+
+  build:
+    commands:
+      - echo "Running gateway coverage reports"
+      - chmod +x scripts/generate_reports.sh
+
+      # CodeBuild: by default we generate reports even if DB credentials are missing.
+      # If DB env vars are present, we enable MySQL snapshot writing.
+      - |
+        if [ -n "${DB_HOST:-}" ] && [ -n "${DB_USER:-}" ] && [ -n "${DB_PASS:-}" ] && [ -n "${DB_NAME:-}" ]; then
+          echo "DB env vars detected; enabling WRITE_MYSQL=1"
+          export WRITE_MYSQL=1
+        else
+          echo "DB env vars missing; disabling MySQL write (WRITE_MYSQL=0)"
+          export WRITE_MYSQL=0
+        fi
+
+      - echo "WRITE_MYSQL=${WRITE_MYSQL}"
+      - echo "DEBUG_MYSQL=${DEBUG_MYSQL:-0}"
+
+      - ./scripts/generate_reports.sh
+
+artifacts:
+  files:
+    - coverage-reports/**/*
+  discard-paths: no
+

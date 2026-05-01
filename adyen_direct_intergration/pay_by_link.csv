@@ -1,0 +1,1441 @@
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status,Countries applicable,Partners applicable,Automation mapped TC
+Pay By Link,End-to-End,PBL-E2E,PBL-E2E-001,Pay By Link - Complete End-to-End Flow (UI + API + Dashboard + Webhooks + Fund Transfer),"- Pay By Link enabled for merchant
+- Merchant configured in Adyen (payment_provider_id: 5)
+- Webhook URL configured
+- Country: UK (country_id: 1)
+- Fund transfer configured","- Merchant ID: Valid UK merchant
+- Amount: £50.00
+- Customer email: customer@test.com
+- Card: Visa 4111111111111111
+- Expiry: 12/2025, CVV: 123","1. Generate Pay By Link via API
+2. Customer receives email with PBL link
+3. Customer opens link in browser
+4. Payment page displays correctly
+5. Customer enters card details
+6. Completes 3DS authentication
+7. Payment processes successfully
+8. Verify dashboard updated
+9. Verify webhook sent
+10. Verify fund transfer initiated","1. Pay By Link generated successfully ✓ Verify if the hosted form has the month column with data as(Front of card, written in MM/YY) & Security code has infromation as (Back of card, 3 digits). check if the white labeling information is not ruled out and is coming as expected
+CVV is hidden by default and only becomes visible after the eye icon is toggled.
+
+API Response:
+-> pbl_reference: Generated unique reference
+-> link_url: Payment page URL
+-> status: Active
+-> expiry_date: Set
+
+2. Email sent ✓
+
+3. Payment page loaded ✓
+-> Amount: £50.00
+-> Merchant name displayed
+-> Currency: GBP
+
+4. Payment SUCCESSFUL ✓
+
+Database - payments table:
+-> transaction_status_id: 1 (success)
+-> transaction_method_id: 1 (new card)
+-> transaction_mode_id: 2 (3DS)
+-> gross: £50.00
+-> fee: £0.50
+-> net: £49.50
+-> payment_provider_id: 5 (Adyen)
+-> psp_reference: Adyen reference
+-> pbl_reference: Links to PBL
+
+Database - master_token table:
+-> token: Adyen token created
+-> scheme_name: 'visa'
+-> last_4_digit: '1111'
+-> three_ds_status: 1
+-> delete_status: 0
+
+5. Dashboard updated ✓
+-> Transaction visible
+-> Status: Success
+-> PBL reference shown
+
+6. Webhook sent ✓
+-> Event: payment.success
+-> Payload: Complete payment data
+-> Status: Delivered
+
+7. End-to-end flow COMPLETE ✓",pbl;end_to_end;api;ui;dashboard;webhook;fund_transfer;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_089_uk_sale_pay_by_link_full_refund_to_card.spec
+Pay By Link,API & Payload,PBL-API,PBL-API-001,Pay By Link - Invalid payload (missing mandatory fields),"- API access enabled
+- API credentials valid
+- Payload validation active","Invalid Payload (missing amount):
+{
+  ""merchant_id"": ""123"",
+  ""email"": ""customer@test.com"",
+  ""currency"": ""GBP""
+  // ""amount"" missing
+}","1. Send PBL generation API request
+2. Payload validation executes
+3. Missing fields detected
+4. Request rejected","1. Link generation FAILED ✓
+
+API Response:
+-> Status: 400 Bad Request
+-> Error: ""Validation failed""
+-> Missing fields: [""amount""]
+-> Message: ""Required field 'amount' is missing""
+
+Database - pbl_links table:
+-> No link created
+
+2. Validation error returned ✓
+3. Clear error message ✓",pbl;api;payload_validation;missing_fields;negative_test,P2,Pending,"UK, US",No,NA
+Pay By Link,API & Payload,PBL-API,PBL-API-002,Pay By Link - Special characters and emojis in payload,"- API access enabled
+- Validation rules active
+- Special character handling configured","Payload with special characters:
+{
+  ""merchant_id"": ""123"",
+  ""amount"": 50.00,
+  ""email"": ""test@example.com"",
+  ""description"": ""Test  payment! <script>alert('xss')</script>""
+  ""customer_name"": ""José O'Brien™""
+}","1. Send API request with special chars
+2. System sanitizes input
+3. Validates against rules
+4. Handles appropriately","1. Input sanitized ✓
+
+Response:
+-> Special chars: Escaped or removed
+-> Emojis: Handled per UI rules
+-> Script tags: Stripped (XSS prevention)
+-> Accented chars: Preserved (José)
+-> Apostrophes: Escaped (O'Brien)
+
+Database - pbl_links table:
+-> description: Sanitized version
+-> customer_name: ""José O'Brien™""
+-> No XSS vulnerability
+
+2. Link generated with sanitized data ✓",pbl;api;special_characters;sanitization;security;positive_test,P2,Pending,"UK, US",No,NA
+Pay By Link,UI Validation,PBL-UI,PBL-UI-001,Pay By Link - UI rendering and display validation,"- PBL link generated
+- Amount: £50.00
+- Merchant: Test Merchant Ltd
+- Description: Product purchase","- PBL URL: https://pay.datman.je/pbl/PBL-2024-XXXXX
+- Amount: £50.00
+- Currency: GBP
+- Merchant: Test Merchant Ltd","1. Customer opens PBL link
+2. Payment page loads
+3. Verify UI elements displayed
+4. Check data accuracy","1. Page loaded successfully ✓
+
+UI Display:
+✓ Merchant name: ""Test Merchant Ltd""
+✓ Amount: ""£50.00""
+✓ Currency symbol: £ (correct)
+✓ Payment form: Visible
+✓ Card input fields: Present
+✓ Submit button: ""Pay £50.00""
+✓ Security badges: Displayed
+✓ Terms and conditions: Linked
+
+2. All elements rendered correctly ✓
+3. No broken images or layout issues ✓",pbl;ui;rendering;display;validation;positive_test,P1,Prod Monitoring,"UK, US",No,NA
+Pay By Link,UI Validation,PBL-UI,PBL-UI-002,Pay By Link - Mobile responsive UI validation,"- PBL link generated
+- Mobile browser (iOS Safari / Android Chrome)
+- Responsive design enabled","- Device: iPhone 13 (375x812)
+- Browser: Safari iOS 15
+- PBL URL: Valid link","1. Open PBL link on mobile device
+2. Check responsive layout
+3. Test touch interactions
+4. Verify usability","1. Mobile UI loaded ✓
+
+Mobile Responsiveness:
+✓ Layout: Adapts to screen width
+✓ Font size: Readable without zoom
+✓ Buttons: Large enough for touch
+✓ Input fields: Properly sized
+✓ Keyboard: Opens correctly
+✓ Scroll: Smooth
+✓ No horizontal scroll
+
+2. Fully functional on mobile ✓
+3. Touch targets minimum 44x44px ✓",pbl;ui;mobile;responsive;usability;positive_test,P1,Prod Monitoring,"UK, US",No,NA
+Pay By Link,Payment Methods,PBL-PAY,PBL-PAY-001,Pay By Link - New card payment (UK merchant),"- PBL link active
+- New card details available
+- 3DS enabled","- Card: Visa 4111111111111111
+- Expiry: 12/2025
+- CVV: 123
+- Amount: £50.00","1. Customer opens PBL link
+2. Enters new card details
+3. Submits payment
+4. Completes 3DS
+5. Payment processes","1. Payment SUCCESSFUL ✓
+
+Database - payments table:
+-> transaction_status_id: 1 (success)
+-> transaction_method_id: 1 (new card)
+-> transaction_mode_id: 2 (3DS)
+-> gross: £50.00
+-> pbl_reference: PBL reference
+
+Database - master_token table:
+-> token: Created
+-> scheme_name: 'visa'
+-> last_4_digit: '1111'
+-> three_ds_status: 1
+
+2. New card saved (if option selected) ✓
+3. PBL link marked as used ✓",pbl;payment;new_card;3ds;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_050_us_3ds_sale_pay_by_link_full_refund_to_card.spec.js
+Pay By Link,Payment Methods,PBL-PAY,PBL-PAY-002,Pay By Link - Saved card payment - UI Validation,"PBL link active
+Customer has saved card (Amex and Non-Amex card)
+master_token exists
+delete_status: 0","- Saved card: Visa ending 1234
+- master_token_id: Valid token
+- Amount: £50.00","1. Customer opens PBL link
+2. Selects saved card option & Will check for the UI for the detail of CVV
+3. Enters CVV (if required)
+4. Submits payment
+5. Completes 3DS (if required)","1. User opens the Saved card and validates if the Back of the card, Last 3 digits is seen for Non-Amex cards. And Front of the card 4 digits, for Amex card, post that enters the right CVV and completes the sale
+
+Payment SUCCESSFUL ✓
+
+Database - payments table:
+-> transaction_status_id: 1
+-> transaction_method_id: 2 (saved card)
+-> master_token_id: Links to token
+-> gross: £50.00
+
+Database - master_token table:
+-> token: Existing token used
+-> delete_status: 0 (active)
+
+2. Saved card processed ✓
+3. PBL link marked as used ✓",pbl;payment;saved_card;token;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_099_uk_3ds_sale_with_split_pay_by_link_full_refund_to_wallet.spec.js
+Pay By Link,Payment Methods,PBL-PAY,PBL-PAY-002,Pay By Link - Saved card payment Retry post failure,"PBL link active
+Customer has saved card (Amex and Non-Amex card)
+master_token exists
+delete_status: 0","- Saved card: Visa ending 1234
+- master_token_id: Valid token
+- Amount: £50.00","1. Customer opens PBL link
+2. Selects saved card option & Will check for the UI for the detail of CVV
+3. Enters CVV (if required)
+4. Submits payment
+5. Completes 3DS (if required)","1. User opens the Saved card and validates if the CVV option has Back of the card, Last 3 digits is seen for Non-Amex cards. And Front of the card 4 digits, for Amex card, post that enters the wrong CVV and the sale will be navigated to Failure page as given in the payload the sale
+
+Now use the try again option and validate if the saved card CVV option has Back of the card, Last 3 digits is seen for Non-Amex cards. And Front of the card 4 digits, for Amex card, post that enters the right CVV and sale gets
+
+Payment SUCCESSFUL ✓
+
+Database - payments table:
+-> transaction_status_id: 1
+-> transaction_method_id: 2 (saved card)
+-> master_token_id: Links to token
+-> gross: £50.00
+
+Database - master_token table:
+-> token: Existing token used
+-> delete_status: 0 (active)
+
+2. Saved card processed ✓
+3. PBL link marked as used ✓",pbl;payment;saved_card;token;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_095_uk_3ds_sale_pay_by_link_retry.spec.js
+Pay By Link,Wallet Payments,PBL-WALLET,PBL-WAL-001,Pay By Link - Google Pay payment,"- PBL link active
+- Google Pay enabled for merchant
+- Supported browser (Chrome)
+- Customer has Google Pay configured","- Amount: £50.00
+- Browser: Chrome
+- Google Pay: Configured
+- Card in GPay: Visa ending 5678","1. Customer opens PBL link
+2. Google Pay button displayed
+3. Customer clicks Google Pay
+4. GPay sheet opens
+5. Customer confirms payment
+6. Payment processes","1. Google Pay payment SUCCESSFUL ✓
+
+Database - payments table:
+-> transaction_status_id: 1 (success)
+-> transaction_method_id: 4 (Google Pay)
+-> gross: £50.00
+-> psp_reference: Adyen GPay reference
+
+2. GPay token processed ✓
+3. PBL link marked as used ✓
+4. Fast checkout experience ✓",pbl;payment;google_pay;wallet;positive_test,P1,Pending,"UK, US",No,NA
+Pay By Link,Wallet Payments,PBL-WALLET,PBL-WAL-002,Pay By Link - Apple Pay payment,"- PBL link active
+- Apple Pay enabled for merchant
+- Safari on Apple device (iPhone/Mac)
+- Customer has Apple Pay configured","- Amount: £50.00
+- Device: iPhone 13
+- Browser: Safari
+- Apple Pay: Configured","1. Customer opens PBL link on Safari
+2. Apple Pay button displayed
+3. Customer clicks Apple Pay
+4. Face ID / Touch ID authentication
+5. Customer confirms payment
+6. Payment processes","1. Apple Pay payment SUCCESSFUL ✓
+
+Database - payments table:
+-> transaction_status_id: 1 (success)
+-> transaction_method_id: 3 (Apple Pay)
+-> gross: £50.00
+-> psp_reference: Adyen APay reference
+
+2. Biometric auth used ✓
+3. PBL link marked as used ✓
+4. Seamless mobile experience ✓",pbl;payment;apple_pay;wallet;positive_test,P1,Prod Monitoring,"UK, US",No,NA
+Pay By Link,CVV & 3DS,PBL-AUTH,PBL-CVV-001,Pay By Link - Non-3DS without CVV (both checks disabled),"- Country table: allow_cvv_override: true, allow_threeds_override: true
+- PBL payload: cvv_check: false, threeds_check: false
+- CVV not required, 3DS disabled","- Card: Visa 4111111111111111
+- CVV: Not entered
+- Amount: £50.00","1. Customer opens PBL link
+2. Enters card number, expiry
+3. CVV field: Not required
+4. Submits payment
+5. Non-3DS flow executed","1. Payment SUCCESSFUL (Non-3DS, No CVV) ✓
+
+Database - payments table:
+-> transaction_status_id: 1 (success)
+-> transaction_mode_id: 1 (non-3DS)
+-> cvv_provided: 0 (not required)
+-> gross: £50.00
+
+Validation:
+-> CVV check: Bypassed
+-> 3DS: Not triggered
+-> Transaction approved
+
+2. Fast checkout (no CVV, no 3DS) ✓",pbl;cvv;non_3ds;override;positive_test,P2,Automated,"UK, US",No,AD_EC_TC_096_uk_3ds_sale_pay_by_link_retry_with_new_card.spec
+Pay By Link,CVV & 3DS,PBL-AUTH,PBL-CVV-002,"Pay By Link - Saved card page redirect (no CVV, no 3DS)","- cvv_check: false, threeds_check: false
+- Saved card exists
+- Customer selects saved card","- Saved card: Visa ending 1234
+- CVV: Not required
+- 3DS: Disabled","1. Customer opens PBL link
+2. Selects saved card
+3. CVV not requested
+4. Redirected to saved card confirmation
+5. Payment processes","1. Redirect to saved card page ✓
+
+Flow:
+-> Saved card selected
+-> No CVV prompt
+-> Confirmation page shown
+-> Customer confirms
+-> Payment processed
+
+Database - payments table:
+-> transaction_status_id: 1
+-> transaction_method_id: 2 (saved card)
+-> transaction_mode_id: 1 (non-3DS)
+
+2. Smooth saved card experience ✓",pbl;saved_card;no_cvv;redirect;positive_test,P2,Automated,"UK, US",No,AD_EC_TC_099_uk_3ds_sale_with_split_pay_by_link_full_refund_to_wallet.spec
+Pay By Link,CVV & 3DS,PBL-AUTH,PBL-CVV-007,"Pay By Link - CVV and 3DS both required, successful flow","- cvv_check: true, threeds_check: true
+- CVV provided, 3DS completed","- Card: Visa 4111111111111111
+- CVV: 123 (provided)
+- Amount: £50.00","1. Customer enters card with CVV
+2. Submits payment
+3. CVV validated
+4. Redirected to 3DS challenge
+5. Completes 3DS
+6. Payment processes","1. Payment SUCCESSFUL ✓
+
+Flow:
+-> CVV: Validated ✓
+-> 3DS: Triggered ✓
+-> Challenge: Completed ✓
+-> Payment: Approved ✓
+
+Database - payments table:
+-> transaction_status_id: 1 (success)
+-> transaction_mode_id: 2 (3DS)
+-> cvv_provided: 1
+-> three_ds_authenticated: 1
+-> gross: £50.00
+
+2. Full security flow completed ✓",pbl;cvv;3ds;full_security;positive_test,P1,Automated,UK,No,AD_EC_TC_101_uk_sale_pay_by_link_passing_true_cvv_check_and_threeds_check.spec.js
+Pay By Link,Retry & Duplicate,PBL-RETRY,PBL-RTY-001,Pay By Link - Retry payment after initial failure,"- PBL link active
+- First payment failed (insufficient funds)
+- Link still valid for retry","- First attempt: Declined (insufficient funds)
+- Second attempt: Different card with funds
+- Amount: £50.00","1. First payment fails
+2. Customer retries with different card
+3. Second payment submits
+4. Verify only one successful payment","1. First payment FAILED ✓
+
+Database - payments table (attempt 1):
+-> transaction_status_id: 2 (failed)
+-> reason: ""Insufficient funds""
+
+2. Retry allowed ✓
+
+3. Second payment SUCCESSFUL ✓
+
+Database - payments table (attempt 2):
+-> transaction_status_id: 1 (success)
+-> gross: £50.00
+
+4. Only ONE successful payment ✓
+5. PBL link marked as used after success ✓
+6. First failed attempt logged ✓",pbl;retry;failure_recovery;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_095_uk_3ds_sale_pay_by_link_retry.spec.js
+Pay By Link,Refund,PBL-REFUND,PBL-REF-001,Pay By Link - Full refund of completed payment,"- PBL payment successful
+- Original payment: £50.00
+- Refund requested: £50.00 (full)","- Original payment_id: 12345
+- Amount: £50.00
+- Refund amount: £50.00 (100%)","1. Merchant initiates full refund
+2. Refund processes via Adyen
+3. Customer receives refund
+4. Database updated","1. Refund SUCCESSFUL ✓
+
+Database - payments table (refund entry):
+-> transaction_status_id: 1 (success)
+-> gross: -£50.00 (negative for refund)
+-> original_payment_id: 12345
+-> refund_type: Full
+
+Original payment:
+-> refund_status: Fully refunded
+-> refunded_amount: £50.00
+
+2. Full amount refunded ✓
+3. Customer notified ✓",pbl;refund;full_refund;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_093_uk_3ds_sale_pay_by_link_full_refund_to_card.spec.js
+Pay By Link,Refund,PBL-REFUND,PBL-REF-002,Pay By Link - Partial refund of completed payment,"- PBL payment successful
+- Original payment: £50.00
+- Refund requested: £20.00 (partial)","- Original payment_id: 12345
+- Original amount: £50.00
+- Refund amount: £20.00 (40%)","1. Merchant initiates partial refund
+2. Refund amount: £20.00
+3. Refund processes
+4. Database updated","1. Partial refund SUCCESSFUL ✓
+
+Database - payments table (refund entry):
+-> transaction_status_id: 1
+-> gross: -£20.00
+-> original_payment_id: 12345
+-> refund_type: Partial
+
+Original payment:
+-> refund_status: Partially refunded
+-> refunded_amount: £20.00
+-> remaining: £30.00
+
+2. Partial amount refunded ✓
+3. Original payment still valid ✓",pbl;refund;partial_refund;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_092_uk_sale_pay_by_link_partial_refund_to_wallet.spec.js
+Pay By Link,Webhook,PBL-WEBHOOK,PBL-WHK-001,Pay By Link - Webhook payload validation,"- Webhook URL configured
+- PBL payment completed
+- Webhook system active","- Payment: Successful (£50.00)
+- Webhook URL: https://merchant.com/webhook
+- Event: payment.success","1. PBL payment completes
+2. Webhook triggered
+3. Payload sent to merchant
+4. Verify payload structure","1. Webhook sent SUCCESSFULLY ✓
+
+Webhook Payload:
+{
+  ""event"": ""payment.success"",
+  ""payment_id"": ""12345"",
+  ""pbl_reference"": ""PBL-2024-XXXXX"",
+  ""amount"": 50.00,
+  ""currency"": ""GBP"",
+  ""status"": ""success"",
+  ""merchant_id"": ""123"",
+  ""timestamp"": ""2024-12-29T10:00:00Z"",
+  ""psp_reference"": ""Adyen-ref-123""
+}
+
+Database - webhook_log table:
+-> event_type: payment.success
+-> payload: Complete JSON
+-> status: Delivered
+-> response_code: 200
+-> sent_at: Timestamp
+
+2. Merchant receives webhook ✓
+3. Correct payload structure ✓",pbl;webhook;event;validation;positive_test,P1,Automated,"UK, US",No,AD_EC_TC_097_uk_sale_with_split_pay_by_link_partial_refund_to_card.spec.js
+Pay By Link,MIT Token,PBL-MIT,PBL-MIT-001,Pay By Link - MIT token generation on new card payment,"- PBL payment with new card
+- MIT (Merchant Initiated Transaction) enabled
+- Token creation configured","- Card: Visa 4111111111111111
+- Amount: £50.00
+- Save card option: Yes","1. Customer completes PBL payment
+2. New card used
+3. MIT token generated
+4. Token stored","1. Payment SUCCESSFUL with token ✓
+
+Database - payments table:
+-> transaction_status_id: 1
+-> transaction_method_id: 1 (new card)
+-> master_token_id: Token ID
+
+Database - master_token table:
+-> token: Adyen token
+-> scheme_name: 'visa'
+-> last_4_digit: '1111'
+-> delete_status: 0
+
+Database - mit_token_info table:
+-> token_id: Links to master_token
+-> merchant_id: Merchant ID
+-> shopper_id: Customer ID
+-> created_from: PBL
+-> pbl_reference: PBL-2024-XXXXX
+-> status: Active
+
+2. MIT token created ✓
+3. Available for future MIT transactions ✓",pbl;mit_token;token_generation;recurring;positive_test,P1,Pending,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture,PA-DELAY,PBL-PREAUTH-DELAY-001,Pre-auth with valid captureDelayHours - EventBridge Scheduler Creation,"- MID configured for Adyen Pre-Auth with capture delay enabled
+- EventBridge Scheduler permissions configured
+- SQS queue 'preauth-manual-capture' exists
+- Merchant account has pre-auth feature enabled","Checkout payload: transaction_type=PRE_AUTH, captureDelayHours=<valid_positive_integer>, redirect_url=<merchant_redirect_url>
+Shopper: shopper_id=<unique_shopper_id>, email=<shopper_email>, first_name=<first_name>, last_name=<last_name>
+Card: Visa test card with 3DS enabled, expiry=<future_date>, cvc=<valid_cvc>
+Country: UK (timezone: Europe/London)","1. Launch Adyen checkout with PRE_AUTH transaction_type and captureDelayHours in payload
+2. Complete payment including 3DS authentication if prompted
+3. Capture psp_reference and payment_id from successful response
+4. Query EventBridge Scheduler to verify scheduler creation
+5. Verify scheduler execution time matches authorization_time + captureDelayHours adjusted for timezone
+6. Verify scheduler target points to correct SQS queue ARN
+7. Verify scheduler state is ENABLED
+8. Validate scheduler payload contains required fields
+9. Validate payment table for transaction_status_id=13 (Pre-Auth)
+10. Validate preauth_txn_request_timeline table for Pre-auth entry with status
+11. Validate Adyen Dashboard shows authorization transaction","1. Pre-authorization completes successfully with authorization_status=AUTHORIZED
+2. Payment table: transaction_status_id=14 (Pre-Auth), psp_reference recorded
+3. preauth_txn_request_timeline table contains entry:
+   - payment_id: matches transaction
+   - request_type: 'PRE_AUTH'
+   - status: 'AUTHORIZED' or 'SUCCESS'
+   - created_at: authorization timestamp
+   - request_payload: contains authorization request data
+   - response_payload: contains PSP response
+4. EventBridge Scheduler created with:
+   - Name pattern: preauth-capture-<order_id>-<timestamp>
+   - Schedule: one-time execution at authorization_time + captureDelayHours (Europe/London timezone)
+   - Target: SQS queue ARN for 'preauth-manual-capture'
+   - State: ENABLED
+   - FlexibleTimeWindow: OFF (exact execution time)
+5. Scheduler payload contains: {order_id, payment_id, psp_reference, merchant_id, captureDelayHours}
+6. Scheduler logs indicate successful creation
+7. No immediate capture webhook sent (authorization only)
+8. Payment remains in Pre-Auth status until scheduled capture time
+9. Adyen Dashboard validation:
+   - Transaction appears with PSP reference
+   - Payment method shows as authorized (not captured)
+   - Authorization amount displayed correctly
+   - Transaction status shows as 'Authorized'",preauth_delayed_capture;valid_delay;eventbridge;scheduler_creation;db_validation;adyen_dashboard,P0,Pending,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture,PA-DELAY,PBL-PREAUTH-DELAY-005,Adjustment amount - Increase and Decrease scenarios,"- Pre-auth transaction exists in status 13 (Pre-Auth)
+- Adjustment API endpoint available
+- PSP supports incremental authorization
+- Original authorization amount recorded","Pre-auth transaction: payment_id=<payment_id>, original_amount=<base_amount>, status=13
+Adjustment scenarios:
+  Scenario A (Increase): new_amount = original_amount + adjustment_value (e.g., original + tip)
+  Scenario B (Decrease): new_amount = original_amount - adjustment_value
+PSP configuration: Incremental auth enabled, max limit 120% of original","1. Create pre-auth with captureDelayHours for base amount
+2. Verify initial entry in preauth_txn_request_timeline table for Pre-auth
+3. For INCREASE scenario:
+   3.1. Send adjustment request with higher amount
+   3.2. Verify PSP incremental authorization call
+   3.3. Validate new amount within PSP limits (≤120%)
+   3.4. Check status transition from 13 to 14 (Authorised) in payment table
+   3.5. Validate preauth_txn_request_timeline table for adjustment entry
+4. For DECREASE scenario:
+   4.1. Send adjustment request with lower amount
+   4.2. Verify amount reduction logic
+   4.3. Check status update to 14 (Authorised) in payment table
+   4.4. Validate preauth_txn_request_timeline table for adjustment entry
+5. Verify EventBridge scheduler updated with new capture amount
+6. Validate Adyen Dashboard reflects adjustment","1. Initial Pre-auth:
+   - Payment table: transaction_status_id=14
+   - preauth_txn_request_timeline table entry:
+     * payment_id: matches transaction
+     * request_type: 'PRE_AUTH'
+     * status: 'AUTHORIZED'
+     * created_at: authorization timestamp
+
+2. INCREASE scenario (e.g., adding tip):
+   - Adjustment API returns success
+   - PSP incremental auth successful (if within 120% limit)
+   - Payment table: transaction_status_id changes from 14 → 14 (Authorised)
+   - Payment table updated: gross=new_amount, adjustment_amount=difference
+   - preauth_txn_request_timeline table NEW entry:
+     * payment_id: same transaction
+     * request_type: 'ADJUSTMENT' or 'INCREMENTAL_AUTH'
+     * status: 'SUCCESS' or 'ADJUSTED'
+     * created_at: adjustment timestamp
+     * request_payload: contains adjustment request with new amount
+     * response_payload: contains PSP incremental auth response
+   - EventBridge scheduler message updated with new capture amount
+   - Adjustment timestamp recorded
+   - Original amount preserved in separate field for audit
+   - Adyen Dashboard: Shows updated authorization amount
+
+3. DECREASE scenario (e.g., partial cancellation):
+   - Adjustment API returns success
+   - Payment table: transaction_status_id changes from 13 → 14 (Authorised)
+   - Payment table updated: gross=new_amount, adjustment_amount=negative_difference
+   - preauth_txn_request_timeline table NEW entry:
+     * payment_id: same transaction
+     * request_type: 'ADJUSTMENT'
+     * status: 'SUCCESS' or 'ADJUSTED'
+     * created_at: adjustment timestamp
+     * request_payload: contains adjustment request
+     * response_payload: contains PSP response
+   - EventBridge scheduler updated with reduced capture amount
+   - Difference amount flagged for reversal on capture
+   - Adyen Dashboard: Shows reduced authorization amount
+
+4. Both scenarios:
+   - Adjustment history logged with old_amount, new_amount, timestamp, reason
+   - Only one adjustment allowed per transaction (subsequent attempts rejected)
+   - Scheduler execution time unchanged, only capture amount modified
+   - Timeline table shows chronological sequence: PRE_AUTH → ADJUSTMENT",preauth_delayed_capture;adjustment;increase_decrease;incremental_auth;status_transition;timeline_table;adyen_dashboard,P0,Automated,"UK, US",No,AD_EC_TC_080_us_3ds_preauth_sale_pay_by_link_amount_adjustment_partial_refund_to_wallet.spec.js
+Pay By Link,Pre-Auth Delayed Capture,PA-DELAY,PBL-PREAUTH-DELAY-006,Manual capture before scheduled time,#NAME?,"Pre-auth transaction: payment_id=<payment_id>, status=13 or 14, scheduled_capture_time=<future_timestamp>
+Manual capture request: Triggered by admin or merchant before scheduled time
+EventBridge scheduler: Active and enabled for the transaction","1. Create pre-auth with captureDelayHours set for future capture
+2. Verify initial preauth_txn_request_timeline entry for Pre-auth
+3. Before scheduled capture time, trigger manual capture via API or admin panel
+4. Manual capture API calls PSP manual capture endpoint
+5. Upon successful PSP capture response:
+   5.1. Delete associated EventBridge scheduler
+   5.2. Update transaction status from 14 to 1 (Captured) in payment table
+   5.3. Create new entry in preauth_txn_request_timeline table for capture
+   5.4. Send capture success webhook
+6. Verify scheduled capture does NOT execute at original time
+7. Validate SQS queue does NOT receive message for this transaction
+8. Validate Adyen Dashboard shows captured status","1. Manual capture API call successful
+2. PSP returns successful capture response:
+   - Capture psp_reference received
+   - Capture status: [capture-received]
+3. EventBridge Scheduler deleted successfully:
+   - DeleteSchedule API called with scheduler name
+   - Scheduler removed from EventBridge console
+4. Payment table updated:
+   - transaction_status_id changes from 14 → 1 (Captured/Completed)
+   - capture_timestamp recorded
+   - captured_amount = authorized_amount (or adjusted amount if adjustment done)
+5. preauth_txn_request_timeline table NEW entry:
+   - payment_id: same transaction
+   - request_type: 'MANUAL_CAPTURE'
+   - status: 'CAPTURED' or 'SUCCESS'
+   - created_at: manual capture timestamp
+   - request_payload: contains manual capture request
+   - response_payload: contains PSP capture response with capture_psp_reference
+6. Success webhook sent to merchant:
+   - Event: ""payment.captured""
+   - Contains: order_id, psp_reference, capture_psp_reference, captured_amount
+7. When original scheduled time arrives:
+   - No scheduler execution (already deleted)
+   - No SQS message published
+   - No duplicate capture attempt
+8. Manual capture logged in audit trail with user/admin details
+9. Adyen Dashboard validation:
+   - Transaction status updated to 'Captured'
+   - Shows capture_psp_reference
+   - Capture timestamp displayed
+   - Payment method marked as settled/captured
+10. Timeline table shows sequence: PRE_AUTH → [optional ADJUSTMENT] → MANUAL_CAPTURE",preauth_delayed_capture;manual_capture;scheduler_deletion;webhook;audit;status_14_to_1;timeline_table;adyen_dashboard,P0,Automated,"UK, US",No,AD_EC_TC_077_us_3ds_preauth_sale_pay_by_link_amount_adjustment_refund_to_card.spec.js
+Pay By Link,Pre-Auth Delayed Capture,PA-DELAY,PBL-PREAUTH-DELAY-007,Reversal of captured delayed transaction,"- Transaction successfully captured (status = 1)
+- Reversal/Refund API available
+- PSP supports reversals/refunds
+- Merchant has refund permissions","Captured transaction: payment_id=<payment_id>, captured_amount=<amount>, capture_psp_reference=<psp_ref>, transaction_status_id=1
+Reversal types to test:
+  Type A: Full reversal (entire captured amount)
+  Type B: Partial reversal (portion of captured amount)","1. Identify captured pre-auth transaction with status=1
+2. Verify preauth_txn_request_timeline has PRE_AUTH and CAPTURE entries
+3. For FULL REVERSAL:
+   3.1. Send reversal request for full captured amount
+   3.2. PSP processes full refund/reversal
+   3.3. Verify status change to Reversed (status 15) in payment table
+   3.4. Validate new entry in preauth_txn_request_timeline table
+4. For PARTIAL REVERSAL:
+   4.1. Send reversal request for partial amount
+   4.2. PSP processes partial refund
+   4.3. Verify status update in payment table
+   4.4. Validate new entry in preauth_txn_request_timeline table
+5. Validate reversal reflected in settlement
+6. Verify webhook notifications sent
+7. Check customer refund processing timeline
+8. Validate Adyen Dashboard shows reversal/refund","1. FULL REVERSAL:
+   - Reversal API returns success
+   - PSP processes full refund successfully
+   - Payment table: transaction_status_id changes from 1 → 15 (Reversed)
+   - Payment table updated:
+     * reversal_amount = captured_amount
+     * reversal_timestamp recorded
+     * reversal_psp_reference stored
+   - preauth_txn_request_timeline table NEW entry:
+     * payment_id: same transaction
+     * request_type: 'REVERSAL' or 'REFUND'
+     * status: 'REVERSED' or 'REFUNDED'
+     * created_at: reversal timestamp
+     * request_payload: contains reversal request with full amount
+     * response_payload: contains PSP reversal response
+   - Full amount flagged for customer refund
+   - Settlement adjusted: merchant net reduced by reversed amount
+   - Reversal webhook sent to merchant
+   - Customer receives refund within PSP timeline (typically 5-7 business days)
+   - Adyen Dashboard: Shows 'Refunded' or 'Reversed' status with refund amount
+
+2. PARTIAL REVERSAL:
+   - Partial reversal API returns success
+   - PSP processes partial refund
+   - Payment table: transaction_status_id remains 1 or updates to Partially_Reversed if available
+   - Payment table updated:
+     * partial_reversal_amount recorded
+     * remaining_captured_amount = captured_amount - partial_reversal_amount
+   - preauth_txn_request_timeline table NEW entry:
+     * payment_id: same transaction
+     * request_type: 'PARTIAL_REVERSAL' or 'PARTIAL_REFUND'
+     * status: 'PARTIALLY_REVERSED'
+     * created_at: partial reversal timestamp
+     * request_payload: contains partial reversal amount
+     * response_payload: contains PSP response
+   - Partial refund flagged for customer
+   - Settlement adjusted for partial amount only
+   - Partial reversal webhook sent
+   - Adyen Dashboard: Shows partial refund amount and remaining captured amount
+
+3. Both scenarios:
+   - Reversal history table updated with amount, timestamp, reason, initiated_by
+   - PSP dashboard reflects reversal/refund transaction
+   - Cannot reverse more than captured amount (validation error if attempted)
+   - Timeline table shows complete flow: PRE_AUTH → [ADJUSTMENT] → CAPTURE → REVERSAL",preauth_delayed_capture;reversal;full_partial;refund;status_15;timeline_table;adyen_dashboard,P0,Pending,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture,PA-DELAY,PBL-PREAUTH-DELAY-009,EventBridge scheduled batch capture at 3:00 PM daily,"- EventBridge Scheduler Publisher configured for daily execution
+- Multiple pre-auth transactions exist without captureDelayHours
+- Default batch capture time set to 3:00 PM (15:00)
+- SQS queue available for batch processing
+- Timezone: Europe/London","Batch capture configuration:
+  - Daily execution time: 15:00 (3:00 PM) Europe/London timezone
+  - Publisher Lambda: capture-batch-publisher
+  - Target SQS queue: preauth-manual-capture
+Test data:
+  - Pre-auth transactions in status 13 without specific captureDelayHours
+  - Created at various times throughout the day
+  - All eligible for default 3 PM capture","1. Create multiple pre-auth transactions throughout the day WITHOUT captureDelayHours parameter
+2. Verify no individual EventBridge Schedulers created for these transactions
+3. Verify initial preauth_txn_request_timeline entries for each Pre-auth
+4. Wait for daily batch publisher execution at 15:00 Europe/London
+5. Monitor EventBridge Scheduler Publisher Lambda execution
+6. Verify batch publisher queries payment table for eligible pre-auth transactions
+7. Confirm SQS messages published for all eligible transactions
+8. Validate Capture Worker processes batch messages
+9. Verify all captures complete successfully
+10. Validate payment table status changes from 13 to 1 for all captured transactions
+11. Validate new entries in preauth_txn_request_timeline table for each capture
+12. Validate Adyen Dashboard for all captured transactions","1. Pre-auth transactions created without captureDelayHours:
+   - No individual one-time EventBridge Schedulers created
+   - Transactions marked eligible for default batch capture
+   - Payment table: transaction_status_id=14
+   - Flag: default_capture_time = true
+   - preauth_txn_request_timeline table: PRE_AUTH entry exists for each
+
+2. At 15:00 (3:00 PM) Europe/London timezone daily:
+   - EventBridge rule 'daily-preauth-batch-capture' triggers
+   - Scheduler Publisher Lambda invoked
+
+3. Publisher Lambda execution:
+   - Queries payment table for transactions with:
+     * transaction_status_id = 14 (Pre-Auth)
+     * default_capture_time = true
+     * created_at < current_time (eligible for capture)
+   - Retrieves list of eligible payment_ids, order_ids, psp_references
+
+4. SQS message publishing:
+   - Publisher publishes one message per eligible transaction to SQS queue
+   - Each message contains: {order_id, payment_id, psp_reference, batch_capture: true}
+   - Message count matches eligible transaction count
+
+5. Capture Worker Lambda processing:
+   - Triggered by SQS messages in batch
+   - Processes each transaction individually
+   - Calls PSP manual capture API for each
+   - Payment table: transaction_status_id changes from 13 → 1 (Captured) on success
+   - preauth_txn_request_timeline table: NEW entry for each capture:
+     * payment_id: corresponding transaction
+     * request_type: 'BATCH_CAPTURE' or 'SCHEDULED_CAPTURE'
+     * status: 'CAPTURED' or 'SUCCESS'
+     * created_at: capture timestamp (~15:00)
+     * request_payload: capture request
+     * response_payload: PSP capture response
+
+6. Verification:
+   - All eligible pre-auth transactions captured by ~15:05 PM
+   - Batch processing logs show execution summary
+   - CloudWatch metrics: batch_size, success_count, failure_count
+   - Failed captures follow standard retry mechanism (SQS visibility timeout)
+   - Adyen Dashboard: All transactions show 'Captured' status with timestamp ~15:00
+
+7. Daily execution:
+   - EventBridge rule executes every day at 15:00
+   - Cron expression: cron(0 15 * * ? *)
+   - Timezone: Europe/London (handles DST automatically)
+
+8. Timeline table validation:
+   - Each transaction shows: PRE_AUTH → BATCH_CAPTURE
+   - Chronological order maintained
+   - All captures timestamp around 15:00",preauth_delayed_capture;batch_capture;daily_scheduler;3pm_execution;publisher_lambda;status_13_to_1;timeline_table;adyen_dashboard,P0,Prod Monitoring,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture,PA-DELAY,PBL-PREAUTH-DELAY-010,Retry mechanism for failed capture attempts,"- Pre-auth transaction in SQS queue for capture
+- Capture Worker Lambda configured with retry logic
+- SQS VisibilityTimeout and maxReceiveCount configured
+- DLQ 'preauth-manual-capture-dlq' configured
+- PSP temporarily unavailable or returning errors","SQS configuration:
+  - VisibilityTimeout: configurable (e.g., 300 seconds)
+  - maxReceiveCount: 3 (allows 3 retry attempts)
+  - DLQ: preauth-manual-capture-dlq
+Test scenarios:
+  Scenario A: Capture fails, then succeeds on retry
+  Scenario B: Capture fails max times, moves to DLQ
+PSP responses to simulate: timeout, 422 insufficient funds, 500 server error","1. Publish message to SQS queue for pre-auth capture
+2. Verify initial preauth_txn_request_timeline entry for Pre-auth exists
+3. RETRY SUCCESS scenario:
+   3.1. First attempt: Simulate PSP error (e.g., timeout)
+   3.2. Lambda throws error, message not deleted
+   3.3. Validate preauth_txn_request_timeline for failed capture attempt
+   3.4. Message becomes visible again after VisibilityTimeout
+   3.5. Second attempt: PSP returns success
+   3.6. Verify capture completes and message deleted
+   3.7. Validate payment table status changes from 13/14 to 1
+   3.8. Validate new successful capture entry in preauth_txn_request_timeline
+4. MAX RETRY scenario:
+   4.1. First 3 attempts: PSP continuously returns error
+   4.2. ApproximateReceiveCount increments each attempt
+   4.3. Validate preauth_txn_request_timeline for each failed attempt
+   4.4. After 3rd failure, SQS moves message to DLQ
+   4.5. DLQ handler Lambda processes failure
+   4.6. Validate final failed entry in preauth_txn_request_timeline
+5. Verify failure webhooks and alerting
+6. Validate Adyen Dashboard shows appropriate status","1. RETRY SUCCESS SCENARIO (Attempt 1 fails, Attempt 2 succeeds):
+   
+   Attempt 1 (ApproximateReceiveCount = 1):
+   - Capture Worker receives SQS message
+   - Calls PSP manual capture API
+   - PSP returns error (e.g., HTTP 503 timeout or 422 insufficient funds)
+   - Lambda logs error: ""Capture failed for payment_id: <id>, reason: <error>""
+   - Lambda throws exception (does NOT delete message)
+   - SQS retains message, sets VisibilityTimeout (message hidden for configured duration)
+   - Payment table: transaction_status_id remains 13/14 (not updated)
+   - preauth_txn_request_timeline table NEW entry:
+     * payment_id: transaction
+     * request_type: 'CAPTURE_ATTEMPT' or 'SCHEDULED_CAPTURE'
+     * status: 'FAILED' or 'ERROR'
+     * created_at: first attempt timestamp
+     * request_payload: capture request
+     * response_payload: PSP error response
+     * retry_count: 1
+   
+   Attempt 2 (ApproximateReceiveCount = 2):
+   - After VisibilityTimeout expires, message becomes visible
+   - Capture Worker receives message again
+   - Lambda checks ApproximateReceiveCount = 2 (retry attempt)
+   - Calls PSP manual capture API
+   - PSP returns success: {""pspReference"": ""CAPTURE_SUCCESS"", ""response"": ""[capture-received]""}
+   - Payment table: transaction_status_id changes from 13/14 → 1 (Captured)
+   - preauth_txn_request_timeline table NEW entry:
+     * payment_id: same transaction
+     * request_type: 'CAPTURE_RETRY' or 'SCHEDULED_CAPTURE'
+     * status: 'CAPTURED' or 'SUCCESS'
+     * created_at: second attempt timestamp
+     * request_payload: capture request
+     * response_payload: PSP success response
+     * retry_count: 2
+   - Success webhook sent to merchant
+   - Lambda deletes message from SQS queue
+   - CloudWatch logs: ""Capture succeeded on retry attempt 2 for payment_id: <id>""
+   - Adyen Dashboard: Transaction status 'Captured'
+
+2. MAX RETRY EXHAUSTED SCENARIO (3 consecutive failures):
+   
+   Attempts 1-3 (ApproximateReceiveCount = 1, 2, 3):
+   - Each attempt: PSP returns error (e.g., continuous 422 insufficient funds)
+   - Each attempt: Lambda throws error, message not deleted
+   - Each attempt: SQS increments ApproximateReceiveCount
+   - Each attempt: preauth_txn_request_timeline table NEW entry:
+     * payment_id: transaction
+     * request_type: 'CAPTURE_ATTEMPT'
+     * status: 'FAILED'
+     * created_at: attempt timestamp
+     * response_payload: PSP error response
+     * retry_count: 1, 2, 3 respectively
+   - Message visibility cycles: visible → hidden (VisibilityTimeout) → visible → repeat
+   - Payment table: transaction_status_id remains 13/14 throughout retries
+   
+   After 3rd failure (ApproximateReceiveCount exceeds maxReceiveCount=3):
+   - SQS redrive policy activates automatically
+   - Message moved from primary queue to DLQ 'preauth-manual-capture-dlq'
+   - Message no longer in primary queue
+   
+   DLQ Handler Lambda execution:
+   - Triggered by message arrival in DLQ
+   - Reads message payload: {order_id, payment_id, psp_reference}
+   - Payment table: Marks payment as CAPTURE_FAILED (custom status or flag)
+   - preauth_txn_request_timeline table FINAL entry:
+     * payment_id: transaction
+     * request_type: 'CAPTURE_FAILED'
+     * status: 'MAX_RETRY_EXHAUSTED' or 'FAILED'
+     * created_at: DLQ processing timestamp
+     * retry_count: 3
+     * notes: 'Moved to DLQ after max retries'
+   - Sends failure webhook to merchant:
+     * Event: ""payment.capture_failed""
+     * Payload: {order_id, psp_reference, failure_reason, retry_count: 3, retry_possible: false, next_action: ""manual_investigation""}
+   - Publishes CloudWatch alert: ""Capture failed after max retries - payment_id: <id>""
+   - Logs error for ops team manual review
+   - Message remains in DLQ for troubleshooting (manual reprocessing possible)
+   - Adyen Dashboard: Transaction status remains 'Authorized' (not captured)
+
+3. Monitoring and metrics:
+   - CloudWatch metrics track:
+     * Capture success rate per hour
+     * Retry attempt distribution (1st, 2nd, 3rd attempt success)
+     * DLQ message count (active monitoring)
+   - Alert thresholds:
+     * DLQ message count > 5: Immediate alert to ops team
+     * Retry rate > 30%: Warning alert
+   - Lambda execution logs capture all attempts with ApproximateReceiveCount value
+   - Timeline table provides complete audit trail of all capture attempts",preauth_delayed_capture;retry_mechanism;sqs_visibility;max_retry;dlq;failure_handling;timeline_table;adyen_dashboard,P0,Can’t be automated,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture,PA-DELAY,PBL-PREAUTH-DELAY-011,Manual capture post scheduled capture time,"- Pre-auth transaction with scheduled capture already executed
+- Transaction already captured via scheduled mechanism (status=1)
+- Manual capture API endpoint available
+- Admin attempts manual capture after scheduled capture completed","Pre-auth transaction: payment_id=<payment_id>, transaction_status_id=1 (already captured via scheduler)
+Scheduled capture: Already completed at scheduled time
+Manual capture request: Triggered by admin/merchant AFTER scheduled capture","1. Create pre-auth with captureDelayHours
+2. Wait for scheduled capture to complete automatically
+3. Verify payment table shows transaction_status_id=1 (Captured)
+4. Verify preauth_txn_request_timeline has entries for PRE_AUTH and SCHEDULED_CAPTURE
+5. Verify Adyen Dashboard shows captured status
+6. Attempt manual capture on already-captured transaction
+7. Observe API response and error handling
+8. Verify no duplicate capture occurs
+9. Verify payment status remains unchanged
+10. Verify Adyen Dashboard remains unchanged","1. Scheduled capture completes successfully:
+   - Payment table: transaction_status_id=1 (Captured)
+   - preauth_txn_request_timeline table contains:
+     * Entry 1: request_type='PRE_AUTH', status='AUTHORIZED'
+     * Entry 2: request_type='SCHEDULED_CAPTURE', status='CAPTURED'
+   - Adyen Dashboard: Shows 'Captured' status
+
+2. Manual capture attempt AFTER scheduled capture:
+   - Manual capture API validates transaction status
+   - API returns error response:
+     * HTTP status: 400 Bad Request or 409 Conflict
+     * Error: {
+         ""error"": ""ALREADY_CAPTURED"",
+         ""message"": ""Transaction already captured, duplicate capture not allowed"",
+         ""payment_id"": <payment_id>,
+         ""current_status"": ""CAPTURED""
+       }
+   - Idempotency check prevents duplicate capture
+   - No PSP API call made (prevented at application level)
+
+3. Payment table validation:
+   - transaction_status_id remains 1 (unchanged)
+   - No new capture_timestamp created
+   - Original capture details preserved
+
+4. preauth_txn_request_timeline table:
+   - Optional entry for rejected manual capture attempt:
+     * payment_id: transaction
+     * request_type: 'MANUAL_CAPTURE_REJECTED'
+     * status: 'REJECTED' or 'DUPLICATE_PREVENTED'
+     * created_at: manual capture attempt timestamp
+     * notes: 'Transaction already captured via scheduled capture'
+   - OR no new entry created (validation occurs before timeline logging)
+
+5. No duplicate capture:
+   - No additional PSP capture call
+   - No duplicate webhook sent
+   - Customer not double-charged
+   - Settlement amount unchanged
+
+6. Adyen Dashboard validation:
+   - Transaction status remains 'Captured'
+   - Single capture entry (scheduled capture)
+   - No duplicate capture_psp_reference
+   - Original capture timestamp preserved
+
+7. Error logged for monitoring:
+   - Application logs: ""Duplicate capture attempt prevented for payment_id: <id>""
+   - Admin/merchant notified via UI: ""Transaction already captured""
+
+8. Timeline table shows: PRE_AUTH → SCHEDULED_CAPTURE (no manual capture entry)",preauth_delayed_capture;manual_capture_post_scheduled;duplicate_prevention;idempotency;timeline_table;adyen_dashboard,P1,Prod Monitoring,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture - SSM Parameters,PA-DELAY,PBL-PREAUTH-DELAY-012,SSM Parameters - timeFlag true with valid timeLimit,"- SSM Parameter Store configured with pre-auth capture settings
+- Lambda function has permission to read SSM parameters
+- Pre-auth transaction created without captureDelayHours in payload
+- SSM parameters accessible to capture scheduler","SSM Parameter configuration:
+{
+  ""timeFlag"": true,
+  ""timeLimit"": <valid_hours_integer>,
+  ""maxCaptureRetry"": 3
+}
+Test scenarios:
+  Scenario A: timeLimit=1 (capture after 1 hour)
+  Scenario B: timeLimit=2 (capture after 2 hours)
+  Scenario C: timeLimit=24 (capture after 24 hours)
+Pre-auth transaction: payment_id=<payment_id>, status=13, no captureDelayHours in payload","1. Configure SSM Parameter with timeFlag=true and specific timeLimit value
+2. Create pre-auth transaction WITHOUT captureDelayHours in payload
+3. Verify system reads SSM parameters
+4. Verify EventBridge Scheduler created with timeLimit from SSM
+5. Record authorization timestamp
+6. Calculate expected capture time: authorization_timestamp + timeLimit hours
+7. Monitor scheduler execution at expected time
+8. Verify capture executes after exact timeLimit hours
+9. Validate payment table status changes from 13 to 1
+10. Validate preauth_txn_request_timeline table entries
+11. Validate Adyen Dashboard shows captured status","1. SSM Parameter validation:
+   - Parameter successfully retrieved from SSM Parameter Store
+   - timeFlag: true (capture scheduling enabled)
+   - timeLimit: value in hours (e.g., 1, 2, 24)
+   - maxCaptureRetry: 3
+
+2. Pre-auth creation:
+   - Payment table: transaction_status_id=14 (Pre-Auth)
+   - No captureDelayHours provided in payload
+   - preauth_txn_request_timeline table: request_type='PRE_AUTH', status='AUTHORIZED'
+
+3. Scheduler creation respects SSM timeLimit:
+   - EventBridge Scheduler created with execution time: authorization_timestamp + timeLimit hours
+   - Schedule calculated based on SSM timeLimit (NOT default 3 PM batch)
+   - Scheduler name pattern: preauth-capture-<order_id>-<timestamp>
+   - Target: SQS queue 'preauth-manual-capture'
+   - State: ENABLED
+
+4. Capture execution timing:
+   - Scheduler executes at: authorization_timestamp + timeLimit hours
+   - Example: If timeLimit=1 and auth at 10:00 AM, scheduler executes at 11:00 AM
+   - Example: If timeLimit=2 and auth at 14:30, scheduler executes at 16:30
+   - Tolerance: within 2 minutes of expected time
+
+5. Successful capture:
+   - SQS message published at scheduled time
+   - Capture Worker Lambda processes message
+   - PSP manual capture API called successfully
+   - Payment table: transaction_status_id changes from 13 to 1 (Captured)
+   - preauth_txn_request_timeline table NEW entry: request_type='SCHEDULED_CAPTURE', status='CAPTURED', created_at matches timeLimit execution
+
+6. Adyen Dashboard validation:
+   - Transaction status: 'Captured'
+   - Capture timestamp matches authorization_timestamp + timeLimit hours
+   - Shows capture_psp_reference
+
+7. SSM-based scheduling vs default:
+   - When timeFlag=true with timeLimit, individual scheduler created (NOT default 3 PM batch)
+   - Capture time determined by SSM timeLimit parameter
+   - Default 3 PM batch capture bypassed for this transaction",preauth_delayed_capture;ssm_parameters;timeFlag_true;timeLimit_validation;scheduler_timing,P0,Can’t be automated,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture - SSM Parameters,PA-DELAY,PBL-PREAUTH-DELAY-013,SSM Parameters - timeFlag false ignores timeLimit,"- SSM Parameter Store configured
+- Lambda has SSM read permissions
+- Pre-auth transaction created without captureDelayHours
+- Default batch capture configured for 3:00 PM","SSM Parameter configuration:
+{
+  ""timeFlag"": false,
+  ""timeLimit"": <any_value>,
+  ""maxCaptureRetry"": 3
+}
+Note: timeLimit value should be ignored when timeFlag=false
+Pre-auth transaction: payment_id=<payment_id>, status=13, no captureDelayHours in payload
+Default capture time: 15:00 (3:00 PM) Europe/London","1. Configure SSM Parameter with timeFlag=false and any timeLimit value
+2. Create pre-auth transaction WITHOUT captureDelayHours in payload
+3. Verify system reads SSM parameters
+4. Verify NO individual EventBridge Scheduler created
+5. Verify transaction marked for default batch capture
+6. Wait for default batch capture at 3:00 PM
+7. Verify capture executes at 3:00 PM (NOT at timeLimit-based time)
+8. Validate payment table status changes from 13 to 1
+9. Validate preauth_txn_request_timeline table entries
+10. Validate Adyen Dashboard shows captured status","1. SSM Parameter validation:
+   - Parameter successfully retrieved from SSM Parameter Store
+   - timeFlag: false (time-based scheduling disabled)
+   - timeLimit: value present but should be IGNORED
+   - maxCaptureRetry: 3
+
+2. Pre-auth creation:
+   - Payment table: transaction_status_id=13 (Pre-Auth)
+   - No captureDelayHours provided in payload
+   - preauth_txn_request_timeline table: request_type='PRE_AUTH', status='AUTHORIZED'
+
+3. Scheduler behavior when timeFlag=false:
+   - NO individual EventBridge Scheduler created for this transaction
+   - timeLimit value is IGNORED (even if set to 1, 2, 24, etc.)
+   - Transaction marked for default batch capture
+   - Flag: default_capture_time=true
+
+4. Default batch capture at 3:00 PM:
+   - EventBridge rule 'daily-preauth-batch-capture' triggers at 15:00
+   - Batch Publisher Lambda queries eligible transactions (status=14, default_capture_time=true)
+   - SQS message published for this transaction
+   - Capture Worker Lambda processes message
+
+5. Capture execution timing:
+   - Capture executes at 15:00 (3:00 PM) Europe/London timezone
+   - Does NOT execute at authorization_timestamp + timeLimit
+   - Example: Auth at 10:00 AM, timeLimit=2, but capture at 15:00 (NOT 12:00)
+   - Example: Auth at 13:00, timeLimit=1, but capture at 15:00 (NOT 14:00)
+
+6. Successful capture:
+   - Payment table: transaction_status_id changes from 13 to 1 (Captured)
+   - preauth_txn_request_timeline table NEW entry: request_type='BATCH_CAPTURE', status='CAPTURED', created_at around 15:00
+   - Capture timestamp: approximately 15:00 (NOT timeLimit-based)
+
+7. Adyen Dashboard validation:
+   - Transaction status: 'Captured'
+   - Capture timestamp: around 15:00 (3:00 PM)
+   - Shows capture_psp_reference
+
+8. Key validation:
+   - timeLimit value was IGNORED due to timeFlag=false
+   - Batch capture mechanism used instead of individual scheduler
+   - Capture time determined by default batch schedule (3 PM), NOT by timeLimit parameter",preauth_delayed_capture;ssm_parameters;timeFlag_false;timeLimit_ignored;default_batch_capture,P0,Can’t be automated,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture - SSM Parameters,PA-DELAY,PBL-PREAUTH-DELAY-014,SSM Parameters - timeLimit validation with various values,"- SSM Parameter Store configured
+- Lambda has SSM read permissions
+- Multiple pre-auth transactions for different timeLimit values
+- System validates timeLimit parameter values","SSM Parameter configurations to test:
+Config A: {""timeFlag"": true, ""timeLimit"": 1, ""maxCaptureRetry"": 3}
+Config B: {""timeFlag"": true, ""timeLimit"": 6, ""maxCaptureRetry"": 3}
+Config C: {""timeFlag"": true, ""timeLimit"": 12, ""maxCaptureRetry"": 3}
+Config D: {""timeFlag"": true, ""timeLimit"": 24, ""maxCaptureRetry"": 3}
+Config E: {""timeFlag"": true, ""timeLimit"": 48, ""maxCaptureRetry"": 3}
+Pre-auth transactions: Create separate transaction for each config","1. For each SSM configuration (A through E):
+   1.1. Update SSM Parameter with specific timeLimit value
+   1.2. Create pre-auth transaction without captureDelayHours
+   1.3. Record authorization timestamp
+   1.4. Verify EventBridge Scheduler created
+   1.5. Verify scheduled execution time = auth_time + timeLimit hours
+2. Monitor scheduler executions for all transactions
+3. Verify each capture executes at correct timeLimit-based time
+4. Validate payment table status changes for all transactions
+5. Validate preauth_txn_request_timeline entries for all
+6. Compare actual capture times vs expected capture times
+7. Validate Adyen Dashboard for all transactions","1. Config A (timeLimit=1 hour):
+   - Authorization at T0
+   - Scheduler created for execution at T0 + 1 hour
+   - Capture executes at T0 + 1 hour (within 2 min tolerance)
+   - Payment status: 14 → 1 at T0 + 1 hour
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 1 hour
+   - Adyen Dashboard: Captured with timestamp T0 + 1 hour
+
+2. Config B (timeLimit=6 hours):
+   - Authorization at T0
+   - Scheduler created for execution at T0 + 6 hours
+   - Capture executes at T0 + 6 hours (within 2 min tolerance)
+   - Payment status: 14 → 1 at T0 + 6 hours
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 6 hours
+   - Adyen Dashboard: Captured with timestamp T0 + 6 hours
+
+3. Config C (timeLimit=12 hours):
+   - Authorization at T0
+   - Scheduler created for execution at T0 + 12 hours
+   - Capture executes at T0 + 12 hours (within 2 min tolerance)
+   - Payment status: 14 → 1 at T0 + 12 hours
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 12 hours
+   - Adyen Dashboard: Captured with timestamp T0 + 12 hours
+
+4. Config D (timeLimit=24 hours):
+   - Authorization at T0
+   - Scheduler created for execution at T0 + 24 hours
+   - Capture executes at T0 + 24 hours (within 2 min tolerance)
+   - Payment status: 14 → 1 at T0 + 24 hours
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 24 hours
+   - Adyen Dashboard: Captured with timestamp T0 + 24 hours
+
+5. Config E (timeLimit=48 hours):
+   - Authorization at T0
+   - Scheduler created for execution at T0 + 48 hours
+   - Capture executes at T0 + 48 hours (within 2 min tolerance)
+   - Payment status: 13 → 1 at T0 + 48 hours
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 48 hours
+   - Adyen Dashboard: Captured with timestamp T0 + 48 hours
+
+6. Cross-validation:
+   - All timeLimit values respected accurately
+   - Scheduler execution times match expected times (auth_time + timeLimit)
+   - No transactions captured at wrong times
+   - All payment statuses transitioned correctly
+   - All timeline entries show correct timestamps
+
+7. Note on authorization expiry:
+   - For timeLimit values approaching or exceeding 7 days (168 hours), consider auth expiry
+   - Most card issuers allow auth validity of 7 days
+   - timeLimit=48 hours is well within safe range",preauth_delayed_capture;ssm_parameters;timeLimit_variations;multiple_values;timing_accuracy,P0,Can’t be automated,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture - SSM Parameters,PA-DELAY,PBL-PREAUTH-DELAY-015,SSM Parameters - maxCaptureRetry with retry scenarios,"- SSM Parameter Store configured with maxCaptureRetry
+- Lambda has SSM read permissions
+- SQS queue configured with VisibilityTimeout
+- DLQ configured for failed captures
+- PSP temporarily returns errors for testing","SSM Parameter configuration:
+{
+  ""timeFlag"": true,
+  ""timeLimit"": 1,
+  ""maxCaptureRetry"": <retry_count>
+}
+Test scenarios:
+  Scenario A: maxCaptureRetry=3 (3 retry attempts before DLQ)
+  Scenario B: maxCaptureRetry=5 (5 retry attempts before DLQ)
+  Scenario C: maxCaptureRetry=1 (1 retry attempt, quick DLQ move)
+SQS configuration: VisibilityTimeout=300 seconds, maxReceiveCount=<SSM_maxCaptureRetry>
+PSP responses: Simulate failures then success, or continuous failures","1. Configure SSM Parameter with specific maxCaptureRetry value
+2. Configure SQS queue maxReceiveCount to match SSM maxCaptureRetry
+3. Create pre-auth transaction
+4. Wait for scheduled capture time
+5. Simulate PSP errors for capture attempts
+6. Monitor retry attempts based on maxCaptureRetry
+7. For SUCCESS scenario:
+   7.1. PSP returns error for (maxCaptureRetry - 1) attempts
+   7.2. PSP returns success on maxCaptureRetry attempt
+   7.3. Verify capture completes
+8. For FAILURE scenario:
+   8.1. PSP returns error for all maxCaptureRetry attempts
+   8.2. Verify message moves to DLQ after maxCaptureRetry exhausted
+9. Validate payment table status transitions
+10. Validate preauth_txn_request_timeline for all retry attempts
+11. Validate CloudWatch logs show retry counts
+12. Validate Adyen Dashboard shows final status","1. SSM Parameter validation:
+   - maxCaptureRetry value retrieved from SSM
+   - SQS queue maxReceiveCount configured to match maxCaptureRetry
+   - Retry mechanism respects SSM maxCaptureRetry setting
+
+2. Scenario A (maxCaptureRetry=3, SUCCESS on 3rd attempt):
+   - Attempt 1 (ApproximateReceiveCount=1): PSP error, message not deleted, timeline entry: status='FAILED', retry_count=1
+   - Attempt 2 (ApproximateReceiveCount=2): PSP error, message not deleted, timeline entry: status='FAILED', retry_count=2
+   - Attempt 3 (ApproximateReceiveCount=3): PSP success, message deleted, payment status 13→1, timeline entry: status='CAPTURED', retry_count=3
+   - Total retry attempts: 3 (matching SSM maxCaptureRetry)
+   - Final status: Captured
+   - Adyen Dashboard: Shows 'Captured'
+
+3. Scenario B (maxCaptureRetry=5, SUCCESS on 5th attempt):
+   - Attempts 1-4: PSP errors, timeline entries: status='FAILED', retry_count=1,2,3,4
+   - Attempt 5: PSP success, payment status 13→1, timeline entry: status='CAPTURED', retry_count=5
+   - Total retry attempts: 5 (matching SSM maxCaptureRetry)
+   - Final status: Captured
+   - Adyen Dashboard: Shows 'Captured'
+
+4. Scenario C (maxCaptureRetry=1, no retry, immediate DLQ):
+   - Attempt 1 (ApproximateReceiveCount=1): PSP error, timeline entry: status='FAILED', retry_count=1
+   - After 1st failure: ApproximateReceiveCount (1) equals maxReceiveCount (1)
+   - Message immediately moved to DLQ (no retries allowed)
+   - DLQ Handler processes failure
+   - Timeline entry: status='MAX_RETRY_EXHAUSTED', retry_count=1
+   - Final status: CAPTURE_FAILED
+   - Adyen Dashboard: Remains 'Authorized'
+
+5. Scenario D (maxCaptureRetry=3, all attempts fail):
+   - Attempts 1-3: All PSP errors, timeline entries: status='FAILED', retry_count=1,2,3
+   - After 3rd failure: ApproximateReceiveCount (3) equals maxReceiveCount (3)
+   - Message moved to DLQ
+   - DLQ Handler: Timeline entry status='MAX_RETRY_EXHAUSTED', retry_count=3
+   - Failure webhook sent
+   - Final status: CAPTURE_FAILED
+   - Adyen Dashboard: Remains 'Authorized'
+
+6. Key validations:
+   - Retry count matches SSM maxCaptureRetry parameter
+   - SQS maxReceiveCount synchronized with SSM maxCaptureRetry
+   - All retry attempts logged in preauth_txn_request_timeline table
+   - CloudWatch logs show: ""Retry attempt X of maxCaptureRetry""
+   - DLQ trigger occurs after exactly maxCaptureRetry attempts
+
+7. Monitoring metrics:
+   - Capture success rate per retry attempt
+   - Average retries before success
+   - DLQ message count when maxCaptureRetry exhausted
+   - Retry distribution aligned with SSM maxCaptureRetry setting",preauth_delayed_capture;ssm_parameters;maxCaptureRetry;retry_mechanism;dlq,P0,Can’t be automated,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture - SSM Parameters,PA-DELAY,PBL-PREAUTH-DELAY-016,SSM Parameters - Invalid or missing parameter handling,"- SSM Parameter Store may have invalid or missing parameters
+- Lambda has SSM read permissions and error handling
+- System has default fallback values configured
+- Pre-auth transaction creation attempted","SSM Parameter test scenarios:
+Invalid scenarios:
+  Scenario A: timeFlag missing (null or undefined)
+  Scenario B: timeLimit missing when timeFlag=true
+  Scenario C: timeLimit with invalid value (negative, zero, non-integer)
+  Scenario D: maxCaptureRetry missing
+  Scenario E: maxCaptureRetry with invalid value (negative, zero)
+  Scenario F: SSM Parameter Store unreachable/timeout
+Fallback defaults:
+  Default timeFlag: false
+  Default timeLimit: null (use default batch)
+  Default maxCaptureRetry: 3","1. For each invalid scenario:
+   1.1. Configure SSM with invalid/missing parameter
+   1.2. Attempt to create pre-auth transaction
+   1.3. Monitor Lambda logs for SSM read errors
+   1.4. Verify system applies fallback/default values
+   1.5. Verify transaction creation succeeds or fails appropriately
+2. Validate error handling and logging
+3. Verify fallback behavior for each scenario
+4. Validate pre-auth transaction processing continues
+5. Validate EventBridge Scheduler creation with defaults
+6. Validate CloudWatch alerts for SSM parameter issues
+7. Validate Adyen Dashboard for transaction status","1. Scenario A (timeFlag missing):
+   - Lambda attempts to read SSM parameter
+   - timeFlag field is null/undefined/missing
+   - System applies default: timeFlag=false
+   - Transaction proceeds with default batch capture (3 PM)
+   - No individual scheduler created
+   - CloudWatch logs: ""SSM timeFlag missing, applying default: false""
+   - Transaction marked for batch capture
+
+2. Scenario B (timeLimit missing when timeFlag=true):
+   - SSM parameter: {""timeFlag"": true, ""timeLimit"": null}
+   - System detects missing timeLimit when timeFlag=true
+   - Option 1: Apply default timeLimit (e.g., 24 hours)
+   - Option 2: Fall back to timeFlag=false and use batch capture
+   - CloudWatch logs: ""timeLimit missing with timeFlag=true, applying fallback""
+   - Alert triggered: ""Invalid SSM configuration: timeLimit required when timeFlag=true""
+
+3. Scenario C (timeLimit with invalid value):
+   - SSM parameter: {""timeFlag"": true, ""timeLimit"": -5} (negative)
+   - OR {""timeFlag"": true, ""timeLimit"": 0} (zero)
+   - OR {""timeFlag"": true, ""timeLimit"": 1.5} (decimal)
+   - System validates timeLimit value
+   - Validation fails for negative, zero, or non-integer
+   - System applies fallback: timeFlag=false, use batch capture
+   - CloudWatch logs: ""Invalid timeLimit value: <value>, falling back to batch capture""
+   - Alert triggered: ""SSM parameter validation failed: timeLimit invalid""
+
+4. Scenario D (maxCaptureRetry missing):
+   - SSM parameter: {""timeFlag"": true, ""timeLimit"": 1, ""maxCaptureRetry"": null}
+   - System applies default: maxCaptureRetry=3
+   - SQS maxReceiveCount configured to default 3
+   - Transaction proceeds normally
+   - CloudWatch logs: ""maxCaptureRetry missing, applying default: 3""
+
+5. Scenario E (maxCaptureRetry with invalid value):
+   - SSM parameter: maxCaptureRetry=-1 (negative)
+   - OR maxCaptureRetry=0 (zero)
+   - System validates maxCaptureRetry value
+   - Validation fails for negative or zero
+   - System applies default: maxCaptureRetry=3
+   - CloudWatch logs: ""Invalid maxCaptureRetry value: <value>, applying default: 3""
+   - Alert triggered: ""SSM parameter validation failed: maxCaptureRetry invalid""
+
+6. Scenario F (SSM Parameter Store unreachable):
+   - Lambda attempts SSM GetParameter API call
+   - SSM returns error: timeout, access denied, or service unavailable
+   - Lambda catches SSM exception
+   - System applies all defaults: timeFlag=false, timeLimit=null, maxCaptureRetry=3
+   - Transaction proceeds with default batch capture
+   - CloudWatch logs: ""SSM Parameter Store unreachable, applying all defaults""
+   - Alert triggered: ""Critical: SSM Parameter Store access failed""
+   - Transaction marked for batch capture to ensure processing continues
+
+7. Error handling validation:
+   - All invalid scenarios handled gracefully
+   - No transaction failures due to SSM issues
+   - Default fallback values ensure capture processing continues
+   - All SSM errors logged to CloudWatch
+   - Alerts triggered for invalid configurations
+   - Monitoring dashboard shows SSM parameter health
+
+8. Pre-auth transaction outcomes:
+   - All transactions successfully created (SSM issues don't block pre-auth)
+   - Transactions with invalid SSM fall back to batch capture
+   - Payment table: transaction_status_id=13 for all
+   - Timeline table: PRE_AUTH entry created for all
+   - Adyen Dashboard: All show 'Authorized' status initially
+   - Capture eventually succeeds using fallback mechanism",preauth_delayed_capture;ssm_parameters;error_handling;fallback_defaults;validation,P1,Can’t be automated,"UK, US",No,NA
+Pay By Link,Pre-Auth Delayed Capture - SSM Parameters,PA-DELAY,PBL-PREAUTH-DELAY-017,SSM Parameters - Priority: captureDelayHours vs SSM timeLimit,"- SSM Parameter Store configured with timeFlag=true and timeLimit
+- Pre-auth transaction payload includes captureDelayHours
+- Both SSM timeLimit and payload captureDelayHours present
+- System must determine which parameter takes priority","Test scenarios:
+Scenario A: Both present - payload captureDelayHours takes priority
+  Payload: captureDelayHours=2
+  SSM: {""timeFlag"": true, ""timeLimit"": 1, ""maxCaptureRetry"": 3}
+  Expected: Capture after 2 hours (payload wins)
+
+Scenario B: Only payload captureDelayHours present
+  Payload: captureDelayHours=3
+  SSM: {""timeFlag"": false, ""timeLimit"": null, ""maxCaptureRetry"": 3}
+  Expected: Capture after 3 hours (payload used)
+
+Scenario C: Only SSM timeLimit present
+  Payload: (no captureDelayHours)
+  SSM: {""timeFlag"": true, ""timeLimit"": 4, ""maxCaptureRetry"": 3}
+  Expected: Capture after 4 hours (SSM used)
+
+Scenario D: Neither present
+  Payload: (no captureDelayHours)
+  SSM: {""timeFlag"": false, ""timeLimit"": null, ""maxCaptureRetry"": 3}
+  Expected: Default batch capture at 3 PM","1. For Scenario A (both present):
+   1.1. Configure SSM with timeFlag=true, timeLimit=1
+   1.2. Create pre-auth with captureDelayHours=2 in payload
+   1.3. Verify system reads both parameters
+   1.4. Verify payload captureDelayHours takes priority
+   1.5. Verify scheduler created for auth_time + 2 hours (NOT 1 hour)
+   1.6. Monitor capture execution at 2-hour mark
+   1.7. Validate capture does NOT execute at 1 hour
+
+2. For Scenario B (only payload):
+   2.1. Configure SSM with timeFlag=false
+   2.2. Create pre-auth with captureDelayHours=3 in payload
+   2.3. Verify payload parameter used
+   2.4. Verify scheduler created for auth_time + 3 hours
+   2.5. Monitor capture execution at 3-hour mark
+
+3. For Scenario C (only SSM):
+   3.1. Configure SSM with timeFlag=true, timeLimit=4
+   3.2. Create pre-auth WITHOUT captureDelayHours in payload
+   3.3. Verify SSM parameter used
+   3.4. Verify scheduler created for auth_time + 4 hours
+   3.5. Monitor capture execution at 4-hour mark
+
+4. For Scenario D (neither present):
+   4.1. Configure SSM with timeFlag=false
+   4.2. Create pre-auth WITHOUT captureDelayHours in payload
+   4.3. Verify default batch capture mechanism used
+   4.4. Verify NO individual scheduler created
+   4.5. Verify capture at 3 PM batch time
+
+5. Validate payment table status transitions for all scenarios
+6. Validate preauth_txn_request_timeline entries
+7. Validate Adyen Dashboard for all transactions
+8. Cross-verify capture times match expected priority logic","1. Scenario A (both present - payload priority):
+   - Payload captureDelayHours: 2 hours
+   - SSM timeLimit: 1 hour
+   - Priority logic: Payload captureDelayHours takes precedence
+   - EventBridge Scheduler created for: auth_time + 2 hours
+   - Capture executes at: auth_time + 2 hours (NOT 1 hour)
+   - Payment status: 13 → 1 at 2-hour mark
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 2 hours
+   - Adyen Dashboard: Captured with timestamp T0 + 2 hours
+   - CloudWatch logs: ""Using payload captureDelayHours (2) over SSM timeLimit (1)""
+
+2. Scenario B (only payload present):
+   - Payload captureDelayHours: 3 hours
+   - SSM timeFlag: false (timeLimit ignored)
+   - Priority logic: Payload captureDelayHours used
+   - EventBridge Scheduler created for: auth_time + 3 hours
+   - Capture executes at: auth_time + 3 hours
+   - Payment status: 14 → 1 at 3-hour mark
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 3 hours
+   - Adyen Dashboard: Captured with timestamp T0 + 3 hours
+   - CloudWatch logs: ""Using payload captureDelayHours (3), SSM timeFlag=false""
+
+3. Scenario C (only SSM present):
+   - Payload: No captureDelayHours
+   - SSM timeFlag: true, timeLimit: 4 hours
+   - Priority logic: SSM timeLimit used
+   - EventBridge Scheduler created for: auth_time + 4 hours
+   - Capture executes at: auth_time + 4 hours
+   - Payment status: 14 → 1 at 4-hour mark
+   - Timeline: PRE_AUTH at T0, SCHEDULED_CAPTURE at T0 + 4 hours
+   - Adyen Dashboard: Captured with timestamp T0 + 4 hours
+   - CloudWatch logs: ""No payload captureDelayHours, using SSM timeLimit (4)""
+
+4. Scenario D (neither present - default batch):
+   - Payload: No captureDelayHours
+   - SSM timeFlag: false
+   - Priority logic: Default batch capture at 3 PM
+   - NO individual EventBridge Scheduler created
+   - Transaction marked for batch capture
+   - Capture executes at: 15:00 (3:00 PM)
+   - Payment status: 13 → 1 at 15:00
+   - Timeline: PRE_AUTH at T0, BATCH_CAPTURE at 15:00
+   - Adyen Dashboard: Captured with timestamp 15:00
+   - CloudWatch logs: ""No captureDelayHours or SSM timeLimit, using default batch capture""
+
+5. Priority hierarchy (documented):
+   - Priority 1 (Highest): Payload captureDelayHours (explicit per-transaction override)
+   - Priority 2: SSM timeLimit (when timeFlag=true and no payload captureDelayHours)
+   - Priority 3 (Lowest): Default batch capture at 3 PM (when neither above present)
+
+6. Cross-scenario validation:
+   - All scenarios handled correctly
+   - Priority logic consistent across all transactions
+   - No conflicts or unexpected behavior
+   - All captures execute at correct times based on priority
+   - All payment statuses transition correctly
+   - All timeline entries show correct timestamps and capture types
+
+7. Key takeaway:
+   - Payload captureDelayHours ALWAYS takes priority over SSM timeLimit
+   - SSM timeLimit acts as default when payload not provided
+   - System gracefully falls back to batch capture when neither present",preauth_delayed_capture;ssm_parameters;priority_logic;captureDelayHours_vs_timeLimit;fallback_hierarchy,P0,Can’t be automated,"UK, US",No,NA

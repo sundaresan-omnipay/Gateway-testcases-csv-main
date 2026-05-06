@@ -1,4 +1,4 @@
-Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status,Countries applicable,Partners applicable,Automation mapped TC
 Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-001,Add Card - Cardstream 3DS card - Card added with three_ds_status = 0,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled for merchant
@@ -95,7 +95,7 @@ Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-001,Add Card - Cardstream 
 -> three_ds_status = 0 is EXPECTED at Add Card stage
 -> 3DS authentication happens on FIRST PAYMENT
 -> After successful 3DS payment: status becomes 1
--> Subsequent payments may bypass 3DS (SCA exemption)""",add_card_cardstream; 3ds_card; three_ds_status_0; card_tokenization; region_uk; currency_gbp; no_3ds_at_add,P1,
+-> Subsequent payments may bypass 3DS (SCA exemption)""",add_card_cardstream; 3ds_card; three_ds_status_0; card_tokenization; region_uk; currency_gbp; no_3ds_at_add,P1,Automated,UK,NA,CS_AC_TC_001_add_card_with_saved_card_sale.spec.js
 Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-002,Add Card - Cardstream Non-3DS card - Card added with three_ds_status = 0,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -156,7 +156,7 @@ Cardstream dashboard:
 -> Non-3DS card flagged
 -> No 3DS authentication required
 three_ds_status = 0 ✓ (expected for Non-3DS)
-Card ready for payments (non-3DS flow)""",add_card_cardstream; non_3ds_card; three_ds_status_0; card_tokenization; region_uk,P1,
+Card ready for payments (non-3DS flow)""",add_card_cardstream; non_3ds_card; three_ds_status_0; card_tokenization; region_uk,P1,Automated,UK,NA,CS_AC_TC_001_add_card_with_saved_card_sale.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-001,Add Card - Cardstream card - Card added with three_ds_status = 0,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -220,7 +220,7 @@ Cardstream dashboard:
 -> Card token created
 -> Customer ID linked
 three_ds_status = 0 ✓ (expected)
-Ready for Cardstream payments""",add_card_cardstream; add_card_hf; three_ds_status_0; cardstream_com; card_tokenization; region_uk,P1,
+Ready for Cardstream payments""",add_card_cardstream; add_card_hf; three_ds_status_0; cardstream_com; card_tokenization; region_uk,P1,Automated,UK,NA,CS_AC_TC_009_add_card_payload_with_gb_base_64_with_ie.spec.js
 Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-003,Add Card + Express Pay Sale - 3DS authentication and three_ds_status update to 1,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -322,7 +322,7 @@ Future payments with this card:
 -> three_ds_status = 1 (already authenticated)
 -> May NOT require 3DS again (exemption rules)
 -> Lower friction for recurring payments
--> SCA compliant""",add_card_express_pay; 3ds_authentication; three_ds_status_update; status_0_to_1; express_pay; saved_card; region_uk,P1,
+-> SCA compliant""",add_card_express_pay; 3ds_authentication; three_ds_status_update; status_0_to_1; express_pay; saved_card; region_uk,P1,Automated,UK,NA,CS_AC_TC_002_add_card_with_express_pay_sale.spec.js
 Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-004,Add Card + Saved Card Payment - 3DS authentication and three_ds_status update to 1,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -424,7 +424,7 @@ Future saved card payments:
 -> three_ds_status = 1
 -> May use frictionless 3DS or exempt
 -> Lower friction
--> SCA compliant""",add_card_saved_card; 3ds_authentication; three_ds_status_update; master_token; saved_card_payment; status_0_to_1; region_uk,P1,
+-> SCA compliant""",add_card_saved_card; 3ds_authentication; three_ds_status_update; master_token; saved_card_payment; status_0_to_1; region_uk,P1,Automated,UK,NA,CS_AC_TC_001_add_card_with_saved_card_sale.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-002,Add Card - Long Redirect URL (>600 characters) - Card added successfully,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -521,7 +521,7 @@ Browser compatibility:
 -> Chrome: handles long URLs ✓
 -> Firefox: handles long URLs ✓
 -> Safari: handles long URLs ✓
--> Edge: handles long URLs ✓""",add_card_long_url; long_redirect_url; url_handling; edge_case; region_uk,P2,
+-> Edge: handles long URLs ✓""",add_card_long_url; long_redirect_url; url_handling; edge_case; region_uk,P2,Automated,UK,NA,CS_AC_TC_005_add_card_with_long_redirect_url.spec.js
 Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-005,Add Card + Wallet Recharge - 3DS authentication and three_ds_status update to 1,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -652,7 +652,7 @@ Future wallet recharges:
 -> three_ds_status = 1 (authenticated)
 -> May use frictionless 3DS
 -> Or may be exempt from 3DS
--> Smoother recharge experience""",add_card_wallet_recharge; 3ds_authentication; three_ds_status_update; wallet_recharge; status_0_to_1; saved_card; region_uk,P1,
+-> Smoother recharge experience""",add_card_wallet_recharge; 3ds_authentication; three_ds_status_update; wallet_recharge; status_0_to_1; saved_card; region_uk,P1,Pending,UK,NA,NA
 Cardstream Add Card,Add Card - 3DS Flow,AC-3DS,AC-3DS-006,Add Card + Express Pay Sale - Non-3DS flow (no Cardstream rule triggered),"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -783,7 +783,7 @@ SCA compliance:
 -> SCA exemptions applied
 -> Transaction within exemption thresholds
 -> Compliant with PSD2
--> Issuer accepted exemption""",add_card_express_pay; non_3ds_flow; three_ds_status_0; low_risk_transaction; 3ds_exemption; cardstream_rules; region_uk,P1,
+-> Issuer accepted exemption""",add_card_express_pay; non_3ds_flow; three_ds_status_0; low_risk_transaction; 3ds_exemption; cardstream_rules; region_uk,P1,Automated,UK,NA,CS_AC_TC_002_add_card_with_express_pay_sale.spec.js
 Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-001,Add Card - Invalid Card Number Validation,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -872,7 +872,7 @@ Card formats tested:
 -> 4532 1100 0000 00011: Too long (17 digits)
 -> All rejected ✓
 No card saved ✓
-Customer can retry with valid card""",add_card_validation; invalid_card_number; validation_error; luhn_check; error_handling; negative_test,P1,
+Customer can retry with valid card""",add_card_validation; invalid_card_number; validation_error; luhn_check; error_handling; negative_test,P1,Automated,UK,NA,CS_AC_TC_008_add_card_with_invalid_card.spec.js
 Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-002,Add Card - Invalid Expiry Date Validation,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -941,7 +941,7 @@ Expiry validation rules:
 -> Month: 01-12 only
 -> Not expired ✓
 -> Valid format: MM/YYYY
-All invalid expiries rejected ✓""",add_card_validation; invalid_expiry; expiry_validation; validation_error; negative_test,P1,
+All invalid expiries rejected ✓""",add_card_validation; invalid_expiry; expiry_validation; validation_error; negative_test,P1,Pending,UK,NA,NA
 Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-005,Add Card - Invalid Redirect URL Validation,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1014,7 +1014,7 @@ Error response:
 -> Generic message to client
 No card saved ✓
 Security incident logged
-All malicious URLs blocked ✓""",add_card_validation; invalid_redirect_url; url_validation; security_validation; xss_prevention; negative_test,P1,
+All malicious URLs blocked ✓""",add_card_validation; invalid_redirect_url; url_validation; security_validation; xss_prevention; negative_test,P1,Automated,UK,NA,CS_AC_TC_005_add_card_with_long_redirect_url.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-003,Add Card - Redirect URL Exceeds Maximum Length (>2000 chars),"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1082,7 +1082,7 @@ Workaround suggestions:
 -> Store data server-side
 Note: TC006 tested >600 chars (success)
 This test: >2000 chars (failure)
-Sweet spot: 600-2000 chars acceptable""",add_card_validation; url_too_long; length_validation; max_length_exceeded; negative_test,P2,
+Sweet spot: 600-2000 chars acceptable""",add_card_validation; url_too_long; length_validation; max_length_exceeded; negative_test,P2,Automated,UK,NA,CS_AC_TC_005_add_card_with_long_redirect_url.spec.js
 Cardstream Add Card,Add Card - Multiple Cards,AC-MULTI,AC-MULTI-001,Add Card - Rate Limit Exceeded (Multiple Attempts Blocked),"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1169,7 +1169,7 @@ Cooldown window:
 -> After cooldown: counter resets
 -> Can attempt again after reset
 First 5 cards added (if valid) ✓
-6th blocked ✓""",add_card_rate_limit; rate_limit_exceeded; too_many_attempts; http_429; throttling; security_validation,P1,
+6th blocked ✓""",add_card_rate_limit; rate_limit_exceeded; too_many_attempts; http_429; throttling; security_validation,P1,Automated,UK,NA,CS_AC_TC_006_add_card_rate_limit.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-006,Add Card - Rate Limit Retry Post Cooldown Window,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1257,7 +1257,7 @@ Security maintained:
 -> Rate limiting still active
 -> Temporary block only
 -> Fair usage enforced
--> System protection maintained""",add_card_rate_limit; rate_limit_reset; cooldown_expired; retry_success; post_cooldown; throttling,P1,
+-> System protection maintained""",add_card_rate_limit; rate_limit_reset; cooldown_expired; retry_success; post_cooldown; throttling,P1,Automated,UK,NA,CS_AC_TC_006_add_card_rate_limit.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-007,Add Card - Rate Limit with Cardstream Card Specifically,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1338,7 +1338,7 @@ User action:
 -> Use existing card
 -> OR add different card
 -> OR wait for cooldown
-Only ONE entry for this card ✓""",add_card_rate_limit; duplicate_card; card_specific_rate_limit; cardstream_card; same_card_attempts; security_validation,P1,
+Only ONE entry for this card ✓""",add_card_rate_limit; duplicate_card; card_specific_rate_limit; cardstream_card; same_card_attempts; security_validation,P1,Automated,UK,NA,CS_AC_TC_016_add_card_rate_limit_encryption_changes.spec.js
 Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-009,Add Card - Excessive Attempts with Invalid Cards,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1435,7 +1435,7 @@ Prevention benefits:
 -> Stops card testing attacks
 -> Protects merchant
 -> Prevents fraud
--> Early detection working ✓""",add_card_fraud_detection; excessive_attempts; invalid_cards; card_testing; account_suspension; security_validation; fraud_prevention,P1,
+-> Early detection working ✓""",add_card_fraud_detection; excessive_attempts; invalid_cards; card_testing; account_suspension; security_validation; fraud_prevention,P1,Cant be automated,UK,NA,NA
 Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-010,Add Card - Invalid Card Types (Diners/Discover Unsupported),"""- Merchant in UK pointed to Cardstream
 - Only Visa, MC, AMEX, Maestro supported
 - Diners Club and Discover NOT supported""","""- Diners Club: 3056 9309 0259 04
@@ -1448,7 +1448,7 @@ Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-010,Add Card - I
 Error: ""Card type not supported""
 Supported: Visa, MC, AMEX, Maestro only
 BIN detection working
-No card saved ✓""",add_card_validation; unsupported_scheme_name; diners_club; discover_card; negative_test,P1,
+No card saved ✓""",add_card_validation; unsupported_scheme_name; diners_club; discover_card; negative_test,P1,Automated,UK,NA,CS_AC_TC_007_add_card_not_supported_diner_amex_card.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-009,Add Card - HTTP Downgrade Attempt (Security),"""- HTTPS enforcement configured
 - HTTP downgrade protection""","""- Attempt HTTP instead of HTTPS
 - URL: http:// instead of https://""","""1. Attempt Add Card over HTTP
@@ -1456,7 +1456,7 @@ Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-009,Add Card - HTTP D
 3. Check redirect or block""","""1. HTTP BLOCKED or REDIRECTED
 HTTPS required for card data
 PCI DSS compliance ✓
-Security maintained ✓""",add_card_security; http_downgrade; https_enforcement; ssl_required,P1,
+Security maintained ✓""",add_card_security; http_downgrade; https_enforcement; ssl_required,P1,Pending,UK,NA,NA
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-010,Add Card - Duplicate Card Detection,"""- Duplicate detection configured
 - BIN + Last4 matching""","""- Card: 4532 1100 0000 0001 (ALREADY SAVED)""","""1. Verify card already saved
 2. Attempt to add SAME card
@@ -1464,7 +1464,7 @@ Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-010,Add Card - Duplic
 4. Check no new entry""","""1. Duplicate DETECTED
 Error: ""Card already exists""
 BIN+Last4 match found
-No new entry created ✓""",add_card_duplicate; duplicate_card_detection; bin_last4_match,P1,
+No new entry created ✓""",add_card_duplicate; duplicate_card_detection; bin_last4_match,P1,Pending,UK,NA,NA
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-012,Add Card - Webhook Success Flow,"""- Webhook configured
 - Endpoint active and reachable""","""- Valid card
 - Webhook URL: active""","""1. Add card successfully
@@ -1474,7 +1474,7 @@ Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-012,Add Card - Webhoo
 Event: ""card_added""
 HMAC signature valid
 HTTP 200 from merchant
-Delivery: SUCCESS ✓""",add_card_webhook; webhook_success; webhook_delivery; hmac_signature,P1,
+Delivery: SUCCESS ✓""",add_card_webhook; webhook_success; webhook_delivery; hmac_signature,P1,Automated,UK,NA,CS_AC_TC_001_add_card_with_saved_card_sale.spec.js
 Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-014,Add Card - Webhook Failure Flow,"""- Webhook configured
 - Endpoint UNAVAILABLE""","""- Valid card
 - Webhook endpoint returns HTTP 500/timeout""","""1. Add card successfully
@@ -1483,7 +1483,7 @@ Cardstream Add Card,Add Card - Error Handling,AC-ERROR,AC-ERROR-014,Add Card - W
 4. Check eventual delivery""","""1. Card added BUT webhook fails
 Retry: Exponential backoff
 Card still usable ✓
-Webhook delivery independent of card save""",add_card_webhook; webhook_failure; webhook_retry; error_handling,P1,
+Webhook delivery independent of card save""",add_card_webhook; webhook_failure; webhook_retry; error_handling,P1,Pending,UK,NA,NA
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-013,Add Card - Cardstream dashboard Validation,"""- Cardstream dashboard access
 - Shopper reference tracking""","""- Valid card
 - Cardstream credentials for dashboard""","""1. Add card successfully
@@ -1495,7 +1495,7 @@ Shopper Reference found
 Card Reference Token present
 Card details: •••• 0001, 03/2030
 Status: Active
-All data matches database ✓""",add_card_dashboard; cardstream_dashboard; shopper_reference; dashboard_validation,P1,
+All data matches database ✓""",add_card_dashboard; cardstream_dashboard; shopper_reference; dashboard_validation,P1,Cant be automated,UK,NA,NA
 Cardstream Add Card,Add Card - Multiple Cards,AC-MULTI,AC-MULTI-002,Add Card - Multiple Card Types (Visa/MC/Electron/JCB),"""- Multiple card types supported""","""- Visa: 4532 1100 0000 0001
 - MC: 5404 0000 0000 0001
 - Electron: 4929 4212 3460 0821
@@ -1508,23 +1508,21 @@ Visa: scheme_name=visa ✓
 MC: scheme_name=mastercard ✓
 Electron: scheme_name=visa_electron ✓
 JCB: scheme_name=jcb ✓
-All visible in dashboard""",add_card_multiple_types; visa_card; mastercard; visa_electron; jcb_card,P1,
+All visible in dashboard""",add_card_multiple_types; visa_card; mastercard; visa_electron; jcb_card,P1,Automated,UK,NA,CS_AC_TC_003_add_card_with_different_card_saved_card.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-014,Add Card - Back URL Normal Length,"""- back_url parameter supported""","""- back_url: ~50 chars (normal)""","""1. Add Card with back_url
 2. Click Cancel
 3. Verify redirect to back_url
 4. Check parameters preserved""","""1. back_url validated ✓
 Cancel button works
 Redirects to back_url
-All parameters preserved ✓""",add_card_back_url; back_url_validation; cancel_flow,P2,
+All parameters preserved ✓""",add_card_back_url; back_url_validation; cancel_flow,P2,Automated,UK,NA,CS_AC_TC_004_add_card_with_back_url_validation.spec.js
 Cardstream Add Card,Add Card - Non-3DS,AC-NON3DS,AC-NON3DS-015,Add Card - Back URL Long (>600 chars),"""- Long back_url supported""","""- back_url: >600 characters""","""1. Add Card with long back_url
 2. Click Cancel
 3. Verify full URL preserved
 4. Check no truncation""","""1. Long back_url handled ✓
 No truncation
 All parameters intact
-Redirect successful ✓""",add_card_back_url; long_back_url; url_length,P2,
-Cardstream Add Card,Add Card - Validation,AC-VALIDATION,,Add card - Invalid payload,Validation of Invalid payload,Uk -GBP,"""1. Add card sale
-2. Validate input params in UI",,,P2,
+Redirect successful ✓""",add_card_back_url; long_back_url; url_length,P2,Pending,UK,NA,NA
 Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-001,Add Card - Card Details Encryption - Visa Card Successfully Encrypted,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled for merchant
@@ -1610,7 +1608,7 @@ Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-001,Add Card - Card Deta
 7. Cardstream dashboard:
    - Recurring contract created
    - Shopper reference created
-   - Token stored securely""",add_card_encryption; visa_card; cse_encryption; pci_compliance; security_validation,P0,
+   - Token stored securely""",add_card_encryption; visa_card; cse_encryption; pci_compliance; security_validation,P0,Automated,UK,NA,CS_AC_TC_018_add_card_ecryption_validation_visa_card.spec.js
 Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-002,Add Card - Card Details Encryption - Mastercard Successfully Encrypted,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled for merchant
@@ -1678,7 +1676,7 @@ Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-002,Add Card - Card Deta
 
 5. PCI-DSS Compliance:
    - Sensitive data encrypted ✓
-   - Tokenization complete ✓""",add_card_encryption; mastercard; cse_encryption; pci_compliance,P0,
+   - Tokenization complete ✓""",add_card_encryption; mastercard; cse_encryption; pci_compliance,P0,Automated,UK,NA,CS_AC_TC_015_add_card_ecryption_validation_master_card.spec.js
 Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-003,Add Card - Encryption Key Validation - Correct Key Version Used,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1740,7 +1738,7 @@ Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-003,Add Card - Encryptio
 6. Security:
    - Correct key version ensures decryption
    - Key mismatch would fail
-   - Key rotation supported""",add_card_encryption; key_version; key_rotation; encryption_validation,P1,
+   - Key rotation supported""",add_card_encryption; key_version; key_rotation; encryption_validation,P1,Automated,UK,NA,CS_AC_TC_015_add_card_ecryption_validation_master_card.spec.js
 Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-004,Add Card - No Sensitive Data in Browser Console/Logs,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1818,7 +1816,7 @@ Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-004,Add Card - No Sensit
 7. PCI-DSS Compliance:
    - No sensitive data in client-side logs ✓
    - No data leakage ✓
-   - Encryption before any logging ✓""",add_card_encryption; console_security; no_data_leakage; pci_compliance; browser_security,P0,
+   - Encryption before any logging ✓""",add_card_encryption; console_security; no_data_leakage; pci_compliance; browser_security,P0,Cant be automated,UK,NA,
 Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-005,Add Card - Encryption with Invalid Card Number (Luhn Check Failure),"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1886,7 +1884,7 @@ Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-005,Add Card - Encryptio
 7. Security:
    - Invalid cards rejected early ✓
    - No tokenization of invalid cards ✓
-   - Validation before processing ✓""",add_card_encryption; invalid_card; luhn_validation; negative_test; card_validation,P1,
+   - Validation before processing ✓""",add_card_encryption; invalid_card; luhn_validation; negative_test; card_validation,P1,Automated,UK,NA,CS_AC_TC_017_add_card_with_invalid_card_encryption_changes.spec.js
 Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-006,Add Card - Encryption with Declined Card,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -1954,7 +1952,7 @@ Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-006,Add Card - Encryptio
 
 8. User experience:
    - Clear decline message ✓
-   - Can retry with different card ✓""",add_card_encryption; declined_card; cardstream_decline; negative_test; card_validation,P1,
+   - Can retry with different card ✓""",add_card_encryption; declined_card; cardstream_decline; negative_test; card_validation,P1,Pending,UK,NA,NA
 Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-007,Add Card - Encryption with Expired Card,"""- Merchant in UK (country_id: 1) pointed to Cardstream
 
 - Add card feature enabled
@@ -2017,218 +2015,4 @@ Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-007,Add Card - Encryptio
 
 7. User experience:
    - Clear expiry error ✓
-   - Cannot add expired cards ✓""",add_card_encryption; expired_card; expiry_validation; negative_test; card_validation,P1,
-Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-008,Add Card - Encryption with Invalid CVV,"""- Merchant in UK (country_id: 1) pointed to Cardstream
-
-- Add card feature enabled
-
-- Card encryption enabled
-
-- CVV validation enabled""","""- Refer Git repository
-
-- Email: testing@datman.je
-
-- Country: UK
-
-- Card: Visa 4532 1100 0000 0001
-
-- Invalid CVV scenarios:
-  * CVV: 00 (too short)
-  * CVV: 12345 (too long)
-  * CVV: ABC (non-numeric)
-  * CVV: empty
-
-- Expiry: 03/2030""","""1. Open Add Card page
-
-2. Test Scenario A - CVV too short:
-   - Card: 4532 1100 0000 0001
-   - CVV: 00
-   - Submit and verify rejection
-
-3. Test Scenario B - CVV too long:
-   - CVV: 12345
-   - Submit and verify rejection
-
-4. Test Scenario C - Non-numeric CVV:
-   - CVV: ABC
-   - Submit and verify rejection
-
-5. Test Scenario D - Empty CVV:
-   - CVV: (empty)
-   - Submit and verify rejection
-
-6. Verify all scenarios rejected
-7. Check error messages""","""1. All Invalid CVV scenarios FAIL ✓
-
-Scenario A - CVV too short (00):
-   - Validation: FAILED
-   - Error: ""CVV must be 3-4 digits""
-   - Submission blocked
-
-Scenario B - CVV too long (12345):
-   - Validation: FAILED
-   - Error: ""CVV must be 3-4 digits""
-   - Submission blocked
-
-Scenario C - Non-numeric (ABC):
-   - Validation: FAILED
-   - Error: ""CVV must contain only numbers""
-   - Submission blocked
-
-Scenario D - Empty CVV:
-   - Validation: FAILED
-   - Error: ""CVV is required""
-   - Submission blocked
-
-2. Client-side validation:
-   - CVV format check ✓
-   - Length validation ✓
-   - Numeric validation ✓
-   - Required field check ✓
-
-3. gateway_request_log:
-   - No entries (blocked client-side)
-   - OR invalid CVV logged if server-side
-
-4. master_token table:
-   - NO entries created
-   - Invalid CVV rejected
-
-5. Security:
-   - Invalid CVV not processed ✓
-   - No tokenization attempts ✓""",add_card_encryption; invalid_cvv; cvv_validation; negative_test; multiple_scenarios,P1,
-Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-009,Add Card - Encryption with Stolen/Lost Card,"""- Merchant in UK (country_id: 1) pointed to Cardstream
-
-- Add card feature enabled
-
-- Card encryption enabled
-
-- Cardstream fraud detection enabled
-
-- Stolen card test card configured""","""- Refer Git repository
-
-- Email: testing@datman.je
-
-- Country: UK
-
-- Stolen Card: 4000 0000 0000 0119 (Cardstream test - stolen/fraud card)
-
-- CVV: 356
-
-- Expiry: 03/2030
-
-- Expected: Fraud rejection""","""1. Open Add Card page
-
-2. Enter stolen/lost test card:
-   - Card: 4000 0000 0000 0119
-   - CVV: 356
-   - Expiry: 03/2030
-
-3. Submit card details
-
-4. Verify card is encrypted
-
-5. Verify Cardstream fraud detection rejects card
-
-6. Check fraud rejection message
-
-7. Verify no token created
-
-8. Check gateway_request_log for fraud flag""","""1. Add Card FAILS - Fraud Detection ✓
-
-2. Encryption:
-   - Card encrypted successfully
-   - Sent to Cardstream encrypted
-
-3. Cardstream response:
-   - resultCode: Refused
-   - refusalReason: FRAUD / Stolen Card
-   - Fraud detection triggered
-
-4. Error displayed:
-   - ""Card cannot be added""
-   - ""Please contact your card issuer""
-   - Generic message (security)
-
-5. gateway_request_log:
-   - Encrypted request sent
-   - Fraud rejection response
-   - Security flag: FRAUD
-
-6. master_token table:
-   - NO entry created
-   - Fraud cards not tokenized
-
-7. Security measures:
-   - Fraud detection working ✓
-   - Stolen cards blocked ✓
-   - No tokens for flagged cards ✓
-
-8. Cardstream dashboard:
-   - Fraud rejection visible
-   - Risk analysis logged""",add_card_encryption; stolen_card; fraud_detection; negative_test; security_validation,P0,
-Cardstream Add Card,Add Card - Encryption,AC-ENC,AC-ENC-012,Add Card - Encryption with AMEX Card (4-digit CVV),"- Merchant in UK (country_id: 1) pointed to Cardstream
-
-- Add card feature enabled
-
-- Card encryption enabled
-
-- AMEX cards accepted
-
-- AMEX 4-digit CVV validation","- Refer Git repository
-
-- Email: testing@datman.je
-
-- Country: UK
-
-- Card: AMEX 3782 8224 6310 005
-
-- CVV: 7373 (4 digits for AMEX)
-
-- Expiry: 03/2030
-
-- Note: AMEX uses 4-digit CVV (CID)","1. Open Add Card page
-
-2. Enter AMEX card details:
-   - Card: 3782 8224 6310 005
-   - CVV: 7373 (4-digit CID)
-   - Expiry: 03/2030
-
-3. Verify CVV field accepts 4 digits for AMEX
-
-4. Submit card details
-
-5. Verify card is encrypted (including 4-digit CVV)
-
-6. Verify card added successfully
-
-7. Check master_token for AMEX entry","1. Add Card successful ✓ (AMEX)
-
-2. CVV validation:
-   - AMEX detected (starts with 34/37)
-   - 4-digit CVV accepted ✓
-   - CVV field allows 4 digits
-
-3. Network payload:
-   - Card number encrypted
-   - 4-digit CVV encrypted
-   - encryptedSecurityCode: encrypted string
-
-4. gateway_request_log:
-   - AMEX card encrypted
-   - No plaintext data
-   - Card masked: ****0002
-
-5. master_token table:
-   - Token created
-   - last_4_digit: 0002
-   - scheme_name: amex
-   - Full PAN NOT stored
-
-6. Cardstream dashboard:
-   - AMEX recurring contract created
-   - Card type: American Express
-
-7. AMEX-specific:
-   - 4-digit CVV handled ✓
-   - Different card format supported ✓",add_card_encryption; amex_card; 4_digit_cvv; card_type_validation; pci_compliance,P1,
+   - Cannot add expired cards ✓""",add_card_encryption; expired_card; expiry_validation; negative_test; card_validation,P1,Pending,UK,NA,NA

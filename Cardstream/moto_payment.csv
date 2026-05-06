@@ -388,7 +388,7 @@ Cardstream Moto Payments,MOTO - SSM Configuration Validation,CS-PHONE,CS-PHONE-0
 sanity;
 cs_mid_validation;
 negative_test;
-ssm_config;""",P1,Can’t be automated,UK,NA,NA
+ssm_config;""",P1,Cant be automated,UK,NA,NA
 Cardstream Moto Payments,MOTO - SSM Configuration Validation,CS-PHONE,CS-PHONE-008,CARDSTREAM - MOTO sale - motoCsMid not configured in SSM - cs_mid from customers table,"""- Merchant configured with Cashflow MID
 
 - MOTO payment enabled
@@ -449,7 +449,7 @@ Cardstream Moto Payments,MOTO - SSM Configuration Validation,CS-PHONE,CS-PHONE-0
    - Uses cardstream_id from customers table""","""Automated;
 sanity;
 cs_mid_validation;
-ssm_config;""",P1,Can’t be automated,UK,NA,NA
+ssm_config;""",P1,Cant be automated,UK,NA,NA
 Cardstream Moto Payments,Phone Payment - Split Commission,CS-PHONE,PS-CS-PP-001,Phone Payment - Global Split Type Sale Succeeds,"- Merchant pointed to Cardstream
 - Global split type exists (ex: type_id=3 'Delivery Fee Restaurant')
 - Sale payload includes global split_fee","split_fee: [{type_id: ex 3, value_type: 'amount', value: 2.50}]

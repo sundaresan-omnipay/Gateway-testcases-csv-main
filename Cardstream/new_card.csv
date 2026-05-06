@@ -1,4 +1,4 @@
-Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status,Countries applicable,Partners applicable,Automation mapped TC
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T300,Cardstream Cscall back - cs_card_sale_callback_traffic_rate = 1 - Validation through toggle - (Sales through %),,"Toggle: cs_card_sale_callback_traffic_rate values to test: 0.5, 0.1, 1, 0
 Payload field: callbackURL (optional field in payload)
 Card: Cardstream test Visa, valid expiry, valid CVV
@@ -44,7 +44,7 @@ DB Validation — payments table (1 entry — New Card Non-3DS Sale):
    - cs_mid : Cardstream MID used for processing (e.g. 122468)
    - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
    - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 1 (Non-3DS)","new_card_sale, callback_validation",P1,Not Automated
+   - transaction_mode_id : 1 (Non-3DS)","new_card_sale, callback_validation",P1,Pending,UK,NA,NA
 Cardstream New Card,New Card - Token Creation,NC-CS,AP-T321,CARDSTREAM - Tokenisation - verify the master token using same customer-id with same card,,"Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Shopper: valid customer_id with no existing token
 Merchant: Cardstream-pointed merchant
@@ -170,7 +170,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_tokenization,P1,Not Automated
+   - delete_status : 0 (active)",new_card_tokenization,P1,Pending,UK,NA,NA
 Cardstream New Card,New Card - Token Creation,NC-CS,AP-T322,CARDSTREAM - Tokenisation - Verifying the token with same customer-id using different card,,"4929 4212 3460 0821
 4543 0599 9999 9982
 4543 0599 9999 9990","1. Datman config >>wallet id rate >>0
@@ -237,176 +237,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_tokenization,P1,Not Automated
-Cardstream New Card,New Card - Token Creation,NC-CS,AP-T323,CARDSTREAM - Tokenisation - Verifying the tokens based on the toggle other than 0 & 1,,"Toggle: wallet_id_toggle_rate set to empty / invalid / null
-Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
-Shopper: valid customer_id
-Merchant: Cardstream-pointed merchant
-api_key: refer to QA team for Stage key","1. Empty
-
-Navigate to datman config table and try to update the value as empty
-2. New card sale
-
-By using Cardstream SDK / API try to initiate the sale with valid card details
-
-
-
-DB
-Navigate to DB and verify the entries
-a) payments
-b) Payments-split-commission
-c) Master-token
-d) Webhook-log
-
-
-
-
-Dashboard
-Navigate to Cardstream dashboard and verify the entry
-3. Saved card sale
-
-By using Cardstream SDK / API try to initiate the sale with valid card details
-
-
-
-DB
-Navigate to DB and verify the entries
-a) payments
-b) Payments-split-commission
-c) Master-token
-d) Webhook-log
-
-
-
-
-Dashboard
-Navigate to Cardstream dashboard and verify the entry
-4. Express-pay  sale
-
-By using Cardstream SDK / API try to initiate the sale with valid card details
-
-
-
-DB
-Navigate to DB and verify the entries
-a) payments
-b) Payments-split-commission
-c) Master-token
-d) Webhook-log
-
-
-
-
-Dashboard
-Navigate to Cardstream dashboard and verify the entry
-5. Express-pay  3DS sale
-
-By using Cardstream SDK / API try to initiate the sale with valid card details
-
-
-
-DB
-Navigate to DB and verify the entries
-a) payments
-b) Payments-split-commission
-c) Master-token
-d) Webhook-log
-
-
-
-
-Dashboard
-Navigate to Cardstream dashboard and verify the entry
-6. Wallet recharge
-
-By using Cardstream SDK / API try to initiate the sale with valid card details
-
-
-
-DB
-Navigate to DB and verify the entries
-a) payments
-b) Payments-split-commission
-c) Master-token
-d) Webhook-log
-
-
-
-
-Dashboard
-Navigate to Cardstream dashboard and verify the entry
-7. WAR
-
-By using Cardstream SDK / API try to initiate the sale with valid card details
-
-
-
-DB
-Navigate to DB and verify the entries
-a) payments
-b) Payments-split-commission
-c) Master-token
-d) Webhook-log
-
-
-
-
-Dashboard
-Navigate to Cardstream dashboard and verify the entry","1. User should able to see the toggle is empty.
-2. User
-3. User should able to see the sale is being processed successfully.
-
-
-
-
-
-
-User should able to see the entries as
-a) Status should be OK,  origin should be WebForm-CS-3D-V2, Method should 
-be card on file, Provider cardstream
-
-
-
-
-User should able to see the entries are displayed successfully as per the 
-sale initiated.
-4. User should able to see the sale is being processed successfully.
-
-
-
-
-
-
-User should able to see the entries as
-a) Status should be OK,  origin should be WebForm-CS-3D-V2, Method should 
-be account on file , Provider cardstream
-
-
-
-
-User should able to see the entries are displayed successfully as per the 
-sale initiated.
-5. User should able to see the sale is being processed successfully.
-
-
-
-
-
-
-User should able to see the entries as
-a) Status should be OK,  origin should be WebForm-CS-3D-V2, Method should 
-be API, Provider cardstream
-
-
-
-
-User should able to see the entries are displayed successfully as per the 
-sale initiated.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","new_card_tokenization, negative_testing",P1,Not Automated
+   - delete_status : 0 (active)",new_card_tokenization,P1,Pending,UK,NA,NA
 Cardstream New Card,New Card - Token Creation,NC-CS,AP-T324,CARDSTREAM - Tokenisation - Verifying the tokens based on the toggle 0 & 1,,"Toggle A: wallet_id_toggle_rate = 0
 Toggle B: wallet_id_toggle_rate = 1
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -957,7 +788,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_tokenization,P1,Automated
+   - delete_status : 0 (active)",new_card_tokenization,P1,Automated,UK,NA,CS_NC_TC_047_php_sale_cs_tokenisation.spec.js
 Cardstream New Card,New Card - Error Handling,NC-CS,AP-T325,CARDSTREAM - Tokenisation - Invalid card details,,"Scenario A — Invalid card number: 4929421234600839 (fails Luhn check)
 Scenario B — Expired card: valid number, expiry=01/2020
 Scenario C — Invalid CVV: valid number, expiry=03/2030, cvc=000
@@ -988,7 +819,7 @@ c) webhook should not be triggered
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","new_card_tokenization, negative_testing",P1,Automated
+-> API returns an error response without persisting any record","new_card_tokenization, negative_testing",P1,Automated,UK,NA,
 Cardstream New Card,New Card - Cross browser & Cross Device,NC-CS,AP-T326,CARDSTREAM - Tokenisation - Simultaneously processing the sale in cross browsers or tabs,,4929 4212 3460 0821,"1. same card
 
 By using the Cardstream SDK / API try to initiate the sale in multiple tabs or cross 
@@ -1059,7 +890,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_tokenization, cross_browser",P1,Cant be automated
+   - delete_status : 0 (active)","new_card_tokenization, cross_browser",P1,Cant be automated,UK,NA,NA
 Cardstream New Card,New Card - Error Handling,NC-CS,AP-T327,CARDSTREAM - Tokenisation - Invalid payload (customer-id),,"(*&^%$#%^&*
 IUYTRDFVBN(*&^%$#%^&*987654356
 -*(&^%$^&*(09876546789","1. Empty customer-id
@@ -1101,7 +932,7 @@ no token should be generated.
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","new_card_tokenization, negative_testing",P1,Automated
+-> API returns an error response without persisting any record","new_card_tokenization, negative_testing",P1,Automated,UK,NA,CS_NC_TC_088_php_sale_empty_customer_id_values.spec.js
 Cardstream New Card,New Card - Token Creation,NC-CS,AP-T328,CARDSTREAM - Tokenisation - Deleting the tokens of wallet-id and re-initiating the sale & verifying the tokens,,"Shopper: customer_id with existing wallet-id token
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant
@@ -1233,7 +1064,7 @@ DB Validation — payments table (1 entry — New Card 3DS Sale):
    - cs_mid : Cardstream MID used for processing (e.g. 122468)
    - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
    - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)",new_card_tokenization,P1,Cant be automated
+   - transaction_mode_id : 2 (3DS authenticated)",new_card_tokenization,P1,Cant be automated,UK,NA,NA
 Cardstream New Card,New Card - Token Creation,NC-CS,AP-T338,CARDSTREAM - Verifying the sales using wallet-id token & X-ref token,,"Token type A: wallet-id token (wallet_id_toggle_rate = 1)
 Token type B: X-ref token (wallet_id_toggle_rate = 0)
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -1326,7 +1157,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_tokenization,P1,Automated
+   - delete_status : 0 (active)",new_card_tokenization,P1,Automated,UK,NA,CS_NC_TC_041_php_sale_master_token_validation.spec.js
 Cardstream New Card,New Card - Token Creation,NC-CS,AP-T340,CARDSTREAM - Tokenisation - Verifying the sales based on token type,,"Scenario A: X-ref token (wallet_id_toggle_rate = 0)
 Scenario B: wallet-id token (wallet_id_toggle_rate = 1)
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -1372,7 +1203,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_tokenization,P1,Automated
+   - delete_status : 0 (active)",new_card_tokenization,P1,Automated,UK,NA,CS_NC_TC_047_php_sale_cs_tokenisation.spec.js
 Cardstream New Card,New Card - Token Creation,NC-CS,AP-T341,CARDSTREAM - Tokenisation - Verifying the sales based on the call back traffic rate,,0.5,"1. Datman config table >> cs_express_checkout_callback_rate
 2. when wallet-id toggle rate is 0
 
@@ -1413,7 +1244,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_tokenization, callback_validation",P1,Automated
+   - delete_status : 0 (active)","new_card_tokenization, callback_validation",P1,Automated,UK,NA,CS_NC_TC_055_php_3ds_sale_callback.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T358,CS Phase 2 - End to End sale,,"Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Shopper: valid customer_id
 Merchant: Cardstream-pointed merchant
@@ -1515,7 +1346,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_3ds,P1,Automated
+   - delete_status : 0 (active)",new_card_3ds,P1,Automated,UK,NA,CS_NC_TC_035_php_3ds_sale_smoke_sanity.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T361,CS-phase 2 - verify the wallet-id toggle rate (Traffic rate),,"Toggle: wallet_id_toggle_rate values to test: 0 (X-ref), 1 (wallet-id)
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant
@@ -1562,7 +1393,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_tokenization,P1,Automated
+   - delete_status : 0 (active)",new_card_tokenization,P1,Automated,UK,NA,CS_NC_TC_040_frontend_sale_master_token_creation_sanity.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T366,Carstream Cscall back - cs_card_sale_callback_traffic_rate = 1 - Validation in logs,,"Toggle: cs_card_sale_callback_traffic_rate = 1
 Payload: callbackURL set in payload
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -1605,61 +1436,7 @@ DB Validation — payments table (1 entry — New Card Non-3DS Sale):
    - cs_mid : Cardstream MID used for processing (e.g. 122468)
    - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
    - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 1 (Non-3DS)","new_card_sale, callback_validation",P1,Cant be automated
-Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T367,Carstream Cscall back - cs_card_sale_callback_traffic_rate without call back URL in the payload,,"Toggle: cs_card_sale_callback_traffic_rate = 1
-Payload: callbackURL field OMITTED from payload
-Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
-Merchant: Cardstream-pointed merchant
-api_key: refer to QA team for Stage key","1. Navigate to DB, datman_global_config and toggle the 
-cs_card_sale_callback_traffic_rate = 1
-2. From the Cardstream SDK / API, do not add the callback_url in the payload
-3. Process a New card sale with the script with the right credentials and 
-authorise the sale
-4. Validate the below tables and logs
-1) Cardstream_meta_data_log table
-2) CsCallbackQueueFifoUrl-v3 - lamda
-3) CsCallbackQueueFifo
-5. Process a Saved card sale with the script with the right credentials and 
-authorise the sale
-6. Validate the below tables and logs
-1) Cardstream_meta_data_log table
-2) CsCallbackQueueFifoUrl-v3 - lamda
-3) CsCallbackQueueFifo","1. User should be able to do the toggle as 1
-2. User should be able to set the payload without the callback_url in the 
-payload
-3. User should see the sale is happening without any issue
-4. User should not see any data in
-Cardstream_meta_data_log table & CsCallbackQueueFifoUrl-v3 - lamda
-And should be seeing only https response in the CsCallbackQueueFifo as 
-there is no callback URL passed
-5. User should see the sale is happening without any issue
-6. User should not see any data in
-Cardstream_meta_data_log table & CsCallbackQueueFifoUrl-v3 - lamda
-And should be seeing only https response in the CsCallbackQueueFifo as 
-there is no callback URL passed
-
-DB Validation — payments table (1 entry — New Card Non-3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token is created after the sale, not before)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 1 (Non-3DS)","new_card_sale, callback_validation, negative_testing",P1,Not Automated
+   - transaction_mode_id : 1 (Non-3DS)","new_card_sale, callback_validation",P1,Cant be automated,UK,NA,NA
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T369,Carstream Cscall back - cs_card_sale_callback_traffic_rate = 0,,"Toggle: cs_card_sale_callback_traffic_rate = 0
 Payload: callbackURL set in payload
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -1715,7 +1492,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_sale, callback_validation",P1,Automated
+   - delete_status : 0 (active)","new_card_sale, callback_validation",P1,Automated,UK,NA,
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T370,Carstream Cscall back - cs_card_sale_callback_traffic_rate = 1,,"Toggle: cs_card_sale_callback_traffic_rate = 1
 Payload: callbackURL set in payload
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -1772,7 +1549,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_sale, callback_validation",P1,Automated
+   - delete_status : 0 (active)","new_card_sale, callback_validation",P1,Automated,UK,NA,CS_NC_TC_055_php_3ds_sale_callback.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1224,CARDSTREAM - Card-holder name validations on new card payment page,,"CARDNUMBER
 EXPIRY
 CVV
@@ -1837,7 +1614,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_sale, validation_rules",P1,Automated
+   - delete_status : 0 (active)","new_card_sale, validation_rules",P1,Automated,UK,NA,CS_NC_TC_060_php_3ds_sale_card_holder_name.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1286,CS_NC_TC_001_backend_sale_3ds - New Card,,"Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Shopper: valid customer_id
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -1891,7 +1668,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_3ds,P0,Automated
+   - delete_status : 0 (active)",new_card_3ds,P0,Automated,UK,NA,CS_NC_TC_001_decrypt.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1340,CARDSTREAM - New card- Validation of OMT reference in metadata,,<https://eu-west-2.console.aws.amazon.com/cloudwatch/home?region=eu-west-2#logsV2:log-groups/log-group/$252Faws$252Flambda$252Fdatman-earth-e-ws3-createSale_v1>,"1. Using the payload for New Card try
 
 1. Open the link Pluto
@@ -1947,7 +1724,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_sale,P0,Automated
+   - delete_status : 0 (active)",new_card_sale,P0,Automated,UK,NA,
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1372,CS_NC_TC_003_backend_sale_postcode_empty.spec.js,,"Payload: postcode field omitted or left empty
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -1965,7 +1742,7 @@ message"":""""postcode"" is not allowed to be empty""}}}
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","new_card_sale, negative_testing",P0,Automated
+-> API returns an error response without persisting any record","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_003_frontend_sale_3ds_invalid_postcode.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1373,CS_NC_TC_004_backend_sale_for_payment_already_done.spec.js,,"Attempt 1: Valid payload — new card 3DS sale (process successfully)
 Attempt 2: Reuse same order_id from Attempt 1
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -2021,7 +1798,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_sale, negative_testing",P0,Automated
+   - delete_status : 0 (active)","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_004_php_sale_cancel_button.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1374,CS_NC_TC_005_backend_sale_using_invalid_payload_non3ds.spec.js,,"Payload: invalid payload for non-3DS sale (missing or malformed mandatory fields)
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -2063,7 +1840,7 @@ message ""order_id"" must be a number
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","new_card_sale, negative_testing",P0,Automated
+-> API returns an error response without persisting any record","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_005_frontend_sale_3ds.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1375,CS_NC_TC_006_backend_sale_failed_payment.spec.js,,"Payload: valid payload for a sale that will be declined by Cardstream gateway
 Card: Cardstream test card configured to trigger decline
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -2094,7 +1871,7 @@ DB Validation — payments table (1 entry — Declined/Failed Sale):
    - TxAuthNo : NULL
    - master_token_id : NULL
    - cs_mid : Cardstream MID attempted
-   - delete_status : 0, withdrawn_status : 0","new_card_sale, negative_testing",P0,Automated
+   - delete_status : 0, withdrawn_status : 0","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_006_frontend_sale_ireland_refund_to_card.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1379,CS_NC_TC_007_backend_sale_billing_address_mismatch.spec.js,,"Payload: valid payload with billing address values that mismatch the card's registered address
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -2133,7 +1910,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_sale, negative_testing",P0,Automated
+   - delete_status : 0 (active)","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_007_frontend_sale_new_card_through_saved_card.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1380,CS_NC_TC_008_backend_sale_billingaddress_empty.spec.js,,"Payload: billing address fields left empty / omitted
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -2147,7 +1924,7 @@ message ""address"" is not allowed to be empty should be displayed
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","new_card_sale, negative_testing",P0,Automated
+-> API returns an error response without persisting any record","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_008_frontend_sale_non3ds_same_as_delivery_address.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1381,CS_NC_TC_009_backend_sale_postcode_mismatch.spec.js,,"Payload: postcode in AVS / billing address does not match the card's registered postcode
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -2173,7 +1950,7 @@ DB Validation — payments table (1 entry — Declined/Failed Sale):
    - TxAuthNo : NULL
    - master_token_id : NULL
    - cs_mid : Cardstream MID attempted
-   - delete_status : 0, withdrawn_status : 0","new_card_sale, negative_testing",P0,Automated
+   - delete_status : 0, withdrawn_status : 0","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_009 (spec not in folder)
 Cardstream New Card,New Card - 3DS Flow,NC-CS,AP-T1382,CS_NC_TC_011_backend_sale_invalid_payload_3ds.spec.js,,"Payload: invalid payload for 3DS sale (missing or malformed mandatory fields)
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
@@ -2215,7 +1992,7 @@ message ""order_id"" must be a number
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","new_card_3ds, negative_testing",P0,Automated
+-> API returns an error response without persisting any record","new_card_3ds, negative_testing",P0,Automated,UK,NA,CS_NC_TC_011_frontend_sale_long_redirect_url.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1383,CS_NC_TC_010_backend_sale_order_limit.spec.js,,"Attempt 1: Valid new card sale within order amount limit
 Attempt 2: Same card / customer — amount exceeding configured order limit
 Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -2276,7 +2053,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_sale, negative_testing",P0,Automated
+   - delete_status : 0 (active)","new_card_sale, negative_testing",P0,Automated,UK,NA,CS_NC_TC_010_frontend_sale_long_cancel_url.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1384,CS_NC_TC_012_decrypt.spec.js,,"Payload: encrypted card data from a prior new card transaction
 Merchant: Cardstream-pointed merchant
 Action: decrypt the card data and verify field values
@@ -2303,7 +2080,7 @@ DB Validation — payments table (1 entry — New Card 3DS Sale):
    - cs_mid : Cardstream MID used for processing (e.g. 122468)
    - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
    - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)",new_card_sale,P1,Automated
+   - transaction_mode_id : 2 (3DS authenticated)",new_card_sale,P1,Automated,UK,NA,CS_NC_TC_012_frontend_sale_unauthenticated.spec.js
 Cardstream New Card,New Card - 3DS Flow,NC-CS,AP-T1385,CS_NC_TC_013_backend_sale_3ds_redirect.spec.js,,"Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
 Flow: 3DS backend sale with redirect
@@ -2356,7 +2133,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_3ds,P0,Automated
+   - delete_status : 0 (active)",new_card_3ds,P0,Automated,UK,NA,CS_NC_TC_013_frontend_sale_billing_address_mismatch.spec.js
 Cardstream New Card,New Card - 3DS Flow,NC-CS,AP-T1386,CS_NC_TC_014_backend_sale_multi_redirect_3ds.spec.js,,"Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant (test mid: 1235000)
 Flow: 3DS backend sale with multiple redirects
@@ -2412,7 +2189,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_3ds,P0,Automated
+   - delete_status : 0 (active)",new_card_3ds,P0,Automated,UK,NA,CS_NC_TC_014_frontend_sale_postcode_mismatch.spec.js
 Cardstream New Card,New Card - 3DS Flow,NC-CS,AP-T1387,CS_NC_TC_015_frontend_sale_3ds_ireland.spec.js,,"test mid. : 1235010
 select id,payment_status,origin,more_info,method from payments order by 
 time desc limit 10;","1. Open the link Pluto
@@ -2472,7 +2249,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_3ds,P0,Automated
+   - delete_status : 0 (active)",new_card_3ds,P0,Automated,UK,NA,CS_NC_TC_015_frontend_sale_non3ds_invalid address_postcode.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1388,CS_NC_TC_018_frontend_sale_non3ds.spec.js,,"test mid. : 1235001
 select id,payment_status,origin,more_info,method from payments order by 
 time desc limit 10;","1. Open the link Pluto
@@ -2526,7 +2303,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_sale,P0,Automated
+   - delete_status : 0 (active)",new_card_sale,P0,Automated,UK,NA,CS_NC_TC_018_frontend_sale_master_token_validation.spec.js
 Cardstream New Card,New Card - 3DS Flow,NC-CS,AP-T1389,CS_NC_TC_019_frontend_sale_3ds.spec.js,,"test mid. : 1234669
 select id,payment_status,origin,more_info,method from payments order by 
 time desc limit 10;","1. Open the link Pluto
@@ -2582,7 +2359,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_3ds,P0,Automated
+   - delete_status : 0 (active)",new_card_3ds,P0,Automated,UK,NA,CS_NC_TC_019_frontend_sale_with_not_supported_cards.spec.js
 Cardstream New Card,New Card - 3DS Flow,NC-CS,AP-T1390,CS_NC_TC_016_frontend_sale_3ds_invalid_postcode.spec.js,,"test mid. : 1234669
 select id,payment_status,origin,more_info,method from payments order by 
 time desc limit 10;","1. Open the link Pluto
@@ -2630,7 +2407,7 @@ DB Validation — payments table (1 entry — New Card 3DS Sale):
    - cs_mid : Cardstream MID used for processing (e.g. 122468)
    - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
    - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)","new_card_3ds, negative_testing",P0,Automated
+   - transaction_mode_id : 2 (3DS authenticated)","new_card_3ds, negative_testing",P0,Automated,UK,NA,CS_NC_TC_016_frontend_sale_with_same_order_id.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1391,CS_NC_TC_017_frontend_sale_cancel.spec.js,,"test mid. : 63155140
 select id,payment_status,origin,more_info,method from payments order by 
 time desc limit 10;","1. Open the link Pluto
@@ -2648,7 +2425,7 @@ sale
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record",new_card_sale,P0,Automated
+-> API returns an error response without persisting any record",new_card_sale,P0,Automated,UK,NA,CS_NC_TC_017_frontend_sale_master_token_creation.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1394,CS_NC_TC_001_backend_sale_3ds.spec.js CS_NC_TC_003_backend_sale_postcode_empty.spec.js CS_NC_TC_004_backend_sale_for_payment_already_done.spec.js CS_NC_TC_005_backend_sale_using_invalid_payload_non3ds.spec.js CS_NC_TC_006_backend_sale_failed_payment.spec,,"Card: Cardstream test Visa 4929421234600821, expiry=03/2030, cvc=737
 Merchant: Cardstream-pointed merchant
 Scope: combined regression run covering TC001, TC003, TC004, TC005, TC006, TC007, TC008, TC009, TC010, TC011, TC013
@@ -2689,7 +2466,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",new_card_3ds,P0,Automated
+   - delete_status : 0 (active)",new_card_3ds,P0,Automated,UK,NA,CS_NC_TC_001_decrypt.spec.js
 Cardstream New Card,New Card - Standard Sale,NC-CS,AP-T1823,Cardstream - Ireland : New card - Verify billing descriptor,,"curl --location 
 'https://payments.mypay.co.uk/rest/transactions?w=(xref%3D%2724111307ZG10YM03WT10TDD%27)' 
 \
@@ -2775,7 +2552,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","new_card_sale, billing_descriptor",P1,Not Automated
+   - delete_status : 0 (active)","new_card_sale, billing_descriptor",P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-CS,NC-CS-001,Create Session & Missing Mandatory Fields,"- API endpoint is accessible
 - Valid merchant credentials are available
 - Test environment is configured and active","Payload: merchant_id and order_id fields removed
@@ -2790,7 +2567,7 @@ amount=20.00, currency=GBP, email=test@example.com","1. Build a checkout payload
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record",session_validation,P1,Not Automated
+-> API returns an error response without persisting any record",session_validation,P1,Automated,UK,NA,CS_NC_TC_117_datman_sdk_payload_missing_required.spec.js
 Cardstream New Card,Datman SDK,NC-CS,NC-CS-002,Create Session & Invalid Amount Format,"- API endpoint is accessible
 - Amount validation rules are active","Payload: amount=""ABCDEF"" (non-numeric string), merchant_id=63155480, order_id=TEST-ORDER-001, currency=GBP","1. Build a checkout payload with amount set to the alphabetic string ""ABCDEF"".
 2. Send a POST request to the Create Session API endpoint.
@@ -2803,86 +2580,7 @@ Cardstream New Card,Datman SDK,NC-CS,NC-CS-002,Create Session & Invalid Amount F
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record",session_validation,P1,Not Automated
-Cardstream New Card,Datman SDK,NC-CS,NC-CS-003,Create Session & Negative Amount,"- API endpoint is accessible
-- Amount validation rules are active","Payload: amount=-10.00, currency=GBP, merchant_id=63155480, order_id=TEST-ORDER-002","1. Build a checkout payload with amount set to -10.00.
-2. Send a POST request to the Create Session API endpoint.
-3. Note the HTTP status code returned.
-4. Read the response body for the error message.","1. API returns HTTP 400 Bad Request.
-2. Response body states: ""Amount must be a positive value"".
-3. No session or payment entry is created in the database.
-4. No request is forwarded to the payment gateway.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record",session_validation,P1,Not Automated
-Cardstream New Card,Datman SDK,NC-CS,NC-CS-004,Create Session & Invalid Email Format,"- API endpoint is accessible
-- Email format validation is active","Payload: email=""not-an-email"", merchant_id=63155480, order_id=TEST-ORDER-003, amount=15.00, currency=GBP","1. Build a checkout payload with the email field set to ""not-an-email"".
-2. Send a POST request to the Create Session API endpoint.
-3. Note the HTTP status code returned.
-4. Read the response body for the error message.","1. API returns HTTP 400 Bad Request.
-2. Response body states: ""Invalid email format"".
-3. No session record is created in the database.
-4. No request is forwarded to the payment gateway.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record",session_validation,P2,Not Automated
-Cardstream New Card,Datman SDK,NC-CS,NC-CS-005,Create Session & Invalid SplitFee Configuration,"- API endpoint is accessible
-- SplitFee feature is enabled for the merchant
-- Split configuration validation rules are active","Payload: split_fee=[{partner_merchant_id: ""INVALID"", type_id: ""99"", value: ""-5.00""}], amount=20.00, currency=GBP, merchant_id=63155480","1. Build a checkout payload with an invalid split_fee block (unrecognised type_id and negative value).
-2. Send a POST request to the Create Session API endpoint.
-3. Note the HTTP status code returned.
-4. Read the response body for validation error details.","1. API returns HTTP 400 Bad Request.
-2. Response body states: ""Invalid split fee configuration"" and lists the specific invalid fields.
-3. No session, payment, or split_commission entry is created in the database.
-4. No request is forwarded to the payment gateway.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","session_validation, split_payment",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-GS,NC-GS-001,Get Session & Valid Session Retrieval,"- A valid, unexpired session has been created via the Create Session API
-- The session_id is known and available","Method: GET /session/{session_id}
-Session ID: valid_session_id obtained from Create Session flow
-amount=20.00, currency=GBP","1. Use the session_id returned from a prior successful Create Session call.
-2. Send a GET request to /session/{session_id}.
-3. Note the HTTP status code returned.
-4. Compare every field in the response body against the original Create Session payload.","1. API returns HTTP 200 OK.
-2. Response body contains all session fields: merchant_id, order_id, amount, currency, and status.
-3. Session status is ""active"".
-4. All field values exactly match the original Create Session payload.
-
-DB Validation — payments table:
--> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.",session_retrieval,P1,Not Automated
-Cardstream New Card,Datman SDK,NC-GS,NC-GS-002,Get Session & Invalid Session ID,"- API endpoint is accessible
-- The session_id used does not exist in the system","Method: GET /session/{session_id}
-Session ID: ""invalid_session_xyz123"" (non-existent)","1. Send a GET request to /session/invalid_session_xyz123.
-2. Note the HTTP status code returned.
-3. Read the response body for the error message.","1. API returns HTTP 404 Not Found.
-2. Response body states: ""Session not found"" or ""Invalid session ID"".
-3. No session data is returned in the response.
-4. No internal error details or stack trace are exposed.
-
-DB Validation — payments table:
--> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.",session_retrieval,P1,Not Automated
-Cardstream New Card,Datman SDK,NC-GS,NC-GS-003,Get Session & Expired Session,"- A session has been created and its TTL has passed (typically 15&30 min)
-- The expired session_id is known","Method: GET /session/{session_id}
-Session ID: expired_session_id (TTL exceeded)","1. Create a session and wait for it to expire, or use a known expired session_id.
-2. Send a GET request to /session/{expired_session_id}.
-3. Note the HTTP status code returned.
-4. Read the response body for the error message.","1. API returns HTTP 410 Gone or HTTP 400 Bad Request.
-2. Response body states: ""Session has expired"".
-3. No payment form is accessible for this session.
-4. Audit log records the access attempt against the expired session.
-
-DB Validation — payments table:
--> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.",session_expiry,P1,Not Automated
+-> API returns an error response without persisting any record",session_validation,P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-SALE,NC-SALE-016,Sale Handler & Successful New Card Payment,"- MID is pointed to Cardstream
 - Valid Cardstream test card credentials are available
 - Sale handler endpoint is active","Card: Visa 4929421234600821, expiry=03/2030, cvc=737
@@ -2925,7 +2623,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)",sale_handler,P1,Not Automated
+   - delete_status : 0 (active)",sale_handler,P1,Automated,UK,NA,CS_NC_TC_114_datman_sdk_create_session_validation.spec.js
 Cardstream New Card,Datman SDK,NC-SALE,NC-SALE-017,Sale Handler & Invalid Card Number Declined,"- Sale handler endpoint is active
 - Card number (Luhn) validation is enabled","Card: 4929421234600839 (fails Luhn check), expiry=03/2030, cvc=737
 amount=20.00, currency=GBP","1. Submit a payment with a card number that fails the Luhn check (4929421234600839).
@@ -2951,7 +2649,7 @@ DB Validation — payments table (1 entry — Declined/Failed Sale):
    - TxAuthNo : NULL
    - master_token_id : NULL
    - cs_mid : Cardstream MID attempted
-   - delete_status : 0, withdrawn_status : 0","sale_handler, validation_rules",P1,Automated
+   - delete_status : 0, withdrawn_status : 0","sale_handler, validation_rules",P1,Automated,UK,NA,CS_NC_TC_115_datman_sdk_sale_handler_card_outcomes.spec.js
 Cardstream New Card,Datman SDK,NC-SALE,NC-SALE-018,Sale Handler & Expired Card Declined,"- Sale handler endpoint is active
 - Card expiry validation is enabled","Card: Visa 4929421234600821, expiry=01/2020 (past date), cvc=737
 amount=20.00, currency=GBP","1. Submit a payment using a card with an expiry date in the past (01/2020).
@@ -2977,7 +2675,7 @@ DB Validation — payments table (1 entry — Declined/Failed Sale):
    - TxAuthNo : NULL
    - master_token_id : NULL
    - cs_mid : Cardstream MID attempted
-   - delete_status : 0, withdrawn_status : 0","sale_handler, validation_rules",P1,Not Automated
+   - delete_status : 0, withdrawn_status : 0","sale_handler, validation_rules",P1,Automated,UK,NA,CS_NC_TC_115_datman_sdk_sale_handler_card_outcomes.spec.js
 Cardstream New Card,Datman SDK,NC-SALE,NC-SALE-019,Sale Handler & Invalid CVV Declined,"- Sale handler endpoint is active
 - CVV validation is enabled at the gateway","Card: Visa 4929421234600821, expiry=03/2030, cvc=000 (incorrect CVV)
 amount=20.00, currency=GBP","1. Submit a payment with a valid card number and expiry but with CVV set to 000.
@@ -3003,7 +2701,7 @@ DB Validation — payments table (1 entry — Declined/Failed Sale):
    - TxAuthNo : NULL
    - master_token_id : NULL
    - cs_mid : Cardstream MID attempted
-   - delete_status : 0, withdrawn_status : 0","sale_handler, validation_rules",P1,Not Automated
+   - delete_status : 0, withdrawn_status : 0","sale_handler, validation_rules",P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-SALE,NC-SALE-020,Sale Handler & Duplicate Payment Attempt Prevented,"- Sale handler endpoint is active
 - Idempotency key handling is configured
 - A valid payment has already been submitted for the session","Same order_id and session_id reused for a second submission
@@ -3046,110 +2744,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","sale_handler, idempotency",P0,Not Automated
-Cardstream New Card,Datman SDK,NC-COMPAT,NC-COMPAT-001,Compatibility & Existing Payment Flow Unaffected,"- Existing stored card / legacy payment flow is configured and active
-- The same MID is used for both legacy and new card flows","Flow: existing stored card payment
-amount=20.00, currency=GBP
-MID: shared MID used for new card feature","1. Execute the existing (legacy or stored card) payment flow end-to-end.
-2. Confirm all steps complete without any errors or unexpected behaviour introduced by the new card feature.
-3. Capture the PSP reference and check the payment table entry.
-4. Verify all existing table fields are populated correctly with no regressions.","1. Legacy payment flow completes successfully with transaction_status_id=1.
-2. All existing payment table fields are populated as expected & no missing or altered columns.
-3. No new mandatory fields have been introduced that break the existing flow.
-4. Dashboard display and webhook payload match pre-existing expected values.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token is created after the sale, not before)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","compatibility, regression",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-COMPAT,NC-COMPAT-002,Compatibility & Refund Flow Unaffected,"- A prior successful Cardstream new card transaction exists
-- Refund feature is active and configured for the merchant","payment_id and psp_reference from a completed Cardstream new card transaction
-Refund: full refund amount (original transaction amount ≤ 20.00 GBP)","1. Identify a completed Cardstream new card transaction using its payment_id and psp_reference.
-2. Initiate a full refund via the refund endpoint or the merchant dashboard.
-3. Capture the refund reference from the response.
-4. Check the payment table for the updated refund status.
-5. Verify the refund webhook was delivered successfully.","1. Refund is processed successfully and a refund reference is returned.
-2. Payment table: refund_status updated, net amount adjusted to reflect the refund.
-3. Refund webhook delivered with https_status=200.
-4. Dashboard displays the transaction as refunded with the correct amounts.
-5. The new card implementation has not altered any existing refund logic or data fields.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token is created after the sale, not before)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)
-
-DB Validation — payments table (1 entry — Full Refund):
--> Verify ONE additional entry created for the refund with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 0 (Refund mode)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : Same order_id as original sale
-   - merchant_id : Same as original sale
-   - gross : Negative of original gross
-   - fee : Negative of original fee
-   - net : Negative of original net
-   - psp_reference : Same as original sale psp_reference
-   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
-   - last_4_digits : NULL
-   - TxAuthNo : NULL
-   - master_token_id : NULL
-   - cs_mid : NULL
-   - reason : Refund reason text referencing original payment_id (#<original_id>)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","compatibility, regression, refund",P1,Not Automated
+   - delete_status : 0 (active)","sale_handler, idempotency",P0,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-SDK,NC-SDK-001,SDK Flow & Payment Form Loads Correctly,"- Cardstream SDK is integrated in the checkout UI
 - A valid session has been created and session_id is available
 - Test is run on both Desktop Chrome and Mobile Safari","Session ID: valid session from Create Session API
@@ -3166,7 +2761,7 @@ amount=20.00, currency=GBP","1. Open the checkout URL using the valid session_id
 
 DB Validation — payments table:
 -> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","sdk_flow, ui_validation",P1,Not Automated
+-> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","sdk_flow, ui_validation",P1,Automated,UK,NA,CS_NC_TC_114_datman_sdk_create_session_validation.spec.js
 Cardstream New Card,Datman SDK,NC-SDK,NC-SDK-002,SDK Flow & Expired Session Handled Gracefully,"- A session has been created and its TTL has passed
 - The Cardstream SDK is configured to detect expired sessions","Session ID: expired_session_id (TTL exceeded)
 Browser: Desktop Chrome","1. Open the checkout URL using an expired session_id.
@@ -3181,7 +2776,7 @@ Browser: Desktop Chrome","1. Open the checkout URL using an expired session_id.
 
 DB Validation — payments table:
 -> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","sdk_flow, session_expiry",P1,Not Automated
+-> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","sdk_flow, session_expiry",P1,Automated,UK,NA,CS_NC_TC_119_datman_sdk_3ds_user_actions.spec.js
 Cardstream New Card,Datman SDK,NC-SDK,NC-SDK-003,SDK Flow & Payment Retry After Decline,"- SDK is integrated and active
 - First payment attempt has been declined
 - Retry mechanism is enabled within the SDK","First attempt: Visa 4000000000000002 (force decline), expiry=03/2030, cvc=737
@@ -3211,7 +2806,7 @@ DB Validation — payments table (1 entry — Declined/Failed Sale):
    - TxAuthNo : NULL
    - master_token_id : NULL
    - cs_mid : Cardstream MID attempted
-   - delete_status : 0, withdrawn_status : 0","sdk_flow, retry_handling",P1,Not Automated
+   - delete_status : 0, withdrawn_status : 0","sdk_flow, retry_handling",P1,Automated,UK,NA,CS_NC_TC_116_datman_sdk_sale_handler_duplicate.spec.js
 Cardstream New Card,Datman SDK,DP-WEBHOOK,DP-WEBHOOK-010,Webhook & Successful Delivery After New Card Sale,"- Webhook URL is configured for the merchant
 - A successful new card sale has been completed
 - Webhook monitoring is active","Completed Cardstream new card sale (amount ≤ 20.00 GBP)
@@ -3255,7 +2850,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","webhook, delivery_validation",P1,Not Automated
+   - delete_status : 0 (active)","webhook, delivery_validation",P1,Automated,UK,NA,CS_NC_TC_112_datman_sdk_3ds_sale.spec.js
 Cardstream New Card,Datman SDK,DP-WEBHOOK,DP-WEBHOOK-011,Webhook & Retry Triggered on Delivery Failure,"- Webhook URL is configured but temporarily set to return HTTP 500
 - Retry logic is configured (e.g. 3 retries with backoff)
 - Webhook monitoring and alerting are active","Webhook URL: temporarily returns HTTP 500
@@ -3301,7 +2896,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","webhook, retry_handling",P1,Not Automated
+   - delete_status : 0 (active)","webhook, retry_handling",P1,Automated,UK,NA,CS_NC_TC_116_datman_sdk_sale_handler_duplicate.spec.js
 Cardstream New Card,Datman SDK,NC-CON,NC-CON-001,Concurrency & Duplicate Payment Prevented Under Simultaneous Requests,"- Concurrent request handling is configured
 - Idempotency controls are active
 - A concurrent API client or load testing tool is available","5 simultaneous POST requests using the same session_id and order_id
@@ -3345,7 +2940,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","concurrency, idempotency",P0,Not Automated
+   - delete_status : 0 (active)","concurrency, idempotency",P0,Cant be automated,UK,NA,
 Cardstream New Card,Datman SDK,NC-CON,NC-CON-002,Concurrency & Reuse of Completed Session Rejected,"- A session has already been used for a successful payment
 - Session reuse prevention logic is active","Session ID: session_id already linked to an approved transaction
 New payment attempt reusing the same session_id
@@ -3360,7 +2955,7 @@ amount=20.00, currency=GBP","1. Complete a successful payment using a valid sess
 
 DB Validation — payments table:
 -> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","concurrency, session_reuse",P0,Not Automated
+-> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","concurrency, session_reuse",P0,Cant be automated,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-PERF,NC-PERF-001,Performance & High Volume Session Creation Load Test,"- Performance testing environment mirrors production capacity
 - Load testing tool is configured (e.g. JMeter, Gatling, k6)
 - APM and DB monitoring are active","Load profile: 500 concurrent Create Session requests
@@ -3378,7 +2973,7 @@ amount=10.00, currency=GBP per session","1. Configure the load test tool to send
 
 DB Validation — payments table:
 -> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","performance, load_testing",P2,Not Automated
+-> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","performance, load_testing",P2,Cant be automated,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-PERF,NC-PERF-002,Performance & High Volume Concurrent New Card Payments,"- Performance testing environment mirrors production
 - Synthetic card and shopper data is available at scale
 - Gateway sandbox supports concurrent load","Load profile: 200 concurrent new card payment sessions
@@ -3423,7 +3018,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","performance, load_testing",P1,Not Automated
+   - delete_status : 0 (active)","performance, load_testing",P1,Cant be automated,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-SEC,NC-SEC-002,Security & Invalid API Key Rejected,"- API key authentication is active
 - Test values for invalid, expired, empty, and tampered keys are available
 - Security logging is enabled","API key scenarios:
@@ -3444,7 +3039,7 @@ Cardstream New Card,Datman SDK,NC-SEC,NC-SEC-002,Security & Invalid API Key Reje
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","security, authentication",P0,Not Automated
+-> API returns an error response without persisting any record","security, authentication",P0,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-PV,NC-PV-001,Payload Validation & CancelUrl Exceeds Maximum Allowed Length,"- API endpoint is accessible
 - Datman SDK Create Session endpoint is active
 - Test environment is configured with a valid merchant","CancelUrl: padded to exceed the maximum permitted URL length
@@ -3461,7 +3056,7 @@ All other fields: valid values sourced from the test environment","1. Build a Cr
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
+-> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-PV,NC-PV-002,Payload Validation & RedirectUrl Exceeds Maximum Allowed Length,"- API endpoint is accessible
 - Datman SDK Create Session endpoint is active
 - Test environment is configured with a valid merchant","RedirectUrl: padded to exceed the maximum permitted URL length
@@ -3478,7 +3073,7 @@ All other fields: valid values sourced from the test environment","1. Build a Cr
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
+-> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-PV,NC-PV-003,Payload Validation & BackUrl Exceeds Maximum Allowed Length,"- API endpoint is accessible
 - Datman SDK Create Session endpoint is active
 - Test environment is configured with a valid merchant","backurl: padded to exceed the maximum permitted URL length
@@ -3495,7 +3090,7 @@ All other fields: valid values sourced from the test environment","1. Build a Cr
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
+-> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-PV,NC-PV-004,Payload Validation & WebhookUrl Exceeds Maximum Allowed Length,"- API endpoint is accessible
 - Datman SDK Create Session endpoint is active
 - Test environment is configured with a valid merchant","WebhookUrl: padded to exceed the maximum permitted URL length
@@ -3512,390 +3107,7 @@ All other fields: valid values sourced from the test environment","1. Build a Cr
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-005,Payload Validation & address1 and address2 Accept Alphanumeric Values,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","address1: an alphanumeric string combining letters and digits
-address2: an alphanumeric string combining letters and digits
-flat: an alphanumeric identifier combining letters and digits
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set address1, address2, and flat to alphanumeric strings that mix letters and digits.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm the session is created successfully.","1. API returns HTTP 200 OK or 201 Created.
-2. A valid session_id is returned in the response.
-3. Alphanumeric address values are accepted without a validation error.
-4. Session data reflects the submitted address values correctly.
-
-DB Validation — payments table:
--> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-006,Payload Validation & address1 and address2 with Script/Injection Characters Rejected or Sanitised,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","address1: a string containing script-injection-style special characters (angle brackets, SQL control characters)
-address2: a string containing SQL-injection-style control characters
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set address1 and address2 to strings containing injection-style characters.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm the input is either rejected with an error or stored in sanitised form.","1. API returns HTTP 400 Bad Request if strict validation is applied, OR returns HTTP 200 with input sanitised before storage.
-2. If rejected: response body contains a validation error identifying the address field.
-3. No raw injection payload is persisted in the system.
-4. The error response does not expose internal system details.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, security, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-007,Payload Validation & firstname and lastname Accept Alphanumeric Values,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","firstname: an alphanumeric string combining letters and digits
-lastname: an alphanumeric string combining letters and digits
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set firstname and lastname to alphanumeric strings that mix letters and digits.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm the session is created successfully.","1. API returns HTTP 200 OK or 201 Created.
-2. A valid session_id is returned in the response.
-3. Alphanumeric firstname and lastname values are accepted without a validation error.
-4. Session data reflects the submitted name values correctly.
-
-DB Validation — payments table:
--> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-008,Payload Validation & firstname and lastname Exceeding Maximum Length Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","firstname: a string padded beyond the maximum allowed field length
-lastname: a string padded beyond the maximum allowed field length
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set firstname and lastname to strings that exceed the maximum allowed field length.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying firstname or lastname as exceeding the maximum allowed length.
-3. No session record is created.
-4. The error response does not expose internal system details.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-009,Payload Validation & firstname and lastname Accept Apostrophes and Hyphens,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","firstname: a name string containing an apostrophe (e.g. an Irish-style given name pattern)
-lastname: a hyphenated double-barrelled surname pattern
-name: a compound value containing both an apostrophe and a hyphen
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set firstname to a name containing an apostrophe, lastname to a hyphenated name, and name to a compound value with both characters.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm the session is created successfully.","1. API returns HTTP 200 OK or 201 Created.
-2. A valid session_id is returned in the response.
-3. Apostrophes and hyphens in name fields are stored correctly without truncation or corruption.
-4. No validation error is raised for these accepted character types.
-
-DB Validation — payments table:
--> No sale is initiated in this test case; the payments table is not affected.
--> Validate that no stray entry is created for session creation / retrieval / SDK flow operations.","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-010,Payload Validation & Missing Required Field: host,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; host field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the host field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying host as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-011,Payload Validation & Missing Required Field: merchant_id,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; merchant_id field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the merchant_id field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying merchant_id as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-012,Payload Validation & Missing Required Field: order_id,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; order_id field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the order_id field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying order_id as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-013,Payload Validation & Missing Required Field: customer_id,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; customer_id field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the customer_id field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying customer_id as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-014,Payload Validation & Missing Required Field: email,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; email field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the email field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying email as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-015,Payload Validation & Missing Required Field: Amount,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; Amount field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the Amount field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying Amount as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-016,Payload Validation & Missing Required Field: RedirectUrl,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; RedirectUrl field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the RedirectUrl field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying RedirectUrl as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-017,Payload Validation & Missing Required Field: WebhookUrl,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant",Payload: all required fields populated with valid test-environment values; WebhookUrl field omitted entirely,"1. Build a Create Session payload using valid test-environment values for all fields.
-2. Remove the WebhookUrl field from the payload entirely.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying WebhookUrl as a missing required field.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, required_fields, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-018,Payload Validation & Amount Below Minimum Threshold Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant
-- Minimum amount threshold is defined and active in the environment","Amount: set to a value below the minimum threshold defined in the environment
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set Amount to a value below the configured minimum threshold.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error stating Amount is below the minimum allowed value.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, amount_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-019,Payload Validation & Amount of Zero Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","Amount: zero
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set Amount to zero.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error stating Amount must be greater than zero.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, amount_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-020,Payload Validation & Negative Amount Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","Amount: any negative numeric value
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set Amount to a negative numeric value.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error stating Amount must be a positive value.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, amount_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-021,Payload Validation & Amount as Non-Numeric String Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","Amount: a non-numeric alphabetic string (any word that cannot represent a monetary value)
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set Amount to a non-numeric alphabetic string.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error stating Amount must be a valid numeric value.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, amount_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-022,Payload Validation & Invalid email Format Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","email: a string that does not conform to a valid email address format (e.g. missing @ symbol or domain)
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set email to a string that does not conform to a valid email format.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying email as having an invalid format.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-023,Payload Validation & Invalid phoneNumber Format Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","phoneNumber: a non-numeric alphabetic string (letters only, no digits)
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set phoneNumber to a non-numeric alphabetic string.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying phoneNumber as having an invalid format.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-024,Payload Validation & AvsPostcode Containing Only Special Characters Rejected or Handled Gracefully,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","AvsPostcode: a string containing only special characters (no alphanumeric characters)
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set AvsPostcode to a string containing only special characters.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm the response indicates rejection or graceful handling.","1. API returns HTTP 400 Bad Request if strict validation is applied, OR session is created but AVS check returns a mismatch result.
-2. If rejected: response body contains a validation error identifying AvsPostcode.
-3. No raw injection payload is stored in the system.
-4. The error response does not expose internal system details.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, avs_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-025,Payload Validation & MerchantReference Exceeding Maximum Length Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","MerchantReference: a string padded beyond the maximum allowed field length
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set MerchantReference to a string that exceeds the maximum allowed length.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying MerchantReference as exceeding the maximum allowed length.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-026,Payload Validation & SplitFee with Non-Existent partner_merchant_id Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant
-- The partner_merchant_id used does not exist in the system","SplitFee: array containing one entry where partner_merchant_id references a merchant that does not exist in the system
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set the SplitFee array to contain a partner_merchant_id that does not exist in the system.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request or HTTP 422 Unprocessable Entity.
-2. Response body contains a validation error stating the partner_merchant_id is not found or the split fee configuration is invalid.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, split_fee, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-027,Payload Validation & SplitFee value Exceeding Total Transaction Amount Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant with SplitFee capability","SplitFee: array containing one entry where the value field is greater than the total Amount in the payload
-Amount: any valid amount below 40; SplitFee value must be set higher than this amount
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set the SplitFee value to an amount greater than the total transaction Amount.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request or HTTP 422 Unprocessable Entity.
-2. Response body contains a validation error stating the split fee value cannot exceed the total transaction amount.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, split_fee, amount_validation, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-028,Payload Validation & provider Field with Unsupported Value Rejected,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","provider: a string value that is not among the accepted provider identifiers for this environment
-All other fields: valid values sourced from the test environment","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Set provider to a value not in the accepted provider list.
-3. POST the payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm that no session is created.","1. API returns HTTP 400 Bad Request.
-2. Response body contains a validation error identifying provider as invalid or unsupported.
-3. No session record is created.
-4. No request is forwarded to Cardstream.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Not Automated
+-> API returns an error response without persisting any record","payload_validation, datman_sdk",P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-001,3DS Flow & Successful 3DS Challenge Completion via Datman SDK,"- MID is pointed to Cardstream
 - Datman SDK Create Session endpoint is active
 - 3DS authentication is enabled for the merchant
@@ -3949,7 +3161,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","3ds_flow, create_session, datman_sdk",P0,Not Automated
+   - delete_status : 0 (active)","3ds_flow, create_session, datman_sdk",P0,Automated,UK,NA,CS_NC_TC_112_datman_sdk_3ds_sale.spec.js
 Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-002,3DS Flow & Frictionless 3DS Completion (No Challenge Screen) via Datman SDK,"- MID is pointed to Cardstream
 - Datman SDK Create Session endpoint is active
 - 3DS frictionless flow is enabled for the merchant
@@ -3996,7 +3208,7 @@ DB Validation — master_token table:
    - customer_id : shopper_id from payload
    - merchant_id : merchant_id from payload
    - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","3ds_flow, frictionless, create_session, datman_sdk",P1,Not Automated
+   - delete_status : 0 (active)","3ds_flow, frictionless, create_session, datman_sdk",P1,Automated,UK,NA,CS_NC_TC_112_datman_sdk_3ds_sale.spec.js
 Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-003,3DS Flow & Shopper Cancels 3DS Challenge; Redirected to CancelUrl,"- MID is pointed to Cardstream
 - Datman SDK Create Session endpoint is active
 - 3DS is enabled for the merchant
@@ -4035,7 +3247,7 @@ DB Validation — payments table (1 entry — New Card 3DS Sale):
    - cs_mid : Cardstream MID used for processing (e.g. 122468)
    - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
    - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)","3ds_flow, cancel, create_session, datman_sdk",P1,Not Automated
+   - transaction_mode_id : 2 (3DS authenticated)","3ds_flow, cancel, create_session, datman_sdk",P1,Automated,UK,NA,CS_NC_TC_112_datman_sdk_3ds_sale.spec.js
 Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-004,3DS Flow & 3DS Authentication Refused by Shopper Results in Decline,"- MID is pointed to Cardstream
 - Datman SDK Create Session endpoint is active
 - 3DS is enabled for the merchant
@@ -4057,7 +3269,7 @@ Card: an Adyen-provided 3DS refuse test card as per Cardstream test card documen
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","3ds_flow, decline, create_session, datman_sdk",P1,Not Automated
+-> API returns an error response without persisting any record","3ds_flow, decline, create_session, datman_sdk",P1,Pending,UK,NA,NA
 Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-005,3DS Flow & Session Expires Before Shopper Completes 3DS Challenge,"- MID is pointed to Cardstream
 - Datman SDK Create Session endpoint is active
 - Session TTL is defined and active in the test environment","Create Session Payload: all required fields populated with valid test-environment values
@@ -4076,273 +3288,7 @@ Wait period: allow the session TTL to elapse before completing the 3DS challenge
 DB Validation — payments table:
 -> Verify NO entry is created in the payments table
 -> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","3ds_flow, session_expiry, create_session, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-006,3DS Flow & Network Drop/Throttling During 3DS Challenge Results in Pending or Failed State,"- MID is pointed to Cardstream
-- Datman SDK Create Session endpoint is active
-- 3DS is enabled for the merchant
-- Network simulation capability is available in the test environment","Create Session Payload: all required fields populated with valid test-environment values
-Amount: a valid value below 40
-Card: an Adyen-provided 3DS challenge test card as per Cardstream test card documentation
-Network condition: simulate a network drop after the 3DS challenge screen loads","1. Build and POST the Create Session payload and note the session_id.
-2. Load the Datman SDK payment form and submit the card to trigger the 3DS challenge.
-3. Once the 3DS challenge screen is visible, simulate a network interruption.
-4. Observe the payment form behaviour after the network drop.
-5. Restore network connectivity and check the transaction state.
-6. Confirm how the system handles the incomplete 3DS authentication.","1. Payment form displays a timeout or network error message.
-2. Transaction is recorded in a pending or failed state; no successful PSP reference is generated.
-3. No amount is charged to the shopper.
-4. Session remains in an incomplete state and cannot be reused for a new charge.
-5. Shopper can restart checkout by creating a new session.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","3ds_flow, network_drop, create_session, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-007,3DS Flow & Wrong OTP Entered During 3DS Challenge Results in Authentication Failure,"- MID is pointed to Cardstream
-- Datman SDK Create Session endpoint is active
-- 3DS challenge flow requires OTP entry in the test environment","Create Session Payload: all required fields populated with valid test-environment values
-Amount: a valid value below 40
-Card: an Adyen-provided 3DS challenge test card requiring OTP as per Cardstream test card documentation","1. Build and POST the Create Session payload and note the session_id.
-2. Load the Datman SDK payment form and submit the card.
-3. When the 3DS challenge OTP screen appears, enter an incorrect OTP.
-4. Capture the challenge screen response and any error messaging.
-5. Confirm the transaction outcome.","1. 3DS challenge screen rejects the incorrect OTP and displays an authentication failure message.
-2. Payment is declined; no approved PSP reference is generated.
-3. No amount is charged to the shopper.
-4. Shopper is informed of the authentication failure on the payment form.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","3ds_flow, otp_failure, create_session, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-011,3DS Flow & SplitFee Correctly Distributed After Successful 3DS Approval,"- MID is pointed to Cardstream
-- Datman SDK Create Session endpoint is active
-- 3DS is enabled for the merchant
-- A valid partner merchant with SplitFee capability is configured in the environment","Create Session Payload: all required fields populated with valid test-environment values
-Amount: a valid value below 40
-SplitFee: one entry with a valid partner merchant; split value less than the total Amount; value_type set to amount
-Card: an Adyen-provided 3DS challenge test card as per Cardstream test card documentation","1. Build and POST the Create Session payload including the SplitFee entry.
-2. Complete the 3DS challenge flow successfully as per NC-3DS-SDK-001.
-3. Capture the PSP reference from the approved transaction.
-4. Verify the webhook payload includes the SplitFee breakdown.
-5. Confirm the split value is allocated to the configured partner merchant.
-6. Confirm the remaining net amount is allocated to the primary merchant.","1. Transaction is approved with a valid PSP reference.
-2. Webhook payload includes SplitFee details reflecting the configured split.
-3. Split value is correctly allocated to the partner merchant.
-4. Remaining net amount (total Amount minus split value minus platform fee) is allocated to the primary merchant.
-5. No errors related to split fee processing are returned.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token is created after the sale, not before)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)
-
-DB Validation — payments table — Split Partner Sale entry:
--> Verify ONE entry per split partner with:
-   - order_ref : <order_id>SC<split_commission_id> (e.g. 519626099SC36018993)
-   - merchant_id : Partner merchant_id (from split_fee payload)
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 2 (3DS — matches main sale)
-   - transaction_method_id : 1 (New Card)
-   - gross : Split amount as per split_fee value
-   - fee : 0 (partner split rows carry no fee unless configured)
-   - net : Same as gross
-   - psp_reference : Same as main sale psp_reference
-   - internal_reference : Same as main sale (O<order_id>M<merchant_id>T<payment_id>)
-   - source_ip : Same as main sale
-   - last_4_digits : Same as main sale
-   - TxAuthNo : Same as main sale
-   - master_token_id : NULL
-   - shopper_id : Same as main sale
-   - cs_mid : Cardstream MID (122468)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments_split_commission table:
--> Verify entry per split with commission_type_id, partner_merchant_id, amount as per split_fee payload
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","3ds_flow, split_fee, create_session, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-013,3DS Flow & Back Navigation During 3DS Challenge Redirects to BackUrl,"- MID is pointed to Cardstream
-- Datman SDK Create Session endpoint is active
-- 3DS is enabled for the merchant
-- backurl is configured in the Create Session payload","Create Session Payload: all required fields populated with valid test-environment values including a valid backurl
-Amount: a valid value below 40
-Card: an Adyen-provided 3DS challenge test card as per Cardstream test card documentation","1. Build and POST the Create Session payload including a valid backurl.
-2. Load the Datman SDK payment form using the session_id.
-3. Submit the card to trigger the 3DS challenge.
-4. On the 3DS challenge screen, use the browser back button or any available back navigation.
-5. Observe the redirect behaviour.
-6. Confirm no payment is processed.","1. Shopper is redirected to the configured backurl after using back navigation on the 3DS challenge screen.
-2. No payment is charged and no approved PSP reference is generated.
-3. Shopper can initiate a new checkout from the backurl destination.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token is created after the sale, not before)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)","3ds_flow, back_navigation, backurl, create_session, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-014,3DS Flow & Incompatible Card (Non-3DS-Enrolled) Handled Gracefully,"- MID is pointed to Cardstream
-- Datman SDK Create Session endpoint is active
-- 3DS is enabled for the merchant
-- An Cardstream test card that is not enrolled in 3DS is available in the test environment","Create Session Payload: all required fields populated with valid test-environment values
-Amount: a valid value below 40
-Card: an Adyen-provided test card that is not enrolled in 3DS as per Cardstream test card documentation","1. Build and POST the Create Session payload.
-2. Load the Datman SDK payment form using the session_id.
-3. Submit the non-3DS-enrolled test card.
-4. Observe the system's handling of the card that cannot complete 3DS authentication.
-5. Confirm the transaction outcome.","1. System detects the card is not enrolled in 3DS.
-2. If 3DS is mandatory: payment is declined with an appropriate message; no PSP reference is generated; no amount is charged.
-3. If 3DS exemption is permitted: payment proceeds without 3DS and completes successfully with a PSP reference.
-4. Shopper receives a clear message reflecting the outcome.
-5. Webhook reflects the correct final status.
-
-DB Validation — payments table (1 entry — New Card Non-3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token is created after the sale, not before)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 1 (Non-3DS)
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","3ds_flow, non_enrolled, create_session, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-3DS-SDK,NC-3DS-SDK-015,3DS Flow & Completed Session Cannot Be Reused for a Second Payment,"- MID is pointed to Cardstream
-- Datman SDK Create Session endpoint is active
-- A session has already been used to complete a successful 3DS payment","Create Session Payload: all required fields populated with valid test-environment values
-Amount: a valid value below 40
-Session: the session_id from a previously completed and approved transaction","1. Complete a successful 3DS payment using a valid session and note the session_id and PSP reference.
-2. Attempt to reuse the same session_id to initiate a second payment.
-3. POST the second payment attempt using the existing session_id.
-4. Record the HTTP status code and response body.
-5. Confirm only one approved payment exists for this session.","1. Second payment attempt is rejected.
-2. API returns HTTP 400 Bad Request or HTTP 409 Conflict.
-3. Response body states the session has already been used or is in an invalid state.
-4. No second payment is charged.
-5. Only one approved transaction exists linked to the session_id.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token is created after the sale, not before)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-   - transaction_mode_id : 2 (3DS authenticated)
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)","3ds_flow, session_reuse, create_session, datman_sdk",P0,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-031,Payload Validation & Incorrect Letter Case on Key Names Causes Rejection or Is Not Processed,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","Payload: all fields populated with valid test-environment values, but key names are submitted using an incorrect letter case (e.g. 'amount' instead of 'Amount', 'redirecturl' instead of 'RedirectUrl', 'webhookurl' instead of 'WebhookUrl')
-The key names in the payload must not match the exact casing defined in the API contract","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Change the letter case of at least three key names so they do not match the casing defined in the API contract (e.g. use all-lowercase or all-uppercase variants of the keys).
-3. POST the modified payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm the system's behaviour — whether it rejects the payload or silently ignores the incorrectly-cased keys.","1. API returns HTTP 400 Bad Request if the system enforces strict key casing.
-2. Response body contains a validation error identifying the missing or unrecognised fields caused by incorrect casing.
-3. If the system is case-insensitive, the session is created successfully and all key values are processed correctly & no silent data loss occurs.
-4. In either case, the system behaviour is consistent and documented; keys with incorrect casing are never silently dropped without error.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, key_casing, datman_sdk",P1,Not Automated
-Cardstream New Card,Datman SDK,NC-PV,NC-PV-032,Payload Validation & Incorrect Key Naming Convention (Underscore vs CamelCase vs Mixed) Causes Rejection or Is Not Processed,"- API endpoint is accessible
-- Datman SDK Create Session endpoint is active
-- Test environment is configured with a valid merchant","Payload: all fields populated with valid test-environment values, but key names are submitted using a different naming convention than the API contract (e.g. 'redirect_url' instead of 'RedirectUrl', 'cancel_url' instead of 'CancelUrl', 'webhook_url' instead of 'WebhookUrl', 'avs_house_number' instead of 'AvsHouseNumber')
-The key names must use a naming convention that differs from the one defined in the API contract","1. Build a Create Session payload using valid test-environment values for all fields.
-2. Change at least three key names to use a different naming convention than specified in the API contract (e.g. snake_case instead of CamelCase, or vice versa).
-3. POST the modified payload to the Create Session endpoint.
-4. Record the HTTP status code and response body.
-5. Confirm the system's behaviour — whether it rejects the payload, processes it, or silently ignores the incorrectly-named keys.","1. API returns HTTP 400 Bad Request if the system enforces strict key naming conventions.
-2. Response body contains a validation error identifying the unrecognised or missing fields caused by the wrong naming convention.
-3. If the system is convention-tolerant, the session is created successfully and all key values are mapped and processed correctly & no silent data loss occurs.
-4. In either case, the system behaviour is consistent; keys using an incorrect naming convention are never silently dropped without error.
-
-DB Validation — payments table:
--> Verify NO entry is created in the payments table
--> The invalid input / failed validation is caught before reaching the Cardstream gateway
--> API returns an error response without persisting any record","payload_validation, key_naming, datman_sdk",P1,Not Automated
+-> API returns an error response without persisting any record","3ds_flow, session_expiry, create_session, datman_sdk",P1,Pending,UK,NA,NA
 Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-001,New Card Sale – Full Refund to Wallet (3DS),"- Merchant pointed to Cardstream
 - Successful 3DS new card sale completed (transaction_status_id = 1)
 - Refund API access enabled for the merchant
@@ -4433,7 +3379,7 @@ DB Validation — webhook_log:
 -> http_response_code : 200
 -> payload contains refund amount, order_id, customer_id
 
--> Original sale entry in payments table: transaction_status_id remains 1 (not overwritten)","refund_flow, refund_to_wallet, new_card_3ds",P1,Pending
+-> Original sale entry in payments table: transaction_status_id remains 1 (not overwritten)","refund_flow, refund_to_wallet, new_card_3ds",P1,Automated,UK,NA,CS_NC_TC_035_php_3ds_sale_smoke_sanity.spec.js
 Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-002,New Card Sale – Full Refund to Wallet (Non-3DS),"- Merchant pointed to Cardstream
 - Successful Non-3DS new card sale completed (transaction_status_id = 1)
 - Refund API access enabled for the merchant
@@ -4525,7 +3471,7 @@ DB Validation — webhook_log:
 
 Key validation:
 -> transaction_mode_id on refund row = 1 (Non-3DS — matches original sale)
--> Wallet balance updated; customer can use refunded amount for future orders","refund_flow, refund_to_wallet, new_card_non_3ds",P1,Pending
+-> Wallet balance updated; customer can use refunded amount for future orders","refund_flow, refund_to_wallet, new_card_non_3ds",P1,Automated,UK,NA,CS_NC_TC_035_php_3ds_sale_smoke_sanity.spec.js
 Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-003,New Card Sale – Partial Refund to Wallet (3DS),"- Merchant pointed to Cardstream
 - Successful 3DS new card sale completed
 - Refund API access enabled
@@ -4594,545 +3540,7 @@ DB Validation — wallet / customer balance:
 -> Customer wallet_amount credited with partial refund amount
 -> Remaining refundable = original gross - partial refund amount
 
--> Original sale entry: transaction_status_id remains 1 (not changed to refunded)","refund_flow, partial_refund, refund_to_wallet, new_card_3ds",P1,Pending
-Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-004,New Card Sale – Full Refund to Card (3DS),"- Merchant pointed to Cardstream
-- Successful 3DS new card sale completed (transaction_status_id = 1)
-- Refund API access enabled for the merchant
-- Refund destination: CARD (refund back to the original card used)","- Completed 3DS new card sale with transaction_status_id = 1
-- payment_id and psp_reference from the original sale
-- Refund payload:
-  {
-    ""order_id"": ""<original_order_id>"",
-    ""amount"": ""<original_gross_amount>"",
-    ""merchant_id"": ""<merchant_id>"",
-    ""reason"": ""<refund_reason>"",
-    ""destination"": ""CARD"",
-    ""shopper_id"": ""<customer_id>"",
-    ""requested_by"": ""FH-API""
-  }
-- api_key: refer to QA team for Stage key","1. Verify a completed 3DS new card sale. Note the payment_id, psp_reference, last_4_digits and gross amount.
-
-2. Submit a full refund request with destination = CARD using the original order_id and gross amount.
-
-3. Verify the refund API returns a success response with a refund_id.
-
-4. Query the payments table and verify the refund entry is created with the correct fields.
-
-5. Verify the refund is sent to the Cardstream gateway referencing the original psp_reference.
-
-6. Verify the Cardstream dashboard shows the refund transaction linked to the original sale.
-
-7. Verify the webhook_log table has an entry for the refund notification.
-
-8. Verify the original sale entry remains unchanged.","3. Refund API returns success with refund_id.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 2 (3DS authenticated)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token created after the sale)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments table (1 entry — Refund to Card):
--> Verify ONE additional entry created for the refund with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 0 (matches original sale mode)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : Same order_id as original sale
-   - merchant_id : Same as original sale
-   - gross : Negative of original gross (or partial refund amount as negative)
-   - fee : Negative of applicable fee
-   - net : Negative of applicable net
-   - psp_reference : Same as original sale psp_reference
-   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
-   - last_4_digits : NULL
-   - TxAuthNo : NULL
-   - master_token_id : NULL
-   - cs_mid : NULL
-   - reason : Refund reason text referencing original payment_id (#<original_id>)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — Cardstream gateway:
--> Refund is sent back to the original card used in the transaction
--> Cardstream dashboard shows the refund transaction linked to the original sale
--> The cardholder receives the refund on the same card (last_4_digits matches original sale)
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)
-
-DB Validation — webhook_log:
--> Entry with action = refund_success
--> http_response_code : 200
--> payload confirms destination = CARD
-
-Key validation:
--> psp_reference on refund row = same as original sale (Cardstream uses the same reference for the reversal)
--> Cardstream dashboard: refund transaction visible with destination card details","refund_flow, refund_to_card, new_card_3ds",P1,Pending
-Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-005,New Card Sale – Full Refund to Card (Non-3DS),"- Merchant pointed to Cardstream
-- Successful Non-3DS new card sale completed
-- Refund API access enabled
-- Refund destination: CARD","- Completed Non-3DS new card sale with transaction_status_id = 1
-- payment_id and psp_reference from the original sale
-- Refund payload:
-  {
-    ""order_id"": ""<original_order_id>"",
-    ""amount"": ""<original_gross_amount>"",
-    ""merchant_id"": ""<merchant_id>"",
-    ""reason"": ""<refund_reason>"",
-    ""destination"": ""CARD"",
-    ""shopper_id"": ""<customer_id>"",
-    ""requested_by"": ""FH-API""
-  }
-- api_key: refer to QA team for Stage key","1. Verify a completed Non-3DS new card sale. Note the payment_id, psp_reference and gross amount.
-
-2. Submit a full refund request with destination = CARD.
-
-3. Verify the refund API returns success.
-
-4. Query the payments table and verify the refund entry has transaction_mode_id = 1 (Non-3DS).
-
-5. Verify the refund is sent back to the original card via the Cardstream gateway.
-
-6. Verify the Cardstream dashboard shows the refund transaction.
-
-7. Verify the webhook_log entry is created.","3. Refund API returns success.
-
-DB Validation — payments table (1 entry — New Card Non-3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 1 (Non-3DS)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference returned by Cardstream gateway
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token created after the sale)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing
-   - TxAuthNo : Auth number returned by Cardstream gateway
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments table (1 entry — Refund to Card):
--> Verify ONE additional entry created for the refund with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 1 (matches original sale mode)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : Same order_id as original sale
-   - merchant_id : Same as original sale
-   - gross : Negative of original gross (or partial refund amount as negative)
-   - fee : Negative of applicable fee
-   - net : Negative of applicable net
-   - psp_reference : Same as original sale psp_reference
-   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
-   - last_4_digits : NULL
-   - TxAuthNo : NULL
-   - master_token_id : NULL
-   - cs_mid : NULL
-   - reason : Refund reason text referencing original payment_id (#<original_id>)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — Cardstream gateway:
--> Refund is sent back to the original card used in the transaction
--> Cardstream dashboard shows the refund transaction linked to the original sale
--> The cardholder receives the refund on the same card (last_4_digits matches original sale)
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)
-
-DB Validation — webhook_log:
--> Entry with action = refund_success
-
-Key validation:
--> transaction_mode_id on refund row = 1 (Non-3DS — matches original sale)
--> Cardstream gateway processes the refund using the original psp_reference","refund_flow, refund_to_card, new_card_non_3ds",P1,Pending
-Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-006,New Card Sale – Partial Refund to Card (3DS),"- Merchant pointed to Cardstream
-- Successful 3DS new card sale completed
-- Refund API access enabled
-- Refund destination: CARD
-- Partial refund amount less than original gross","- Completed 3DS new card sale with transaction_status_id = 1
-- Refund payload:
-  {
-    ""order_id"": ""<original_order_id>"",
-    ""amount"": ""<partial_refund_amount>"",
-    ""merchant_id"": ""<merchant_id>"",
-    ""reason"": ""<refund_reason>"",
-    ""destination"": ""CARD"",
-    ""shopper_id"": ""<customer_id>"",
-    ""requested_by"": ""FH-API""
-  }
-- Partial refund amount must be less than the original gross
-- api_key: refer to QA team for Stage key","1. Verify a completed 3DS new card sale. Note the payment_id and gross amount.
-
-2. Submit a partial refund request with destination = CARD for an amount less than the original gross.
-
-3. Verify the refund API returns success.
-
-4. Query the payments table and verify the partial refund entry with the negative partial amount.
-
-5. Verify the partial refund is sent to the original card via Cardstream gateway.
-
-6. Verify the original sale entry remains unchanged with transaction_status_id = 1.
-
-7. Verify the remaining refundable balance is correctly tracked.","3. Partial refund API returns success.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 2 (3DS authenticated)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token created after the sale)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments table (1 entry — Partial Refund to Card):
--> Verify ONE additional entry with:
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 0
-   - gross : Negative of partial refund amount (NOT the full original gross)
-   - fee : Negative of proportional fee
-   - net : Negative of partial net
-   - psp_reference : Same as original sale psp_reference
-   - internal_reference : Same as original sale
-   - last_4_digits : NULL, TxAuthNo : NULL, master_token_id : NULL, cs_mid : NULL
-
-DB Validation — Cardstream gateway:
--> Partial refund sent to original card using the original psp_reference
--> Cardstream dashboard shows partial refund with remaining balance
--> Cardholder receives partial refund on the same card
-
--> Original sale entry: transaction_status_id remains 1
--> Remaining refundable = original gross - partial refund amount","refund_flow, partial_refund, refund_to_card, new_card_3ds",P1,Pending
-Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-007,New Card Sale with Splits – Full Refund to Card (3DS),"- Merchant pointed to Cardstream
-- Successful 3DS new card sale with split_fee completed
-- Split partner merchants configured
-- Refund API access enabled
-- Refund destination: CARD","- Completed 3DS new card sale with split_fee and transaction_status_id = 1
-- Refund payload:
-  {
-    ""order_id"": ""<original_order_id>"",
-    ""amount"": ""<original_gross_amount>"",
-    ""merchant_id"": ""<merchant_id>"",
-    ""reason"": ""<refund_reason>"",
-    ""destination"": ""CARD"",
-    ""shopper_id"": ""<customer_id>"",
-    ""requested_by"": ""FH-API"",
-    ""refund_split_fee"": [
-      { ""partner_merchant_id"": ""<partner_mid>"", ""refund_amount"": ""<split_amount>"" }
-    ]
-  }
-- api_key: refer to QA team for Stage key","1. Verify a completed 3DS new card sale with split_fee. Note the payment_id, psp_reference and split commission entries.
-
-2. Verify payments_split_commission table has the split entries for the original sale.
-
-3. Submit a full refund request with destination = CARD including refund_split_fee for the partner merchant.
-
-4. Verify refund API returns success.
-
-5. Query the payments table — verify the main refund entry and the split partner refund entry.
-
-6. Verify payments_split_commission table shows the split amount refunded.
-
-7. Verify the webhook_log entry for the refund notification.","4. Refund API returns success.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 2 (3DS authenticated)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token created after the sale)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments table — Split Partner Sale entries:
--> Verify ONE entry per split partner with:
-   - order_ref : <order_id>SC<split_commission_id>
-   - merchant_id : Partner merchant_id (from split_fee payload)
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 2 (3DS — matches main sale)
-   - transaction_method_id : 1 (New Card)
-   - gross : Split amount as per split_fee value
-   - fee : 0 (partner split rows carry no fee unless configured)
-   - net : Same as gross
-   - psp_reference / internal_reference : Same as main sale
-   - last_4_digits / TxAuthNo : Same as main sale
-   - master_token_id : NULL
-   - cs_mid : Cardstream MID
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments_split_commission table:
--> Verify entry per split with commission_type_id, partner_merchant_id, amount as per split_fee payload
-
-DB Validation — payments table (1 entry — Refund to Card):
--> Verify ONE additional entry created for the refund with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 0 (matches original sale mode)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : Same order_id as original sale
-   - merchant_id : Same as original sale
-   - gross : Negative of original gross (or partial refund amount as negative)
-   - fee : Negative of applicable fee
-   - net : Negative of applicable net
-   - psp_reference : Same as original sale psp_reference
-   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
-   - last_4_digits : NULL
-   - TxAuthNo : NULL
-   - master_token_id : NULL
-   - cs_mid : NULL
-   - reason : Refund reason text referencing original payment_id (#<original_id>)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — Cardstream gateway:
--> Refund is sent back to the original card used in the transaction
--> Cardstream dashboard shows the refund transaction linked to the original sale
--> The cardholder receives the refund on the same card (last_4_digits matches original sale)
-
-DB Validation — payments table — Split Partner Refund entries:
--> Verify ONE additional negative entry per split partner with:
-   - order_ref : Same as split sale row (e.g. <order_id>SC<split_commission_id>)
-   - merchant_id : Same partner merchant_id
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 2 (same as split sale mode — NOT 0 like main refund)
-   - transaction_method_id : 1 (New Card)
-   - gross : Negative of split gross
-   - fee : 0
-   - net : Negative of split net
-   - psp_reference : NULL
-   - internal_reference : NULL
-   - last_4_digits : NULL
-   - TxAuthNo : NULL
-   - master_token_id : NULL
-   - cs_mid : NULL
-   - delete_status : 0, withdrawn_status : 0
-
-Note — Split refund mode vs main refund mode:
--> Main refund: transaction_mode_id = 0
--> Split refund: transaction_mode_id = 2 (preserves the sale mode)
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)
-
-DB Validation — webhook_log:
--> Entry with action = refund_success
--> payload includes split refund details
-
-Key validation — split refund row vs main refund row:
--> Main refund: transaction_mode_id = 0, psp_reference = same as sale, cs_mid = NULL
--> Split refund: transaction_mode_id = 2 (NOT 0), psp_reference = NULL, cs_mid = NULL","refund_flow, refund_to_card, refund_split_fee, new_card_3ds",P1,Pending
-Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-008,New Card Sale with Splits – Full Refund to Wallet (3DS),"- Merchant pointed to Cardstream
-- Successful 3DS new card sale with split_fee completed
-- Split partner merchants configured
-- Customer wallet feature enabled
-- Refund API access enabled
-- Refund destination: WALLET","- Completed 3DS new card sale with split_fee and transaction_status_id = 1
-- Refund payload:
-  {
-    ""order_id"": ""<original_order_id>"",
-    ""amount"": ""<original_gross_amount>"",
-    ""merchant_id"": ""<merchant_id>"",
-    ""reason"": ""<refund_reason>"",
-    ""destination"": ""WALLET"",
-    ""shopper_id"": ""<customer_id>"",
-    ""requested_by"": ""FH-API"",
-    ""refund_split_fee"": [
-      { ""partner_merchant_id"": ""<partner_mid>"", ""refund_amount"": ""<split_amount>"" }
-    ]
-  }
-- api_key: refer to QA team for Stage key","1. Verify a completed 3DS new card sale with split_fee. Note payment_id, psp_reference and split entries.
-
-2. Verify payments_split_commission table has the split entries.
-
-3. Submit a full refund request with destination = WALLET including refund_split_fee.
-
-4. Verify refund API returns success.
-
-5. Query the payments table — verify main refund entry and split partner refund entry.
-
-6. Verify the customer wallet balance is credited with the full refund amount.
-
-7. Verify payments_split_commission table shows the split amount refunded.
-
-8. Verify the webhook_log entry.","4. Refund API returns success.
-
-DB Validation — payments table (1 entry — New Card 3DS Sale):
--> Verify ONE entry created with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 2 (3DS authenticated)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : order_id from payload
-   - merchant_id : merchant_id from payload
-   - country_code / currency_code : As per merchant region (e.g. GB / GBP)
-   - gross : Amount passed in payload
-   - fee : Calculated based on fee_tier of merchant
-   - net : gross - fee
-   - psp_reference : CS transaction reference (e.g. 26032311KZ24TW19PQ59RSQ)
-   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
-   - source_ip : IP address of the request
-   - last_4_digits : Last 4 digits of the card used (e.g. 0821)
-   - firstname / lastname / email_address / address : As per payload
-   - master_token_id : NULL (new card — token created after the sale)
-   - shopper_id : customer_id from payload
-   - cs_mid : Cardstream MID used for processing (e.g. 122468)
-   - TxAuthNo : Auth number returned by Cardstream gateway (e.g. 777205)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments table — Split Partner Sale entries:
--> Verify ONE entry per split partner with:
-   - order_ref : <order_id>SC<split_commission_id>
-   - merchant_id : Partner merchant_id (from split_fee payload)
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 1 (Success)
-   - transaction_mode_id : 2 (3DS — matches main sale)
-   - transaction_method_id : 1 (New Card)
-   - gross : Split amount as per split_fee value
-   - fee : 0 (partner split rows carry no fee unless configured)
-   - net : Same as gross
-   - psp_reference / internal_reference : Same as main sale
-   - last_4_digits / TxAuthNo : Same as main sale
-   - master_token_id : NULL
-   - cs_mid : Cardstream MID
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — payments_split_commission table:
--> Verify entry per split with commission_type_id, partner_merchant_id, amount as per split_fee payload
-
-DB Validation — payments table (1 entry — Refund to Wallet):
--> Verify ONE additional entry created for the refund with:
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 0 (matches original sale mode)
-   - transaction_method_id : 1 (New Card)
-   - order_ref : Same order_id as original sale
-   - merchant_id : Same as original sale
-   - gross : Negative of original gross (or partial refund amount as negative)
-   - fee : Negative of applicable fee
-   - net : Negative of applicable net
-   - psp_reference : Same as original sale psp_reference
-   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
-   - last_4_digits : NULL
-   - TxAuthNo : NULL
-   - master_token_id : NULL
-   - cs_mid : NULL
-   - reason : Refund reason text referencing original payment_id (#<original_id>)
-   - delete_status : 0, withdrawn_status : 0
-
-DB Validation — wallet / customer balance:
--> Verify the refund amount is credited back to the customer's wallet balance
--> Customer's wallet_amount in the customers table is updated by the refund amount
-
-DB Validation — payments table — Split Partner Refund entries:
--> Verify ONE additional negative entry per split partner with:
-   - order_ref : Same as split sale row (e.g. <order_id>SC<split_commission_id>)
-   - merchant_id : Same partner merchant_id
-   - payment_provider_id : 1 (Cardstream)
-   - transaction_status_id : 2 (Refund)
-   - transaction_mode_id : 2 (same as split sale mode — NOT 0 like main refund)
-   - transaction_method_id : 1 (New Card)
-   - gross : Negative of split gross
-   - fee : 0
-   - net : Negative of split net
-   - psp_reference : NULL
-   - internal_reference : NULL
-   - last_4_digits : NULL
-   - TxAuthNo : NULL
-   - master_token_id : NULL
-   - cs_mid : NULL
-   - delete_status : 0, withdrawn_status : 0
-
-Note — Split refund mode vs main refund mode:
--> Main refund: transaction_mode_id = 0
--> Split refund: transaction_mode_id = 2 (preserves the sale mode)
-
-DB Validation — master_token table:
--> Verify ONE entry created after successful sale with:
-   - token : Generated master_token for this card / customer
-   - customer_id : shopper_id from payload
-   - merchant_id : merchant_id from payload
-   - last_4_digits : Last 4 digits of card used
-   - delete_status : 0 (active)
-
-DB Validation — webhook_log:
--> Entry with action = refund_success
--> payload includes destination = WALLET and split details
-
-DB Validation — wallet / customer balance:
--> Customer wallet_amount credited with full refund amount
-
-Key validation — split refund row vs main refund row:
--> Main refund: transaction_mode_id = 0, psp_reference = same as sale
--> Split refund: transaction_mode_id = 2, psp_reference = NULL, internal_reference = NULL","refund_flow, refund_to_wallet, refund_split_fee, new_card_3ds",P1,Pending
+-> Original sale entry: transaction_status_id remains 1 (not changed to refunded)","refund_flow, partial_refund, refund_to_wallet, new_card_3ds",P1,Automated,UK,NA,CS_NC_TC_021_frontend_sale_refund_mms_validation.spec.js
 Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-009,New Card Sale – Refund Amount Exceeds Original Sale Amount (Negative Scenario),"- Merchant pointed to Cardstream
 - Successful new card sale completed
 - Refund API access enabled","- Completed new card sale with transaction_status_id = 1
@@ -5174,7 +3582,7 @@ Scenario C — Negative amount:
 DB Validation — payments table (all scenarios):
 -> Verify NO new entry is created in the payments table for any rejected refund
 -> Original sale entry remains unchanged: transaction_status_id = 1
--> No webhook_log entry is created for rejected refund attempts","refund_flow, negative_testing, refund_validation",P1,Pending
+-> No webhook_log entry is created for rejected refund attempts","refund_flow, negative_testing, refund_validation",P1,Pending,UK,NA,NA
 Cardstream New Card,New Card - Refunds,NC-REFUND,NC-REFUND-CS-010,New Card Sale – Double / Duplicate Refund Prevention,"- Merchant pointed to Cardstream
 - Successful new card sale completed and fully refunded
 - Refund API access enabled","- Completed new card sale with transaction_status_id = 1
@@ -5216,7 +3624,7 @@ DB Validation — Cardstream gateway:
 -> Only one refund transaction visible in Cardstream dashboard
 
 DB Validation — webhook_log:
--> Only ONE refund_success webhook entry exists for this order","refund_flow, negative_testing, duplicate_prevention, idempotency",P1,Pending
+-> Only ONE refund_success webhook entry exists for this order","refund_flow, negative_testing, duplicate_prevention, idempotency",P1,Pending,UK,NA,NA
 Cardstream New Card,New Card - KOUNT DI,NC-KOUNT,NC-KOUNT-001,CARDSTREAM - KOUNT DI - New card sale - UK,"- Merchant is pointed to Cardstream with KOUNT DI enabled
 - UK merchant (country_code: GB, currency: GBP)
 - payments table accessible
@@ -5264,7 +3672,7 @@ DB Validation - payments table (1 entry):
 -> last_4_digits: populated
 -> delete_status: 0, withdrawn_status: 0
 
-2. webhook_log: entry created, no duplicates",kount_di;new_card;uk;cardstream;payments_table;,P1,Not Automated
+2. webhook_log: entry created, no duplicates",kount_di;new_card;uk;cardstream;payments_table;,P1,Automated,UK,NA,CS_NC_TC_053_php_sale_kount_approve_sanity.spec.js
 Cardstream New Card,New Card - KOUNT DI,NC-KOUNT,NC-KOUNT-002,CARDSTREAM - KOUNT DI - New Card - 3DS E2E Sale and Refund - UK,"- Merchant is pointed to Cardstream with KOUNT DI and 3DS enabled
 - UK merchant (country_code: GB, currency: GBP)
 - payments table accessible
@@ -5312,7 +3720,7 @@ DB Validation - payments table (sale entry):
 
 3. Full refund SUCCESS
 DB Validation - payments table (refund entry):
--> transaction_status_id: 2 (refunded)",kount_di;new_card;3ds;refund;uk;cardstream;payments_table;,P1,Not Automated
+-> transaction_status_id: 2 (refunded)",kount_di;new_card;3ds;refund;uk;cardstream;payments_table;,P1,Automated,UK,NA,CS_NC_TC_054_php_sale_kount_failed_sanity.spec.js
 Cardstream New Card,New Card - Price Uplift,NC-PU,NC-PU-001,CARDSTREAM - Price Uplift (type_id=7) - New Card Sale - UK,"- Merchant is pointed to Cardstream with price uplift enabled
 - UK merchant (country_code: GB, currency: GBP)
 - payments table accessible
@@ -5373,7 +3781,7 @@ datman_commission:
 -> Entry for main amount (datman_commission = 1)
 -> Entry for uplift amount (datman_commission = 16)
 
-2. webhook_log: entry created",price_uplift;type_id_7;new_card;uk;cardstream;payments_table;,P1,Not Automated
+2. webhook_log: entry created",price_uplift;type_id_7;new_card;uk;cardstream;payments_table;,P1,Automated,UK,NA,CS_NC_TC_076_php_3ds_sale_single_split_price_uplift_sanity.spec.js
 Cardstream New Card,New Card - Price Uplift,NC-PU,NC-PU-002,CARDSTREAM - Price Uplift (type_id=7) - New Card - Different fee_tiers - UK,"- Merchant is pointed to Cardstream with price uplift enabled
 - UK merchant (country_code: GB, currency: GBP)
 - payments table accessible","Sale amount = 30 (below 40)
@@ -5409,40 +3817,238 @@ fee_tier_id = 19 (zero_fee_tier):
 
 All scenarios:
 -> Main sale fee for £25 per merchants fee_tier_id
--> Price uplift fee for £5 per fee_tier_id passed for the merchant",price_uplift;type_id_7;fee_tier;new_card;uk;cardstream;payments_table;,P1,Not Automated
-Cardstream New Card,New Card - Price Uplift,NC-PU,NC-PU-003,CARDSTREAM - Price Uplift (type_id=7) - New Card - Negative: invalid split values - UK,"- Merchant is pointed to Cardstream with price uplift enabled
-- UK merchant (country_code: GB, currency: GBP)
-- payments table accessible","Scenario 1: Amount = 30, type_id = 7, value = 0
-Scenario 2: Amount = 10, type_id = 7, value = 15 (uplift > sale)
-Scenario 3: Amount = 30, type_id = 7, value field missing
-Scenario 4: type_id = 9999 (invalid)
-Scenario 5: Amount = 30, type_id = 7, value = -5 (negative)
-Country: GB / Currency: GBP","1. Initiate a new card sale with price uplift value = 0 (type_id=7, value=0), GB merchant
-   - Verify an error is returned
-   - Verify no entry in payments table
-   - Verify no entry in payments_split_commission
+-> Price uplift fee for £5 per fee_tier_id passed for the merchant",price_uplift;type_id_7;fee_tier;new_card;uk;cardstream;payments_table;,P1,Automated,UK,NA,CS_NC_TC_076_php_3ds_sale_single_split_price_uplift_sanity.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-001,CARDSTREAM - Hosted Form Sale - Successful Payment via /sale Route,"- Merchant is pointed to Cardstream
+- earth/sale/hosted endpoint is active and returns gatewayUrl and fields
+- window.hostedForms.classes.Form script is loaded on the page
+- Valid base64-encoded sale payload available as data query param","URL: /sale?data=<base64_encoded_sale_payload>
+Backend URL: <earth_base_url>/sale/hosted
+Cardstream test Visa: 4929000000006
+Valid expiry / valid CVV
+Merchant: Cardstream-pointed merchant","1. Navigate to /sale?data=<encoded_data>
+2. Verify spinner is displayed with message 'Please wait, loading payment page'
+3. Verify GET request fired to <earth_base_url>/sale/hosted with params {data, response}
+4. Verify backend returns JSON: {gatewayUrl: '...', fields: {...}}
+5. Verify window.hostedForms.classes.Form is initialised with modal: true and submit type: auto
+6. Verify spinner disappears ~200 ms after form initialisation
+7. Complete payment on the Cardstream hosted form using test card
+8. Verify payment recorded in payments table","1. Spinner shown during API call
+2. GET earth/sale/hosted?data=<data> returns {gatewayUrl, fields}
+3. Cardstream hosted form renders inside #paynow in modal mode with auto-submit
+4. Spinner disappears after form is ready
+5. Payment completes successfully
 
-2. Initiate a sale where price uplift value > sale amount (amount=10, uplift=15)
-   - Verify an error is returned
-   - Verify no DB entry created
+DB Validation — payments table (1 entry):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1 (Success)
+-> transaction_method_id: 19 (New Card)
+-> psp_reference: populated",cs_hosted_form;new_card;cardstream;DN-18725;happy_path;ai automated;auto_script=cardstream/new_card/CS_NC_TC_120_cs_hosted_form_sale_success.spec.js,P1,Automated,UK,NA,CS_NC_TC_120_cs_hosted_form_sale_success.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-002,CARDSTREAM - Hosted Form - Missing data Param on /sale Route Shows Error,"- /sale route is accessible
+- No data query param in the URL",URL: /sale (no query params),"1. Navigate to /sale with no query parameters
+2. Verify no GET request is made to earth/sale/hosted
+3. Verify error message 'Missing payment data in URL' is rendered (role='alert')
+4. Verify #paynow container is empty (no hosted form rendered)","1. Error element with role='alert' visible: 'Missing payment data in URL'
+2. No API request made to backend
+3. No Cardstream hosted form rendered
+4. No entry created in payments table",cs_hosted_form;new_card;cardstream;DN-18725;negative_test;error_handling;ai automated;auto_script=cardstream/new_card/CS_NC_TC_121_cs_hosted_form_sale_missing_data.spec.js,P1,Automated,UK,NA,CS_NC_TC_121_cs_hosted_form_sale_missing_data.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-003,CARDSTREAM - Hosted Form - Backend API Failure on /sale Route Shows Error,"- /sale route is accessible
+- earth/sale/hosted endpoint returns HTTP 500 or network error","URL: /sale?data=<encoded_data>
+Backend stub: return HTTP 500","1. Navigate to /sale?data=<encoded_data>
+2. Stub earth/sale/hosted to return HTTP 500
+3. Verify error message 'Failed to initiate payment. Please try again.' is rendered
+4. Verify no Cardstream hosted form is rendered
+5. Verify no entry created in payments table","1. Error message displayed: 'Failed to initiate payment. Please try again.'
+2. #paynow container remains empty
+3. No DB entry created in payments table",cs_hosted_form;new_card;cardstream;DN-18725;negative_test;error_handling;ai automated;auto_script=cardstream/new_card/CS_NC_TC_122_cs_hosted_form_sale_api_failure.spec.js,P1,Automated,UK,NA,CS_NC_TC_122_cs_hosted_form_sale_api_failure.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-004,CARDSTREAM - Hosted Form Failure Page - Custom Error Message from message Param,"- /failure route is accessible
+- Valid encrypted response and data params available",URL: /failure?message=Insufficient+funds&data=<encoded_data>&response=<encoded_response>,"1. Navigate to /failure with message=Insufficient+funds, data and response params
+2. Verify heading 'Payment failed' is visible
+3. Verify 'Insufficient funds' displayed in the reason section
+4. Verify 'Retry payment' button is enabled (data param present)
+5. Verify 'Cancel' button is visible","1. Heading 'Payment failed' visible
+2. Reason section shows custom message: 'Insufficient funds'
+3. Retry payment button enabled
+4. Cancel button visible",cs_hosted_form;failure_page;cardstream;DN-18725;happy_path;ai automated;auto_script=cardstream/new_card/CS_NC_TC_123_cs_hosted_form_failure_custom_message.spec.js,P1,Automated,UK,NA,CS_NC_TC_123_cs_hosted_form_failure_custom_message.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-005,CARDSTREAM - Hosted Form Failure Page - Default Message When message Param Absent,"- /failure route is accessible
+- No message query param in URL",URL: /failure?data=<encoded_data>&response=<encoded_response> (no message param),"1. Navigate to /failure without message param
+2. Verify heading 'Payment failed' is visible
+3. Verify default message 'The payment could not be processed.' displayed in reason section
+4. Verify 'Retry payment' button is enabled","1. Heading 'Payment failed' visible
+2. Default message 'The payment could not be processed.' shown
+3. Retry button enabled (data param present)",cs_hosted_form;failure_page;cardstream;DN-18725;edge_case,P2,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-006,CARDSTREAM - Hosted Form Failure Page - Retry Button Redirects to /sale with Preserved Params,"- /failure route is accessible
+- Valid data and response params in URL",URL: /failure?data=<encoded_data>&response=<encoded_response>&message=Card+declined,"1. Navigate to /failure with data, response, and message params
+2. Verify 'Retry payment' button is enabled
+3. Click 'Retry payment' button
+4. Verify browser redirected to /sale?data=<encoded_data>&response=<encoded_response>","1. Retry payment button enabled when data param present
+2. Clicking Retry redirects to /sale preserving data and response query params exactly",cs_hosted_form;failure_page;cardstream;DN-18725;retry_flow;ai automated;auto_script=cardstream/new_card/CS_NC_TC_124_cs_hosted_form_failure_retry_redirect.spec.js,P1,Automated,UK,NA,CS_NC_TC_124_cs_hosted_form_failure_retry_redirect.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-007,CARDSTREAM - Hosted Form Failure Page - Retry Button Disabled When data Param Missing,"- /failure route is accessible
+- No data query param in URL",URL: /failure?response=<encoded_response> (no data param),"1. Navigate to /failure with only response param (no data param)
+2. Verify 'Retry payment' button is rendered
+3. Verify 'Retry payment' button has disabled attribute
+4. Attempt to click the disabled button — verify no navigation occurs","1. Retry payment button visible but disabled (HTML disabled attribute present)
+2. No redirect occurs on click attempt",cs_hosted_form;failure_page;cardstream;DN-18725;negative_test;retry_flow;ai automated;auto_script=cardstream/new_card/CS_NC_TC_125_cs_hosted_form_failure_retry_disabled.spec.js,P1,Automated,UK,NA,CS_NC_TC_125_cs_hosted_form_failure_retry_disabled.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-008,CARDSTREAM - Hosted Form Failure Page - Cancel Button Redirects to cancel_url from Decrypted Response,"- /failure route is accessible
+- Encrypted response param contains cancel_url after decryption via getDecodedData","URL: /failure?response=<encoded_response>
+Decrypted response: {cancel_url: 'https://merchant.example.com/checkout'}","1. Navigate to /failure?response=<encoded_response>
+2. Wait for getDecodedData to resolve and set cancel_url
+3. Verify 'Cancel' button is visible and enabled
+4. Click 'Cancel' button
+5. Verify browser redirects to cancel_url from decrypted response","1. Cancel button visible and enabled
+2. Clicking Cancel redirects to cancel_url extracted from decrypted response
+3. Correct cancel_url used — no hardcoded value",cs_hosted_form;failure_page;cardstream;DN-18725;cancel_flow;ai automated;auto_script=cardstream/new_card/CS_NC_TC_126_cs_hosted_form_failure_cancel_redirect.spec.js,P1,Automated,UK,NA,CS_NC_TC_126_cs_hosted_form_failure_cancel_redirect.spec.js
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-009,CARDSTREAM - App Init Null Guard - No Crash When response Query Param Is Absent,"- App loaded
+- No response query param present in the URL",URL: / or /sale or any route without ?response= param,"1. Navigate to the app on any route without ?response= query param
+2. Verify app initialises without JavaScript TypeError or uncaught exception
+3. Verify no console error relating to getDecodedData or decodedString
+4. Verify OpenReplay is not called (orderId is null)","1. App initialises cleanly — no TypeError, no uncaught exception
+2. Null guard in App.js prevents calling getDecodedData when response param is absent
+3. No OpenReplay session initiated
+4. Page renders normally",cs_hosted_form;app_init;cardstream;DN-18725;regression;null_guard,P2,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-010,CARDSTREAM - Hosted Form - New Card Payment with 3DS Challenge - Successful,"- Merchant is pointed to Cardstream
+- earth/sale/hosted endpoint is active and returns gatewayUrl and fields
+- window.hostedForms.classes.Form script is loaded on the page
+- Valid base64-encoded sale payload available as data query param
+- Test card configured to trigger 3DS challenge","URL: /sale?data=<base64_encoded_sale_payload>
+Backend URL: <earth_base_url>/sale/hosted
+Cardstream 3DS test card (Cardstream-provided)
+Valid expiry / valid CVV
+Merchant: Cardstream-pointed merchant","1. Navigate to /sale?data=<encoded_data>
+2. Verify spinner shown and Cardstream hosted form loads
+3. Enter 3DS test card details and submit
+4. Verify 3DS challenge screen appears within or after the modal
+5. Complete the 3DS challenge (enter OTP or authenticate)
+6. Verify redirect returns to checkout and payment is confirmed
+7. Verify payment recorded in payments table","1. Cardstream hosted form renders in modal mode
+2. 3DS challenge screen presented to customer
+3. Customer completes 3DS authentication successfully
+4. Payment confirmed after 3DS completion
 
-3. Initiate a sale with type_id=7 but value field missing
-   - Verify missing required field error
-
-4. Initiate a sale with invalid type_id=9999
-   - Verify ""invalid type id"" error
-   - Verify no payments_split_commission entry
-
-5. Initiate a sale with negative price uplift (type_id=7, value=-5)
-   - Verify an error is returned
-   - Verify no DB entry created","1. value=0 → Error returned, no payments table entry, no payments_split_commission entry
-
-2. uplift > sale → Error returned, no DB entry
-
-3. Missing value field → Missing required field error
-
-4. Invalid type_id → ""invalid type id"" error, no payments_split_commission entry
-
-5. Negative value → Error returned, no DB entry
-
-All scenarios: no entry created in payments_split_commission for type_id=7",price_uplift;type_id_7;negative_test;new_card;uk;cardstream;,P1,Not Automated
+DB Validation — payments table (1 entry):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1 (Success)
+-> transaction_method_id: 19 (New Card)
+-> psp_reference: populated",cs_hosted_form;new_card;cardstream;DN-18725;3ds;happy_path,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-011,CARDSTREAM - Hosted Form - Card Declined by Cardstream,"- Merchant is pointed to Cardstream
+- earth/sale/hosted endpoint is active
+- Test card configured to trigger a decline","URL: /sale?data=<base64_encoded_sale_payload>
+Cardstream decline test card (Cardstream-provided)
+Valid expiry / valid CVV","1. Navigate to /sale?data=<encoded_data>
+2. Verify Cardstream hosted form loads
+3. Enter the decline test card details
+4. Submit the payment form
+5. Verify error message shown in modal (e.g. 'Payment declined')
+6. Verify checkout is re-displayed and customer can retry
+7. Verify no payment entry created in payments table","1. Error message displayed within hosted form: 'Payment declined' (or Cardstream equivalent)
+2. Modal does not close abruptly — error visible to customer
+3. No entry created in payments table
+4. Customer can retry payment without page reload",cs_hosted_form;new_card;cardstream;DN-18725;negative_test;card_declined,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-012,CARDSTREAM - Hosted Form - Invalid Card Number Shows Inline Validation Error,"- /sale route is accessible
+- Cardstream hosted form loads successfully","URL: /sale?data=<valid_encoded_data>
+Invalid card number: 1234567890123456","1. Navigate to /sale?data=<encoded_data>
+2. Verify Cardstream hosted form renders
+3. Enter invalid card number: 1234567890123456
+4. Tab or click away from the card number field
+5. Verify inline validation error shown on the card number field
+6. Verify form cannot be submitted
+7. Verify no API request made to earth/sale/hosted","1. Inline validation error visible on card number field: 'Invalid card number' (or Cardstream equivalent)
+2. Form not submitted
+3. No API request to backend
+4. No entry in payments table",cs_hosted_form;new_card;cardstream;DN-18725;negative_test;validation;inline_error,P2,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-013,CARDSTREAM - Hosted Form - 3DS Challenge Cancelled by Customer Results in Payment Failure,"- Merchant is pointed to Cardstream
+- Test card triggers 3DS challenge
+- earth/sale/hosted endpoint is active","URL: /sale?data=<base64_encoded_sale_payload>
+Cardstream 3DS test card configured to require OTP challenge","1. Navigate to /sale?data=<encoded_data>
+2. Enter 3DS test card details and submit
+3. When 3DS challenge screen appears, cancel the challenge or enter incorrect OTP
+4. Verify payment fails and failure state is shown
+5. Verify no successful payment entry in payments table","1. 3DS cancellation handled — customer sees payment failed state or redirected to /failure
+2. No entry with transaction_status_id: 1 (Success) in payments table
+3. Checkout re-displayed or failure page shown — no broken state
+4. No psp_reference stored for failed transaction",cs_hosted_form;new_card;cardstream;DN-18725;negative_test;3ds;3ds_failure,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-014,CARDSTREAM - Hosted Form - Customer Closes Modal Before Entering Card Details,"- /sale route is accessible
+- Cardstream hosted form loads successfully",URL: /sale?data=<valid_encoded_data>,"1. Navigate to /sale?data=<encoded_data>
+2. Verify Cardstream hosted form modal loads
+3. Close the modal without entering any card details (click X or dismiss)
+4. Verify no payment is created
+5. Verify checkout page remains usable
+6. Verify no JS errors thrown in console","1. Modal closes gracefully — no crash or broken state
+2. No API request made to Cardstream
+3. No payment created in payments table
+4. Checkout still usable after modal is dismissed",cs_hosted_form;new_card;cardstream;DN-18725;edge_case;modal_close,P2,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-015,CARDSTREAM - Hosted Form - Customer Closes Modal Mid-3DS Flow,"- Merchant is pointed to Cardstream
+- Test card triggers 3DS challenge
+- earth/sale/hosted endpoint is active","URL: /sale?data=<base64_encoded_sale_payload>
+Cardstream 3DS test card","1. Navigate to /sale?data=<encoded_data>
+2. Enter 3DS test card details and submit
+3. When 3DS challenge screen appears, close the modal or challenge window mid-flow
+4. Verify any pending Cardstream auth is not recorded as success
+5. Verify checkout is re-displayed and usable
+6. Verify no successful payment entry in payments table","1. Modal / 3DS challenge closes gracefully
+2. No successful payment authorisation recorded
+3. No entry with transaction_status_id: 1 (Success) in payments table
+4. Checkout re-displayed without error — no broken state",cs_hosted_form;new_card;cardstream;DN-18725;edge_case;modal_close;3ds,P2,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-016,CARDSTREAM - Hosted Form - Double-Click Pay Button Does Not Create Duplicate Payment,"- /sale route accessible
+- Cardstream hosted form loads
+- Valid test card ready","URL: /sale?data=<valid_encoded_data>
+Cardstream test Visa: 4929000000006
+Valid expiry / valid CVV","1. Navigate to /sale?data=<encoded_data>
+2. Verify Cardstream hosted form loads
+3. Enter valid card details
+4. Rapidly double-click the Pay/Submit button
+5. Verify only one payment request is initiated
+6. Verify payment completes once
+7. Verify only one entry created in payments table","1. Submit button disabled after first click — no double submission
+2. Only one request to earth/sale/hosted backend
+3. Exactly one payment entry in payments table
+4. No duplicate psp_reference in DB",cs_hosted_form;new_card;cardstream;DN-18725;edge_case;duplicate_submit;race_condition,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-017,CARDSTREAM - Datman Toggle Enabled for MID - Cardstream Appears in /paymentMethods,"- Datman Layer 1 toggle: Cardstream enabled for test MID
+- /paymentMethods endpoint accessible","MID: Cardstream-enabled test merchant
+API: GET /paymentMethods?merchantId=<mid>","1. Confirm Cardstream toggle is ON for the test MID in Datman Control Panel
+2. Call GET /paymentMethods for that MID
+3. Verify response includes 'cardstream' as a payment method option
+4. Load checkout for that MID
+5. Verify Cardstream hosted form option is presented on checkout","1. GET /paymentMethods response includes 'cardstream'
+2. Checkout UI renders Cardstream hosted form option for this MID
+3. No other MID checkout is affected",cs_hosted_form;new_card;cardstream;DN-18725;happy_path;toggle;payment_methods,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-018,CARDSTREAM - Datman Toggle Disabled for MID - Cardstream Not Shown in /paymentMethods,"- Datman Layer 1 toggle: Cardstream DISABLED for test MID
+- /paymentMethods endpoint accessible",MID: Cardstream-disabled test merchant,"1. Confirm Cardstream toggle is OFF for the test MID in Datman Control Panel
+2. Call GET /paymentMethods for that MID
+3. Verify response does NOT include 'cardstream'
+4. Load checkout for that MID
+5. Verify Cardstream option is NOT shown on checkout","1. GET /paymentMethods response does not include 'cardstream'
+2. Checkout UI does not render Cardstream option for this MID
+3. No Cardstream modal triggered
+4. No broken state — other payment methods still available",cs_hosted_form;new_card;cardstream;DN-18725;negative_test;toggle;payment_methods,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-019,CARDSTREAM - Hosted Form - Zero-Amount Transaction Rejected at Gateway,"- /sale route accessible
+- Base64-encoded sale payload with amount = 0 prepared","URL: /sale?data=<base64_encoded_payload_with_amount_0>
+Payload: amount=0","1. Prepare a valid base64-encoded sale payload with amount set to 0
+2. Navigate to /sale?data=<encoded_zero_amount_data>
+3. Verify the transaction is rejected before reaching Cardstream
+4. Verify appropriate error message displayed
+5. Verify no payment entry created in payments table","1. Transaction rejected — amount must be > 0
+2. Error message displayed to customer
+3. No entry in payments table
+4. No request forwarded to Cardstream API",cs_hosted_form;new_card;cardstream;DN-18725;edge_case;validation;zero_amount,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-020,CARDSTREAM - Hosted Form - No Datman or MyPay Branding Visible in Modal (White-Label Regression),"- Merchant is pointed to Cardstream
+- Cardstream hosted form loads successfully
+- Merchant is configured as a white-label partner","URL: /sale?data=<valid_encoded_data>
+Merchant: white-label Cardstream partner","1. Navigate to /sale?data=<encoded_data>
+2. Verify Cardstream hosted form modal loads
+3. Visually inspect modal — check for Datman logo, MyPay logo, or Datman-branded text
+4. Inspect modal DOM for any Datman/MyPay references in src, alt, or text content
+5. Verify only partner or Cardstream branding is present","1. No Datman logo present in modal DOM or visible UI
+2. No MyPay branding in modal
+3. No 'Datman' or 'MyPay' text visible in modal
+4. White-label promise maintained — only partner/Cardstream branding visible",cs_hosted_form;new_card;cardstream;DN-18725;regression;white_label;branding,P1,Pending,UK,NA,NA
+Cardstream New Card,New Card - Hosted Form,NC-HF,NC-HF-021,CARDSTREAM - Hosted Form - Network Drop During Modal Load Shows Graceful Error,"- /sale route accessible
+- Network interruption can be simulated (DevTools / request stub)","URL: /sale?data=<valid_encoded_data>
+Simulate: network offline or request timeout after navigation","1. Navigate to /sale?data=<encoded_data>
+2. Simulate network drop before Cardstream JS / modal has fully loaded (DevTools offline or stub timeout)
+3. Verify spinner does not run indefinitely
+4. Verify error message displayed (e.g. 'Failed to load payment form')
+5. Verify no uncaught JS exception in console
+6. Verify page remains in a recoverable state","1. Error message shown — no infinite spinner
+2. No uncaught JS exception in console
+3. Checkout page does not become non-functional
+4. No payment entry created in payments table",cs_hosted_form;new_card;cardstream;DN-18725;edge_case;network_error;resilience,P2,Pending,UK,NA,NA

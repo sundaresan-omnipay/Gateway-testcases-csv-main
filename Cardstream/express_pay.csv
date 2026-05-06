@@ -1,0 +1,2630 @@
+Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,automation_status,Countries applicable,Partners applicable,Automation mapped TC
+TC001,CARDSTREAM - Express pay - race condition,,"curl --location --request POST 
+'https://legacy-qa-1.datmanpay.com/api2.php?action=paymentV2' \
+--header 'Content-Type: application/json' \
+--header 'api_token: 4HfhV2aYtUp7fwbonPM0gXPFUJ4PF98Q4fi' \
+--header 'Cookie: __cfduid=d55a3661cb27d0c23bcd3b47ba6bca6251601221625' \
+--data-raw '{
+""order_id"": 27676211,
+""merchantTokenId"": ""mxtoken_b4d3ee6bb9f80a8114221fe82601f2a9"",
+""amount"": ""14.98"",
+""host"": ""d-1337.t2scdn.com"",
+""merchant_id"": 1234568,
+""provider"": ""FH"",
+""first_name"": ""QA"",
+""last_name"": ""Testing"",
+""sending"": ""to"",
+""address"": {
+""house_number"": ""6"",
+""flat"": ""asdf"",
+""address1"": ""6"",
+""address2"": ""asd"",
+""postcode"": ""NN17 8YG""
+},
+""avs"": {
+""house_number"": ""6"",
+""postcode"": ""NN17 8YG""
+},
+""AddressOnFile"": [
+
+],
+""cvv"": ""356"",
+""email"": ""dharmesh@omni-pay.com""
+}'","Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Try to do the sale with the below factors
+1) Master_token from master_token table Non CARDSTREAM provider
+2) Merchant_id = Non- CARDSTREAM merchant
+3) Incorrect CVV
+4) Incorrect Email
+5) Sending value = not to
+6) Address = Right address linked with Card used
+
+Validate the same in DB
+
+Validate Cardstream MMS dashboard","User should see the Express pay Card_payment happening
+
+User should see the card_payment is not happening throwing Error message
+
+User should see the Data is getting in DB with all the entries correctly 
+like mainly
+1) Payment_provider
+2) Origin
+3) Payment_status
+4) Method
+
+User should see the dashboard is getting entry with the required info
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (Invalid sale scenarios):
+-> For each INVALID scenario (wrong provider / wrong merchant_id / incorrect CVV / wrong email / sending != 'to'):
+   - If rejected by our system before reaching Cardstream gateway:
+     Verify NO entry is created in the payments table
+   - If sent to Cardstream gateway and declined:
+     Verify ONE entry exists with transaction_status_id : 7 (Declined) or 9 (Failed)
+     psp_reference : NULL or CS decline reference
+     TxAuthNo : NULL
+     last_4_digits : NULL","express_checkout_non_3ds;
+express_checkout_cs;
+race_condition;",P2,Automated,UK,NA,"CS_EC_TC_022_race_condition.spec.js
+CS_EC_TC_023_sale_with_refund_race_condition.spec.js
+CS_EC_TC_055_bigtable_race_condition_sale.spec.js"
+TC002,CARDSTREAM - Collection Express pay - Empty/Invalid AVS - UK and Ireland,,"curl --location 'https://ws1.datmanpay.com/api2.php?action=paymentV2' \
+--header 'Content-Type: application/json' \
+--header 'api_token: 4HfhV2aYtUp7fwbonPM0gXPFUJ4PF98Q4fi' \
+--header 'Cookie: __cfduid=d55a3661cb27d0c23bcd3b47ba6bca6251601221625' \
+--data-raw '{
+""order_id"": 1414312,
+""merchantTokenId"": ""mxtoken_b4d3ee6bb9f80a8114221fe82601f2a9"",
+""amount"": ""10.00"",
+""customer_id"": ""80491037"",
+""WebhookUrl"": ""https://54602f6a156431a177c223aa5bd34f1b.m.pipedream.net"",
+""host"": ""google.com"",
+""merchant_id"": 63153688,
+""provider"": ""FH"",
+""first_name"": ""QA"",
+""last_name"": ""Testing"",
+""sending"": ""collection"",
+""address"": {
+""house_number"": ""6"",
+""flat"": ""asdf"",
+""address1"": ""6"",
+""address2"": ""asd"",
+""postcode"": ""NN178YG""
+},
+""avs"": {
+""house_number"": ""6"",
+""postcode"": ""NN178YG""
+},
+""AddressOnFile"": [
+
+],
+""cvv"": 356,
+""email"": ""sundaresan@datman.je""
+}'","1. Use the cURL available in the test data to process the Collection 
+express pay transaction
+
+2. Make sure to use the merchant id belonging to UK
+
+3. Verify the request is processed without any issue
+
+1.
+
+a) Process the same cURL request and make sure to remove the AVS values in 
+the payload
+
+b) Process the same cURL request where the AVS values are invalid in 
+payload
+
+c) Process the same cURL request where the master token used in the request 
+has invalid AVS values
+
+d) Process the same cURL request where the master token used in the request 
+has empty AVS values
+
+2. Verify the transaction is processed without any issue
+
+1. Repeat the steps 1 and 2 for the country Ireland and verify the 
+transaction is processed without any issue","The request should be processed without any issue for the collection order 
+and entry should be added in the database
+
+The transaction should be processed without any issue as the postcode 
+validation is not required for the country AU and US
+
+The transaction should be processed without any issue
+
+DB Validation - payments table (1 entry - Successful Collection Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Note: Collection orders (sending=collection) follow the same payments table structure as delivery sales (sending=to).
+AVS values (empty, invalid, missing) do not block the transaction for UK and Ireland on Cardstream.","express_checkout_collection;
+express_checkout_cs;
+avs_validation;
+",P2,Automated,UK,NA,CS_EC_TC_026_collection_invalid_avs.spec.js
+TC003,CARDSTREAM - Express pay using add card token,,"curl --location --request POST 
+'https://legacy-qa-1.datmanpay.com/api2.php?action=paymentV2' \
+--header 'Content-Type: application/json' \
+--header 'api_token: 4HfhV2aYtUp7fwbonPM0gXPFUJ4PF98Q4fi' \
+--header 'Cookie: __cfduid=d55a3661cb27d0c23bcd3b47ba6bca6251601221625' \
+--data-raw '{
+""order_id"": 27676211,
+""merchantTokenId"": ""mxtoken_b4d3ee6bb9f80a8114221fe82601f2a9"",
+""amount"": ""14.98"",
+""host"": ""d-1337.t2scdn.com"",
+""merchant_id"": 1234568,
+""provider"": ""FH"",
+""first_name"": ""QA"",
+""last_name"": ""Testing"",
+""sending"": ""to"",
+""address"": {
+""house_number"": ""6"",
+""flat"": ""asdf"",
+""address1"": ""6"",
+""address2"": ""asd"",
+""postcode"": ""NN17 8YG""
+},
+""avs"": {
+""house_number"": ""6"",
+""postcode"": ""NN17 8YG""
+},
+""AddressOnFile"": [
+
+],
+""cvv"": ""356"",
+""email"": ""dharmesh@omni-pay.com""
+}'","Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Try to do the sale with the below factors
+1) Master_token from master_token table Non CARDSTREAM provider
+2) Merchant_id = Non- CARDSTREAM merchant
+3) Incorrect CVV
+4) Incorrect Email
+5) Sending value = not to
+6) Address = Right address linked with Card used
+
+Validate the same done sale in DB
+
+Validate Carsdtream MMS dashboard","User should see the Express pay Card_payment happening
+
+User should see the card_payment is not happening throwing Error message
+
+User should see the Data is getting in DB with all the entries correctly 
+like mainly
+1) Payment_provider
+2) Origin
+3) Payment_status
+4) Method
+
+User should see the dashboard is getting entry with the required info
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (Invalid sale scenarios):
+-> For each INVALID scenario (non-CS token / non-CS merchant / incorrect CVV / wrong email / sending != 'to'):
+   - If rejected before reaching Cardstream gateway:
+     Verify NO entry is created in the payments table
+   - If sent to Cardstream and declined:
+     Verify ONE entry with transaction_status_id : 7 (Declined) or 9 (Failed)
+     TxAuthNo : NULL, last_4_digits : NULL, psp_reference : NULL","express_checkout_non_3ds;
+express_checkout_cs;
+add_card_token;",P1,Automated,UK,NA,CS_AC_TC_002_add_card_with_express_pay_sale.spec.js
+TC004,CS- Refresh token - Express pay - Split commission validation,,,,"DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table - Split Partner entries:
+-> Verify ONE entry per split partner merchant with:
+   - order_ref : <order_id>SC<split_commission_id> (e.g. 952515216SC36010511)
+   - merchant_id : Partner merchant_id (from split_fee payload)
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS) or 2 (3DS) matching the main sale
+   - transaction_method_id : 4 (Express Pay)
+   - gross : Split amount as per split_fee value
+   - fee : 0 (partner split rows carry no fee unless configured)
+   - net : Same as gross
+   - psp_reference : Same as main sale psp_reference
+   - internal_reference : Same as main sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : Same as main sale
+   - TxAuthNo : Same as main sale
+   - master_token_id : Same as main sale
+   - shopper_id : Same as main sale
+   - cs_mid : NULL (partner rows do not carry cs_mid)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments_split_commission table:
+-> Verify entry with commission_type_id, partner_merchant_id, amount as per split_fee payload","express_checkout_splits;
+express_checkout_cs;
+refresh_token;
+",P2,Automated,UK,NA,"CS_EC_TC_046_sale_with_split.spec.js
+CS_EC_TC_047_sale_with_split_type2.spec.js"
+TC005,CARDSTREAM - Tokenisation - Verifying the express-3ds sales based on xpress_sale_threeds_limit (Customer's table),,,"Note : 
+Datman Global config >> wallet_id_toggle_rate >> 0 
+Datman Global config >>  xpay_toggle_mxtoken_customer_id >> 1
+Datman Global config >> express_pay_cs_3ds_toggle_rate >> 1
+
+
+
+Limit as 30
+By using the below query try to set the xpress_sale_threeds_limit as 30 & 
+try to initiate the sales for below values
+a) Less than 30 
+b) More than 30","User should able to see
+
+DB Validation - payments table (2 entries - 3DS Sale):
+
+Entry 1 - 3DS Initiated (pending authorisation):
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 11 (3DS Initiated / threeds_required)
+   - transaction_mode_id : 1 (initiated before 3DS redirect)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id from payload
+   - merchant_id : merchant_id from payload
+   - gross / fee / net : As per payload amount and fee_tier
+   - psp_reference : NULL (not yet authorised by Cardstream)
+   - internal_reference : NULL
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used
+   - reason : threeds_required - <challenge_code> (e.g. threeds_required - 1022)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Entry 2 - 3DS Authenticated (success after 3DS completion):
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 2 (3DS authenticated)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as Entry 1
+   - merchant_id : Same as Entry 1
+   - gross / fee / net : Same values as Entry 1
+   - psp_reference : CS transaction reference after 3DS completion
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id> (using Entry 2 payment_id)
+   - last_4_digits : Last 4 digits of card used
+   - TxAuthNo : CS auth number returned post-3DS
+   - master_token_id : Same as Entry 1
+   - shopper_id : Same as Entry 1
+   - cs_mid : Same Cardstream MID
+   - reason : Empty string
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Note - For amounts BELOW the xpress_sale_threeds_limit:
+-> Only 1 entry is created with transaction_status_id : 1, transaction_mode_id : 1 (Non-3DS, no 3DS challenge triggered)
+
+For amounts ABOVE the xpress_sale_threeds_limit:
+-> 2 entries are created as described above (Entry 1: status=11, Entry 2: status=1 after 3DS)","express_checkout_3ds;
+express_checkout_cs;
+tokenisation;
+threeds_limit;",P2,Automated,UK,NA,CS_EC_TC_037_3ds_sale_with_split_sanity.spec.js
+TC006,CARDSTREAM - Tokenisation - Verifying the express-pay 3DS sales based on xpress_sale_threeds_limit,"Wallet -id should be generated if there is no wallet-id present in master 
+token for CS in case of all the amounts.",select * from customers where id = 'your customer-id';,"Note : Need to be validated on both country level & customer's level
+
+Using x-ref token 
+
+1. Datman config >> express_pay_cs_3ds_toggle_rate >> 1
+2. Datman config >> xpay_toggle_mxtoken_customer_id >> 1
+3. Datman config >> wallet_id_toggle_rate >> 0
+
+Limit as 20
+A. Set the xpress_sale_threeds_limit as 20 in customers table as per the 
+customer-id & Country table as NULL
+B. Set the xpress_sale_threeds_limit as NULL in customers table as per the 
+customer-id & Country table as 20
+
+1) Try to initiate the 3DS express-pay sale for below mentioned amount for 
+the above cases 
+a) Less than 20
+b) More than 20
+
+DB validations
+
+
+Try to verify the above processed sales in
+a) DB
+* payments table
+* Webhook log
+* Master token
+* Payments split commission 
+b) Dashboard
+
+Limit as 45
+
+A. Set the xpress_sale_threeds_limit as 45 in customers table as per the 
+customer-id & Country table as NULL
+B. Set the xpress_sale_threeds_limit as NULL in customers table as per the 
+customer-id & Country table as 45
+
+1) Try to initiate the 3DS express-pay sale for below mentioned amount
+a) Less than 45
+b) More than 45
+
+DB validations
+
+
+Try to verify the above processed sales in
+a) DB
+* payments table
+* Webhook log
+* Master token
+* Payments split commission
+b) Dashboard
+
+Limit as 50
+A. Set the xpress_sale_threeds_limit as 50 in customers table as per the 
+customer-id & Country table as NULL
+B. Set the xpress_sale_threeds_limit as NULL in customers table as per the 
+customer-id & Country table as 50
+
+1) Try to initiate the 3DS express-pay sale for below mentioned amount
+a) Less than 50
+b) More than 50
+
+DB validations
+
+
+Try to verify the above processed sales in
+a) DB
+* payments table
+* Webhook log
+* Master token
+* Payments split commission
+b) Dashboard
+
+Limit as empty/ invalid/ null & verify the above step
+
+Note : 
+
+Using wallet-id token 
+
+1. Datman config >> express_pay_cs_3ds_toggle_rate >> 1
+2. Datman config >> xpay_toggle_mxtoken_customer_id >> 1
+3. Datman config >> wallet_id_toggle_rate >> 1
+
+Limit as 20
+Set the xpress_sale_threeds_limit as 20 in customers table as per the 
+customer-id
+
+1) Try to initiate the 3DS express-pay sale for below mentioned amount
+a) Less than 20
+b) More than 20
+
+DB validations
+
+
+Try to verify the above processed sales in
+a) DB
+* payments table
+* Webhook log
+* Master token
+* Payments split commission
+b) Dashboard
+
+Limit as 45
+Set the xpress_sale_threeds_limit as 45 in customers table as per the 
+customer-id
+
+1) Try to initiate the 3DS express-pay sale for below mentioned amount
+a) Less than 45
+b) More than 45
+
+DB validations
+
+
+Try to verify the above processed sales in
+a) DB
+* payments table
+* Webhook log
+* Master token
+* Payments split commission
+b) Dashboard
+
+Limit as 50
+Set the xpress_sale_threeds_limit as 50 in customers table as per the 
+customer-id
+
+1) Try to initiate the 3DS express-pay sale for below mentioned amount
+a) Less than 50
+b) More than 50
+
+DB validations
+
+
+Try to verify the above processed sales in
+a) DB
+* payments table
+* Webhook log
+* Master token
+* Payments split commission
+b) Dashboard
+
+Selection priority
+
+Try to use checkout MID with CS token and verify the sale as per the limit
+a) Less than the limit
+b) More than the limit
+
+DB validations
+
+
+Try to verify the above processed sales in
+a) DB
+* Card-payment
+* Webhook log
+* Master token
+* Payments split commission
+b) Dashboard","User should able to see update the toggle as per mentioned note.
+
+
+
+1) User should able to see the sale is being processed successfully without 
+3DS.
+2) User should able to see the sale is being processed successfully with 
+3DS.
+
+User should able to see the entry as per the sale processed.
+
+1) User should able to see the sale is being processed successfully without 
+3DS.
+2) User should able to see the sale is being processed successfully with 
+3DS.
+
+User should able to see the entry as per the sale processed.
+
+1) User should able to see the sale is being processed successfully without 
+3DS.
+2) User should able to see the sale is being processed successfully with 
+3DS.
+
+User should able to see the entry as per the sale processed.
+
+User should able to see the sale is being processed in normal flow.
+
+User should able to see update the toggle as per mentioned note.
+
+
+
+1) User should able to see the sale is being processed successfully without 
+3DS.
+2) User should able to see the sale is being processed successfully with 
+3DS.
+
+User should able to see the entry as per the sale processed.
+
+1) User should able to see the sale is being processed successfully without 
+3DS.
+2) User should able to see the sale is being processed successfully with 
+3DS.
+
+User should able to see the entry as per the sale processed.
+
+1) User should able to see the sale is being processed successfully without 
+3DS.
+2) User should able to see the sale is being processed successfully with 
+3DS.
+
+User should able to see the entry as per the sale processed.
+
+1) User should able to see the sale is being processed successfully without 
+3DS.
+2) User should able to see the sale is being processed successfully with 
+3DS.
+
+User should able to see the sales are being processed as per the token 
+passed.
+
+DB Validation - payments table (2 entries - 3DS Sale):
+
+Entry 1 - 3DS Initiated (pending authorisation):
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 11 (3DS Initiated / threeds_required)
+   - transaction_mode_id : 1 (initiated before 3DS redirect)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id from payload
+   - merchant_id : merchant_id from payload
+   - gross / fee / net : As per payload amount and fee_tier
+   - psp_reference : NULL (not yet authorised by Cardstream)
+   - internal_reference : NULL
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used
+   - reason : threeds_required - <challenge_code> (e.g. threeds_required - 1022)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Entry 2 - 3DS Authenticated (success after 3DS completion):
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 2 (3DS authenticated)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as Entry 1
+   - merchant_id : Same as Entry 1
+   - gross / fee / net : Same values as Entry 1
+   - psp_reference : CS transaction reference after 3DS completion
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id> (using Entry 2 payment_id)
+   - last_4_digits : Last 4 digits of card used
+   - TxAuthNo : CS auth number returned post-3DS
+   - master_token_id : Same as Entry 1
+   - shopper_id : Same as Entry 1
+   - cs_mid : Same Cardstream MID
+   - reason : Empty string
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Note - For amounts BELOW the xpress_sale_threeds_limit:
+-> Only 1 entry with transaction_status_id : 1, transaction_mode_id : 1 (Non-3DS)
+
+For amounts ABOVE the xpress_sale_threeds_limit:
+-> 2 entries as above (Entry 1: status=11, Entry 2: status=1 after 3DS completion)
+
+For checkout MID with CS token (selection priority):
+-> Same 2-entry pattern applies when amount exceeds the limit","express_checkout_3ds;
+express_checkout_cs;
+tokenisation;
+wallet_id;",P2,Automated,UK,NA,CS_EC_TC_033_3ds_sale_collection.spec.js
+TC008,Cardstream Express pay - Fee_tier Association E2E,,,,"DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+fee_tier;",P2,Automated,UK,NA,CS_EC_TC_081_3ds_sale_price_uplift_partial_refund_to_card_fee_tier_0.spec.js
+TC009,CS_EC_TC_001_sale + Express pay sale,,,,"DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (1 entry - Refund):
+-> Verify ONE additional entry is created for the refund with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as original sale
+   - gross : Negative of original gross (e.g. -1000 for a 10.00 refund)
+   - fee : Negative of original fee
+   - net : Negative of original net
+   - psp_reference : Same as original sale psp_reference
+   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : NULL
+   - cs_mid : NULL
+   - reason : Refund reason text referencing original payment id (#<original_id>)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+e2e_sale;",P2,Automated,UK,NA,CS_EC_TC_002_sale_smoke_sanity.spec.js
+TC010,CS_EC_TC_002_cvv_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl to make an express pay sale
+
+Validate the scenario when cvv is empty
+
+Verify that Express pay fails
+
+Observe the API response
+
+Validate the scenario when cvv is NULL
+
+Verify that Express pay fails
+
+Validate the scenario when cvv is Alphabets
+
+Verify that Express pay fails
+
+Observe the API response
+
+Validate the scenario when cvv is Special characters
+
+Verify that Express pay fails
+
+Observe the API response
+
+Validate the scenario when cvv is undefined
+
+Verify that Express pay fails
+
+Observe that the API response is challenged","Validate that the user sees the Express pay Card_payment happening
+
+Observe that the API response is challenged with outcome 'challenged' and 
+code '1001'
+
+Is the outcome 'challenged' and the code '1001'?
+
+DB Validation - payments table (Valid CVV scenario):
+-> For the initial valid sale scenario:
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (Invalid CVV scenarios - empty / NULL / alphabets / special chars / undefined):
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+cvv_scenarios;",P2,Automated,UK,NA,CS_EC_TC_003_cvv_scenarios.spec.js
+TC012,CS_EC_TC_003_invalid_cvv.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when invalid cvv is passed .","User should see the Express pay Card_payment happening
+
+Express pay sale should failed when invalid cvv is passed.
+
+{outcome: failed, message: Request missing required params}
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+invalid_cvv;",P2,Automated,UK,NA,CS_EC_TC_004_invalid_cvv_sanity.spec.js
+TC013,CS_EC_TC_004_invalid_amount.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when amount passed is empty
+
+Validate the express pay response when amount passed with Invalid decimal 
+values
+
+Validate the express pay response when amount passed with Negative amount
+
+Validate the express pay response when amount passed with Alphabets
+
+Validate the express pay response when amount passed with Special 
+characters
+
+Validate the express pay response when amount passed with null","User should see the Express pay Card_payment happening
+
+Express pay sale should failed
+
+{
+    ""message"": ""Invalid amount"",
+    ""outcome"": ""failed""
+}
+
+Express pay sale should failed
+
+{
+    ""message"": ""Invalid amount"",
+    ""outcome"": ""failed""
+}
+
+Express pay sale should failed
+
+{
+    ""message"": ""Invalid amount"",
+    ""outcome"": ""failed""
+}
+
+Express pay sale should failed
+
+{
+    ""message"": ""Invalid amount"",
+    ""outcome"": ""failed""
+}
+
+Express pay sale should failed
+
+{
+    ""message"": ""Invalid amount"",
+    ""outcome"": ""failed""
+}
+
+Express pay sale should failed
+
+{
+    ""message"": ""Invalid amount"",
+    ""outcome"": ""failed""
+}
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+invalid_amount;",P2,Automated,UK,NA,CS_EC_TC_005_invalid_amount.spec.js
+TC014,CS_EC_TC_005_negative_amount.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when amount passed with Negative amount","User should see the Express pay Card_payment happening
+
+Express pay sale should failed
+
+{
+    ""message"": ""Invalid amount"",
+    ""outcome"": ""failed""
+}
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+negative_amount;",P2,Automated,UK,NA,CS_EC_TC_006_negative_amount.spec.js
+TC015,CS_EC_TC_006_orderid_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when order_id passed is  Empty
+
+Validate the express pay response when order_id passed is  Alphabets
+
+Validate the express pay response when order_id passed is  Special 
+characters","User should see the Express pay Card_payment happening
+
+Express pay sale should failed
+
+{
+    ""message"": ""Input is empty or Invalid JSON"",
+    ""outcome"": ""failed""
+}
+
+Express pay sale should failed
+
+{
+    ""message"": ""Input is empty or Invalid JSON"",
+    ""outcome"": ""failed""
+}
+
+Express pay sale should failed
+
+{
+    ""message"": ""Input is empty or Invalid JSON"",
+    ""outcome"": ""failed""
+}
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+order_id_scenarios;",P2,Automated,UK,NA,CS_EC_TC_007_orderid_scenarios.spec.js
+TC016,CS_EC_TC_007_address_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when address passed is  Empty
+
+Validate the express pay response when address passed is  Null
+
+Validate the express pay response when address passed is  Alphabets
+
+Validate the express pay response when address passed is  Special 
+characters","User should see the Express pay Card_payment happening
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+address_scenarios;",P2,Automated,UK,NA,CS_EC_TC_008_address_scenarios.spec.js
+TC017,CS_EC_TC_008_first_name_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when firstname passed is  Numbers
+
+Validate the express pay response when firstname passed is  long characters
+
+Validate the express pay response when firstname passed is Special 
+characters","User should see the Express pay Card_payment happening
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+first_name_scenarios;",P2,Automated,UK,NA,CS_EC_TC_009_first_name_scenarios.spec.js
+TC018,CS_EC_TC_009_empty_first_name.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when firstname passed is  Empty
+
+Validate the express pay response when firstname passed is  Null","User should see the Express pay Card_payment happening
+
+Express pay sale should be failed
+{outcome: failed, message: Request missing required params}
+
+Express pay sale should be failed
+{outcome: failed, message: Request missing required params}
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+empty_first_name;",P2,Automated,UK,NA,CS_EC_TC_010_empty_first_name.spec.js
+TC019,CS_EC_TC_010_merchantTokenId_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when merchantTokenId passed is  Empty
+
+Validate the express pay response when merchantTokenId passed is  Null
+
+Validate the express pay response when merchantTokenId passed is  Alphabets
+
+Validate the express pay response when merchantTokenId passed is  Special 
+characters","User should see the Express pay Card_payment happening
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+merchant_token_scenarios;",P2,Automated,UK,NA,CS_EC_TC_011_merchantTokenId_scenarios.spec.js
+TC020,CS_EC_TC_011_merchantid_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when merchantId is empty
+
+Validate the express pay response when merchantId is Null
+
+Validate the express pay response when merchantId is Alphabets
+
+Validate the express pay response when merchantId is Special characters","User should see the Express pay Card_payment happening
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+merchant_id_scenarios;",P2,Automated,UK,NA,CS_EC_TC_012_merchantid_scenarios.spec.js
+TC021,CS_EC_TC_012_provider_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when provider is empty
+
+Validate the express pay response when provider is Null
+
+Validate the express pay response when provider is Alphabets
+
+Validate the express pay response when provider is Special characters","User should see the Express pay Card_payment happening
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+Express pay sale should be failed
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+provider_scenarios;",P2,Automated,UK,NA,CS_EC_TC_013_provider_scenarios.spec.js
+TC022,CS_EC_TC_013_second_name_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when lastname is Alphabets
+
+Validate the express pay response when lastname is Special characters","User should see the Express pay Card_payment happening
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+last_name_scenarios;",P2,Automated,UK,NA,CS_EC_TC_014_second_name_scenarios.spec.js
+TC023,CS_EC_TC_014_empty_last_name.spec.js- Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when lastname is Empty
+
+Validate the express pay response when lastname is Null","User should see the Express pay Card_payment happening
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+empty_last_name;",P2,Automated,UK,NA,CS_EC_TC_015_empty_last_name.spec.js
+TC024,CS_EC_TC_015_empty_sending.spec.js- Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when sending is Empty
+
+Validate the express pay response when sending is Null","User should see the Express pay Card_payment happening
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+empty_sending;",P2,Automated,UK,NA,CS_EC_TC_016_empty_sending.spec.js
+TC025,CS_EC_TC_016_avs_scenarios.spec.js- Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when avs is Empty
+
+Validate the express pay response when avs is Null
+
+Validate the express pay response when avs is Alphabets
+
+Validate the express pay response when avs is Special characters","User should see the Express pay Card_payment happening
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+DB Validation - payments table (1 entry - Declined Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 7 (Declined by gateway) or 9 (Failed)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - gross : Amount passed in payload
+   - fee : 0 (no fee charged on declined transactions)
+   - net : 0
+   - psp_reference : CS decline reference (if returned by gateway)
+   - internal_reference : NULL or O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : NULL (not captured for declined transactions)
+   - TxAuthNo : NULL
+   - master_token_id : Resolved master_token_id (if token lookup succeeded)
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID attempted
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Note: Empty or invalid AVS values for UK delivery (sending=to) on Cardstream result in a declined transaction (transaction_status_id : 7 or 9). An entry is created in the payments table with the failed status.","express_checkout_non_3ds;
+express_checkout_cs;
+avs_scenarios;",P2,Automated,UK,NA,CS_EC_TC_017_avs_scenarios.spec.js
+TC026,CS_EC_TC_017_invalid_mail.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when email is Empty
+
+Validate the express pay response when email is Null
+
+Validate the express pay response when email is Alphabets
+
+Validate the express pay response when email is Special characters","User should see the Express pay Card_payment happening
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+Express pay sale should fail
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record","express_checkout_non_3ds;
+express_checkout_cs;
+invalid_email;",P2,Automated,UK,NA,CS_EC_TC_018_invalid_mail.spec.js
+TC027,CS_EC_TC_018_sale_refund_to_wallet.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when valid details are entered and send 
+is clicked
+
+For the above successful order process the refund to wallet","User should see the Express pay Card_payment happening
+
+Express pay sale should be success
+{""outcome"":""success"",""payment_id"" should be showing }
+
+Refund to Wallet should be success
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (1 entry - Refund):
+-> Verify ONE additional entry is created for the refund with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as original sale
+   - gross : Negative of original gross (e.g. -1000 for a 10.00 refund)
+   - fee : Negative of original fee
+   - net : Negative of original net
+   - psp_reference : Same as original sale psp_reference
+   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : NULL
+   - cs_mid : NULL
+   - reason : Refund reason text referencing original payment id (#<original_id>)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+refund_to_wallet;",P2,Automated,UK,NA,CS_EC_TC_019_sale_refund_to_wallet_sanity.spec.js
+TC028,CS_EC_TC_019_sale_refund_to_card.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when valid details are entered and send 
+is clicked
+
+For the above successful order process the refund to Card","User should see the Express pay Card_payment happening
+
+Express pay sale should be success
+{""outcome"":""success"",""payment_id"" should be showing }
+
+Refund to Card should be success
+{""outcome"":""success""}
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (1 entry - Refund):
+-> Verify ONE additional entry is created for the refund with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as original sale
+   - gross : Negative of original gross (e.g. -1000 for a 10.00 refund)
+   - fee : Negative of original fee
+   - net : Negative of original net
+   - psp_reference : Same as original sale psp_reference
+   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : NULL
+   - cs_mid : NULL
+   - reason : Refund reason text referencing original payment id (#<original_id>)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+refund_to_card;",P2,Automated,UK,NA,CS_EC_TC_020_sale_refund_to_card_sanity.spec.js
+TC029,CS_EC_TC_020_host_scenarios.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when host is empty
+
+Validate the express pay response when host is Null
+
+Validate the express pay response when host is Alphabets
+
+Validate the express pay response when host is  Special characters","User should see the Express pay Card_payment happening
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+Express pay sale should be success
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+host_scenarios;",P2,Automated,UK,NA,CS_EC_TC_021_host_scenarios.spec.js
+TC030,CS_EC_TC_021_race_condition.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the same done sale in DB
+
+Validate the same done sale in Dashboard","User should see the Express pay Card_payment happening
+
+User should see the Data is getting in DB with all the entries correctly 
+like mainly
+1) Payment_provider
+2) Origin
+3) Payment_status
+4) Method
+
+User should see the dashboard is getting entry with the required info
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (Race condition check):
+-> For duplicate concurrent requests with the same order_id:
+   - Only ONE successful entry should exist with transaction_status_id : 1
+   - Any duplicate attempt should be rejected; verify no duplicate entry with the same order_id and transaction_status_id : 1","express_checkout_non_3ds;
+express_checkout_cs;
+race_condition;",P2,Automated,UK,NA,CS_EC_TC_022_race_condition.spec.js
+TC031,CS_EC_TC_022_sale_with_refund_race_condition.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the same done sale in DB
+
+Process the refund and Validate the same in DB
+
+Validate the same done sale in Dashboard","User should see the Express pay Card_payment happening
+
+User should see the Data is getting in DB with all the entries correctly 
+like mainly
+1) Payment_provider
+2) Origin
+3) Payment_status
+4) Method
+
+User should see that the Refund is successful
+
+User should see the dashboard is getting entry with the required info
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table (1 entry - Refund):
+-> Verify ONE additional entry is created for the refund with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as original sale
+   - gross : Negative of original gross (e.g. -1000 for a 10.00 refund)
+   - fee : Negative of original fee
+   - net : Negative of original net
+   - psp_reference : Same as original sale psp_reference
+   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : NULL
+   - cs_mid : NULL
+   - reason : Refund reason text referencing original payment id (#<original_id>)
+   - delete_status : 0
+   - withdrawn_status : 0","express_checkout_non_3ds;
+express_checkout_cs;
+refund_race_condition;",P2,Automated,UK,NA,CS_EC_TC_023_sale_with_refund_race_condition.spec.js
+TC032,CS_EC_TC_023_collection_sale.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Change the sending to Collection and process the sale , validate the if 
+sale is processed in payments table
+
+Verify the sale in webhook log","User should see the Express pay Card_payment happening
+
+Express pay should be successful for Collection sale
+
+Entry should be coming in Webhook log
+
+DB Validation - payments table (1 entry - Successful Collection Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Note: Collection orders (sending=collection) follow the same payments table structure as delivery sales (sending=to).","express_checkout_collection;
+express_checkout_cs;
+collection_sale;
+",P2,Automated,UK,NA,CS_EC_TC_024_collection_sale_sanity.spec.js
+TC033,CS_EC_TC_024_collection_sale_exceed_limit.spec.js- Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Set the express pay sale limit as 80 and process the order with more than 
+the limit","User should see the Express pay Card_payment happening
+
+Express pay sale should be failed
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record
+
+Note: When the transaction amount exceeds the configured Express Pay limit for the merchant, the request is rejected before reaching Cardstream. No entry is created in the payments table.","express_checkout_collection;
+express_checkout_cs;
+collection_exceed_limit;
+",P2,Automated,UK,NA,CS_EC_TC_025_collection_sale_exceed_limit.spec.js
+TC034,CS_EC_TC_025_collection_invalid_avs.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when avs is passed as invalid","User should see the Express pay Card_payment happening
+
+Express pay sale should be success
+
+DB Validation - payments table (1 entry - Successful Collection Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Note: Invalid AVS values do not block collection orders (sending=collection) on Cardstream. The transaction proceeds successfully.","express_checkout_collection;
+express_checkout_cs;
+collection_invalid_avs;
+",P2,Automated,UK,NA,CS_EC_TC_026_collection_invalid_avs.spec.js
+TC035,CS_EC_TC_026_collection_cs_limit.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response when passing an amount more than cs limit 
+of 50","User should see the Express pay Card_payment happening
+
+Express pay sale should be failed
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table
+-> Validation failure is caught before the request reaches the Cardstream gateway
+-> The invalid input should return an error API response without persisting any record
+
+Note: When the transaction amount exceeds the Cardstream Express Pay limit (e.g. 50.00), the request is rejected before reaching Cardstream. No entry is created in the payments table.","express_checkout_collection;
+express_checkout_cs;
+collection_cs_limit;
+",P2,Automated,UK,NA,CS_EC_TC_027_collection_cs_limit.spec.js
+TC036,CS_EC_TC_027_ireland_sale.spec.js - Cardstream - Expresspay,,,"Use the given Curl, and try to make a express pay sale with the below 
+requirements in order
+1) Master_token from master_token table Cardstream provider
+2) Merchant_id = Cardstream merchant for Ireland Country
+3) Correct CVV
+4) Correct Email
+5) Sending value = to
+6) Address = Right address linked with Card used
+
+Validate the express pay response for Ireland merchant","User should see the Express pay Card_payment happening
+
+Express pay sale should be success for Ireland merchants
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+Note: Ireland merchants use country_code : IE and currency_code : EUR in the payments table.","express_checkout_non_3ds;
+express_checkout_cs;
+ireland_sale;",P2,Automated,UK,NA,CS_EC_TC_028_ireland_sale.spec.js
+TC041,Cardstream Express Pay - Split Commission - Global Split Type Sale Succeeds,,"split_fee: [{type_id: ex 3, value_type: 'amount', value: 2.50}]
+Note: Global split types (IDs 1-8, 11, 100) can be used across all providers. New global splits can also be created via FH API token.","1. Process a Express Pay sale with a global split type (ex: type_id=3 'Delivery Fee Restaurant') in the split_fee payload.
+2. Complete the payment successfully.
+3. Verify the sale is successful with transaction_status_id=1.
+4. Query payments_split_commission table for the split entry.
+5. Verify the commission amount matches the split_fee payload.","1. Sale succeeds with global split type 鉁
+2. payments_split_commission table contains entry with commission_type_id matching the split used 鉁
+3. commission_amount = 2.50 as per payload 鉁
+4. split_payment_flag=1 in payments table 鉁
+5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) 鉁
+
+DB Validation - payments table (1 entry - Successful Sale):
+-> Verify ONE entry is created with the following fields:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : As per merchant region (e.g. GB)
+   - currency_code : As per merchant region (e.g. GBP)
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference returned by Cardstream gateway
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of the card used
+   - firstname : first_name from payload
+   - lastname : last_name from payload
+   - email_address : email from payload
+   - master_token_id : Resolved master_token_id from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream gateway
+   - transaction_time : Timestamp of transaction (valid BST/UTC time)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments table - Split Partner entries:
+-> Verify ONE entry per split partner merchant with:
+   - order_ref : <order_id>SC<split_commission_id> (e.g. 952515216SC36010511)
+   - merchant_id : Partner merchant_id (from split_fee payload)
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS) or 2 (3DS) matching the main sale
+   - transaction_method_id : 4 (Express Pay)
+   - gross : Split amount as per split_fee value
+   - fee : 0 (partner split rows carry no fee unless configured)
+   - net : Same as gross
+   - psp_reference : Same as main sale psp_reference
+   - internal_reference : Same as main sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : Same as main sale
+   - TxAuthNo : Same as main sale
+   - master_token_id : Same as main sale
+   - shopper_id : Same as main sale
+   - cs_mid : NULL (partner rows do not carry cs_mid)
+   - delete_status : 0
+   - withdrawn_status : 0
+
+DB Validation - payments_split_commission table:
+-> Verify entry with commission_type_id, partner_merchant_id, amount as per split_fee payload","express_checkout_splits;
+express_checkout_cs;
+split_type_global;
+",P2,Automated,UK,NA,CS_EC_TC_034_sale_with_split_and_partial_refund.spec.js
+TC042,Cardstream Express Pay - Split Commission - Invalid Split Type ID Rejected,,"split_fee: [{type_id: 9999, value_type: 'amount', value: 2.50}]
+Note: Only valid global split type IDs (ex: 1-8, 11, 100) or newly created splits via API are accepted. Partner-specific merchants (FASTFOOD/EDININGEXPRESS) transact through Adyen only.","1. Process a Express Pay sale with an invalid/non-existent split type_id (ex: type_id=9999) in the split_fee payload.
+2. Verify the transaction is rejected before authorization.
+3. Confirm no payments_split_commission entry is created.
+4. Verify no payment record is created.","1. Sale is rejected 鉁
+2. API responds with error: 'invalid type id' 鉁
+3. No payments_split_commission record created 鉁
+4. No payment record created 鉁
+5. Only valid split type IDs from split_commission_types table are accepted 鉁
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table for the rejected transaction
+-> The invalid/soft-deleted split type should cause rejection before authorisation
+-> Confirm no payments_split_commission record is created","express_checkout_splits;
+express_checkout_cs;
+split_invalid_type;
+",P2,Pending,UK,NA,NA
+TC043,Cardstream Express Pay - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale,,"split_fee: [{type_id: <soft_deleted_split_id>, value_type: 'amount', value: 2.50}]
+Precondition: Use DELETE API on an existing split type 鈫 verify delete_status=0 in split_commission_types table","1. Use the DELETE API to soft-delete an existing split type (sets delete_status=0 in split_commission_types table).
+2. Verify the split_commission_types table shows delete_status=0 for the deleted split type.
+3. Process a Express Pay sale using the soft-deleted split type_id in the split_fee payload.
+4. Verify the transaction is rejected before authorization.
+5. Confirm no payments_split_commission entry is created.","1. DELETE API successfully soft-deletes the split type 鉁
+2. split_commission_types table shows delete_status=0 for the target split 鉁
+3. Sale using soft-deleted split type is rejected 鉁
+4. API responds with error: 'invalid type id' 鉁
+5. No payments_split_commission record created 鉁
+6. No payment record created 鉁
+
+DB Validation - payments table:
+-> Verify NO entry is created in the payments table for the rejected transaction
+-> The invalid/soft-deleted split type should cause rejection before authorisation
+-> Confirm no payments_split_commission record is created","express_checkout_splits;
+express_checkout_cs;
+split_soft_deleted;
+",P2,Automated,UK,NA,CS_EC_TC_109_sale_with_one_dynamic_split_delete_status_zero.spec.js
+TC045,CARDSTREAM - Express Pay - Sale with Splits + Full Refund (Main + Split Partners),"- Merchant should be pointed to Cardstream
+- A valid Cardstream master_token available for the customer_id
+- Two split partner merchants configured with different split_fee types
+- Merchant fee_tier configured (fee will be calculated on main and applicable split rows)","- Refer Apidog documentation for Express Pay payload with split_fee
+
+- Pass a valid amount within the CS Express Pay limit
+
+- Two splits in split_fee:
+  Split 1: {""partner_merchant_id"": ""<partner_mid_1>"", ""type_id"": <type>, ""value_type"": ""amount"", ""value"": ""<split_amount>""}
+  Split 2: {""partner_merchant_id"": ""<partner_mid_2>"", ""type_id"": <type>, ""value_type"": ""amount"", ""value"": ""<split_amount>""}
+
+- sending: ""to""
+- api_key: refer to QA team for Stage key
+- WebhookUrl: webhook_url","1. Process Express Pay sale with valid payload including split_fee array with two partner splits
+
+2. Verify 200 response with Success and payment_id
+
+3. Validate payments table 鈥 main sale entry and two split partner entries
+
+4. Validate payments_split_commission table entries for both splits
+
+5. Process a full refund for the above order using the refund API
+
+6. Verify refund response is success
+
+7. Validate payments table 鈥 main refund entry and two split partner refund entries","1. Sale API returns 200 with Success and payment_id
+
+DB Validation - payments table (1 entry - Main Sale):
+-> Verify ONE entry created with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (Non-3DS)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id passed in payload
+   - merchant_id : merchant_id passed in payload
+   - country_code : GB, currency_code : GBP
+   - gross : Amount passed in payload
+   - fee : Calculated based on fee_tier of merchant
+   - net : gross - fee
+   - psp_reference : CS transaction reference (e.g. 26031711GF53MZ21NH66KCB)
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits : Last 4 digits of card used (e.g. 0821)
+   - firstname / lastname / email_address : As per payload
+   - master_token_id : Resolved from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used for processing
+   - TxAuthNo : Auth number returned by Cardstream (e.g. 932057)
+   - delete_status : 0, withdrawn_status : 0
+
+DB Validation - payments table - Split Partner Sale entries:
+-> Verify ONE entry per split partner with:
+   - order_ref : <order_id>SC<split_commission_id> (e.g. 91987744SC36013791)
+   - merchant_id : Partner merchant_id (from split_fee payload)
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 1 (matching main sale)
+   - transaction_method_id : 4 (Express Pay)
+   - gross : Split amount as per split_fee value
+   - fee : 0 for splits without fee tier; calculated for splits with fee tier
+   - net : gross - fee
+   - psp_reference : Same as main sale psp_reference
+   - internal_reference : Same as main sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : Same as main sale
+   - TxAuthNo : Same as main sale
+   - master_token_id : Same as main sale
+   - shopper_id : Same as main sale
+   - cs_mid : Cardstream MID (122468)
+   - delete_status : 0, withdrawn_status : 0
+
+DB Validation - payments_split_commission table:
+-> Verify entry per split with commission_type_id, partner_merchant_id, amount as per split_fee payload
+
+5. Refund API returns success
+
+DB Validation - payments table (1 entry - Main Refund):
+-> Verify ONE additional entry created for the refund with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as original sale
+   - merchant_id : Same as original sale
+   - gross : Negative of original gross (e.g. -800 for an 8.00 refund)
+   - fee : Negative of original fee (e.g. -238)
+   - net : Negative of original net (e.g. -562)
+   - psp_reference : Same as original sale psp_reference (e.g. 26031711GF53MZ21NH66KCB)
+   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : NULL
+   - cs_mid : NULL
+   - shopper_id : Same as original sale
+   - reason : Refund reason text referencing original payment id (#<original_id>)
+   - delete_status : 0, withdrawn_status : 0
+
+DB Validation - payments table - Split Partner Refund entries:
+-> Verify ONE additional negative entry per split partner with:
+   - order_ref : Same as split sale row (e.g. 91987744SC36013791)
+   - merchant_id : Same partner merchant_id
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 1 (matches split sale row 鈥 NOT 0 like main refund)
+   - transaction_method_id : 4 (Express Pay)
+   - gross : Negative of split gross (e.g. -100)
+   - fee : Negative of split fee (0 if split had no fee; -23 if split carried a fee)
+   - net : Negative of split net (e.g. -100 or -77)
+   - psp_reference : NULL (split refund rows do not carry psp_reference)
+   - internal_reference : NULL
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : Preserved from original split sale (e.g. 87856487) 鈥 unlike main refund which sets this to NULL
+   - shopper_id : Same as original sale
+   - cs_mid : NULL
+   - delete_status : 0, withdrawn_status : 0
+
+Key differences between main refund and split refund rows:
+-> Main refund: transaction_mode_id=0, psp_reference=SAME as sale, master_token_id=NULL, cs_mid=NULL
+-> Split refund: transaction_mode_id=1 (same as split sale), psp_reference=NULL, master_token_id=PRESERVED (not NULL), cs_mid=NULL","express_checkout_splits;
+express_checkout_cs;
+sale_refund_with_splits;
+",P1,Automated,UK,NA,CS_EC_TC_072_sale_with_split_and_full_refund.spec.js
+TC046,"CARDSTREAM - Express Pay - Sale with Splits + Partial Refund (Main only, no split refund)","- Merchant pointed to Cardstream
+- Valid Cardstream master_token available
+- Split partner merchants configured
+- Partial refund amount less than original gross","- Pass a valid amount with split_fee array
+
+- Partial refund amount: less than the original gross (e.g. refund a portion of the total)
+
+- split_fee: [{""partner_merchant_id"": ""<partner_mid>"", ""type_id"": <type>, ""value_type"": ""amount"", ""value"": ""<split_amount>""}]
+
+- sending: ""to""
+- api_key: refer to QA team","1. Process Express Pay sale with valid payload including split_fee array
+
+2. Verify sale is successful 鈥 validate payments table for main + split entries
+
+3. Process a PARTIAL refund for an amount less than the original gross
+
+4. Verify partial refund response is success
+
+5. Validate payments table 鈥 verify partial refund entry with correct negative gross/fee/net values
+
+6. Verify the original sale entry is unchanged (transaction_status_id remains 1)","1. Sale succeeds 鈥 full entry in payments table as per TC045 sale DB block
+
+3. Partial refund API returns success
+
+DB Validation - payments table (1 entry - Partial Refund):
+-> Verify ONE additional entry for the partial refund:
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - gross : Negative of refund amount only (e.g. -300 for a 3.00 partial refund)
+   - fee : Proportional negative fee
+   - net : gross - fee (negative)
+   - psp_reference : Same as original sale psp_reference
+   - internal_reference : Same as original sale
+   - last_4_digits : NULL, TxAuthNo : NULL, master_token_id : NULL, cs_mid : NULL
+   - reason : Refund reason text referencing original payment_id (#<original_id>)
+
+-> Original sale entry in payments table remains unchanged with transaction_status_id : 1
+
+Note: Split partner refund entries are created proportionally for splits when a partial refund is processed. Verify payments_split_commission is not duplicated.","express_checkout_splits;
+express_checkout_cs;
+partial_refund;
+",P1,Automated,UK,NA,CS_EC_TC_071_sale_with_split_and_partial_refund_to_card.spec.js
+TC047,CARDSTREAM - Express Pay 3DS - Sale with Splits + Full Refund (Main + Split Partners),"- Merchant pointed to Cardstream
+- Valid Cardstream master_token available
+- express_pay_cs_3ds_toggle_rate : 1
+- Transaction amount above xpress_sale_threeds_limit to trigger 3DS
+- Two split partner merchants configured","- Pass a valid amount above the xpress_sale_threeds_limit to trigger 3DS
+
+- Two splits in split_fee:
+  Split 1: {""partner_merchant_id"": ""<partner_mid_1>"", ""type_id"": <type>, ""value_type"": ""amount"", ""value"": ""<split_amount>""}
+  Split 2: {""partner_merchant_id"": ""<partner_mid_2>"", ""type_id"": <type>, ""value_type"": ""amount"", ""value"": ""<split_amount>""}
+
+- sending: ""to""
+- api_key: refer to QA team","1. Process Express Pay sale 鈥 amount above 3DS threshold with split_fee array
+
+2. Complete the 3DS challenge and verify sale is authenticated
+
+3. Validate payments table 鈥 Entry 1 (status=11) and Entry 2 (status=1) plus split partner entries
+
+4. Validate payments_split_commission table
+
+5. Process a full refund for the above order
+
+6. Validate payments table 鈥 main refund entry and split partner refund entries","1-3. Sale succeeds after 3DS authentication
+
+DB Validation - payments table (2 entries - 3DS Sale):
+
+Entry 1 - 3DS Initiated:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 11 (3DS Initiated / threeds_required)
+   - transaction_mode_id : 1 (before 3DS redirect)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : order_id from payload
+   - merchant_id : merchant_id from payload
+   - gross / fee / net : As per payload amount and fee_tier
+   - psp_reference : NULL
+   - internal_reference : NULL
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : Resolved from master_token table
+   - shopper_id : customer_id from payload
+   - cs_mid : Cardstream MID used
+   - reason : threeds_required - <challenge_code>
+   - delete_status : 0, withdrawn_status : 0
+
+Entry 2 - 3DS Authenticated:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 2 (3DS authenticated)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same as Entry 1
+   - merchant_id : Same as Entry 1
+   - gross / fee / net : Same as Entry 1
+   - psp_reference : CS reference after 3DS completion
+   - internal_reference : O<order_id>M<merchant_id>T<payment_id> (Entry 2 payment_id)
+   - last_4_digits : Last 4 digits of card used
+   - TxAuthNo : CS auth number post-3DS
+   - master_token_id : Same as Entry 1
+   - shopper_id : Same as Entry 1
+   - cs_mid : Same Cardstream MID
+   - reason : Empty string
+   - delete_status : 0, withdrawn_status : 0
+
+DB Validation - payments table - Split Partner entries (3DS Sale):
+-> Verify ONE entry per split partner (created alongside Entry 2 after 3DS completion):
+   - order_ref : <order_id>SC<split_commission_id>
+   - merchant_id : Partner merchant_id
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 1 (Success)
+   - transaction_mode_id : 2 (matches Entry 2 of main 3DS sale)
+   - transaction_method_id : 4 (Express Pay)
+   - gross : Split amount, fee : as configured, net : gross - fee
+   - psp_reference : Same as Entry 2 psp_reference
+   - internal_reference : Same as Entry 2
+   - last_4_digits : Same as Entry 2
+   - TxAuthNo : Same as Entry 2
+   - master_token_id / shopper_id : Same as main sale
+   - cs_mid : Cardstream MID
+   - delete_status : 0, withdrawn_status : 0
+
+DB Validation - payments_split_commission table:
+-> Verify entry per split with commission_type_id, partner_merchant_id, amount as per split_fee payload
+
+5. Refund API returns success
+
+DB Validation - payments table (1 entry - Main Refund):
+-> Verify ONE additional entry created for the refund with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as original sale
+   - merchant_id : Same as original sale
+   - gross : Negative of original gross (e.g. -800 for an 8.00 refund)
+   - fee : Negative of original fee (e.g. -238)
+   - net : Negative of original net (e.g. -562)
+   - psp_reference : Same as original sale psp_reference (e.g. 26031711GF53MZ21NH66KCB)
+   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : NULL
+   - cs_mid : NULL
+   - shopper_id : Same as original sale
+   - reason : Refund reason text referencing original payment id (#<original_id>)
+   - delete_status : 0, withdrawn_status : 0
+
+DB Validation - payments table - Split Partner Refund entries:
+-> Verify ONE additional negative entry per split partner with:
+   - order_ref : Same as split sale row (e.g. 91987744SC36013791)
+   - merchant_id : Same partner merchant_id
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 1 (matches split sale row 鈥 NOT 0 like main refund)
+   - transaction_method_id : 4 (Express Pay)
+   - gross : Negative of split gross (e.g. -100)
+   - fee : Negative of split fee (0 if split had no fee; -23 if split carried a fee)
+   - net : Negative of split net (e.g. -100 or -77)
+   - psp_reference : NULL (split refund rows do not carry psp_reference)
+   - internal_reference : NULL
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : Preserved from original split sale (e.g. 87856487) 鈥 unlike main refund which sets this to NULL
+   - shopper_id : Same as original sale
+   - cs_mid : NULL
+   - delete_status : 0, withdrawn_status : 0
+
+Key note for 3DS refund split rows:
+-> Split refund transaction_mode_id : 1 (not 2 鈥 reverts to mode 1 for refund rows regardless of 3DS sale)
+-> Split refund psp_reference : NULL, internal_reference : NULL
+-> Split refund master_token_id : Preserved (same value as sale)","express_checkout_3ds;
+express_checkout_splits;
+express_checkout_cs;
+sale_refund_3ds_splits;",P1,Automated,UK,NA,CS_EC_TC_070_sale_with_split_and_full_refund_to_card.spec.js
+TC049,CARDSTREAM - Express Pay - Sale + Refund - Verify Refund Cannot Exceed Original Sale Amount,"- Merchant pointed to Cardstream
+- Valid Cardstream master_token available
+- A successful Express Pay sale completed","- Scenario A: Process a full refund for the exact original gross amount 鈥 should succeed
+
+- Scenario B: Attempt a refund for an amount exceeding the original gross 鈥 should fail
+
+- Scenario C: Attempt a refund for zero amount 鈥 should fail
+
+- Scenario D: Attempt a refund with a negative amount 鈥 should fail
+
+- api_key: refer to QA team","1. Process a successful Express Pay sale
+
+2. Scenario A: Process full refund for the exact original gross 鈥 verify success
+
+3. Scenario B: Attempt refund for an amount exceeding the original gross 鈥 verify rejected
+
+4. Scenario C: Attempt refund with zero amount 鈥 verify rejected
+
+5. Scenario D: Attempt refund with negative amount 鈥 verify rejected
+
+6. For each scenario validate the payments table accordingly","Scenario A - Full refund (8.00):
+-> Refund API returns success
+DB Validation - payments table (1 entry - Main Refund):
+-> Verify ONE additional entry created for the refund with:
+   - payment_provider_id : 1 (Cardstream)
+   - transaction_status_id : 2 (Refund)
+   - transaction_mode_id : 0 (Refund mode)
+   - transaction_method_id : 4 (Express Pay)
+   - order_ref : Same order_id as original sale
+   - merchant_id : Same as original sale
+   - gross : Negative of original gross (e.g. -800 for an 8.00 refund)
+   - fee : Negative of original fee (e.g. -238)
+   - net : Negative of original net (e.g. -562)
+   - psp_reference : Same as original sale psp_reference (e.g. 26031711GF53MZ21NH66KCB)
+   - internal_reference : Same as original sale (O<order_id>M<merchant_id>T<payment_id>)
+   - last_4_digits : NULL
+   - TxAuthNo : NULL
+   - master_token_id : NULL
+   - cs_mid : NULL
+   - shopper_id : Same as original sale
+   - reason : Refund reason text referencing original payment id (#<original_id>)
+   - delete_status : 0, withdrawn_status : 0
+
+Scenario B - Refund exceeding original amount (9.00):
+-> API returns error response (e.g. 'Refund amount exceeds original transaction')
+-> DB Validation - payments table: Verify NO new refund entry is created
+
+Scenario C - Zero refund amount:
+-> API returns error response
+-> DB Validation - payments table: Verify NO new refund entry is created
+
+Scenario D - Negative refund amount:
+-> API returns error response
+-> DB Validation - payments table: Verify NO new refund entry is created","express_checkout_non_3ds;
+express_checkout_cs;
+refund_boundary_validation;",P2,Pending,UK,NA,NA
+TC063,CARDSTREAM - Express Pay - Price Uplift (type_id=7),,"split_fee: [{type_id: 7, value_type: ""amount"", value: 5}]
+Sale amount: 30.00
+paymentV2 endpoint
+Master token: valid Cardstream token","1. Use the paymentV2 cURL endpoint
+
+2. Include price uplift split in the payload:
+   split_fee: [{type_id: 7, value_type: ""amount"", value: 5}]
+
+3. Include a valid Cardstream master_token and merchant_id
+
+4. Send the request and verify HTTP 200 success response
+
+5. Verify the payments table:
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1
+   - transaction_method_id: 4 (Express Pay)
+   - gross: sale amount in pence
+
+6. Verify the payments_split_commission table:
+   - commission_type_id: 7
+   - commission_amount: 500 (£5.00)
+
+7. Verify the datman_commission table for main amount (id=1) and uplift amount (id=16)
+
+8. Verify webhook_log is updated","1. Express Pay with price uplift succeeds
+
+2. payments table:
+   - payment_provider_id: 1
+   - transaction_status_id: 1
+   - transaction_method_id: 4 (Express Pay)
+   - psp_reference: populated
+
+3. payments_split_commission: commission_type_id=7, commission_amount=500
+
+4. datman_commission: entries for main (id=1) and uplift (id=16)
+
+5. webhook_log: entry created","express_checkout_cs;
+price_uplift;
+type_id_7;
+split_commission;",P1,Automated,UK,NA,CS_EC_TC_077_3ds_sale_price_uplift_refund_to_card.spec.js
+TC064,CARDSTREAM - Express Pay - payments table complete column validation,,"paymentV2 endpoint
+Cardstream merchant (UK, GBP)
+Valid master token
+Valid order_id, merchant_id, amount","1. Process an Express Pay sale using the paymentV2 cURL with a valid Cardstream master token
+
+2. Query the payments table for the processed order_id
+
+3. Verify ALL of the following fields:
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1 (Success)
+   - transaction_mode_id: 1 (Non-3DS)
+   - transaction_method_id: 4 (Express Pay)
+   - order_ref: matches order_id from payload
+   - merchant_id: matches merchant_id from payload
+   - country_code: GB
+   - currency_code: GBP
+   - gross: amount passed in pence
+   - fee: calculated based on fee_tier of merchant
+   - net: gross - fee
+   - psp_reference: CS transaction reference from Cardstream gateway
+   - internal_reference: O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits: last 4 digits of card used
+   - master_token_id: resolved from master_token table
+   - shopper_id: customer_id from payload
+   - cs_mid: Cardstream MID used
+   - TxAuthNo: auth number from Cardstream gateway
+   - delete_status: 0
+   - withdrawn_status: 0
+
+4. Verify webhook_log has one entry for this transaction with no duplicates","payments table:
+- payment_provider_id: 1
+- transaction_status_id: 1
+- transaction_mode_id: 1
+- transaction_method_id: 4 (Express Pay)
+- psp_reference: populated
+- internal_reference: O<order_id>M<merchant_id>T<id>
+- last_4_digits: correct
+- master_token_id: non-null
+- cs_mid: populated
+- TxAuthNo: populated
+- delete_status: 0, withdrawn_status: 0
+
+webhook_log: one entry, no duplicates","express_checkout_cs;
+payments_table;
+db_validation;
+",P1,Automated,UK,NA,CS_EC_TC_002_sale_smoke_sanity.spec.js
+TC065,"CARDSTREAM - Express Pay - Negative scenarios: invalid token, wrong merchant, incorrect CVV",,"1. Master token from a Non-Cardstream provider
+2. Non-Cardstream merchant_id
+3. Incorrect CVV
+4. Incorrect email
+5. sending = ""collection"" (not ""to"")","1. Send paymentV2 request using a master_token from a Non-Cardstream provider
+   - Verify the request is rejected or declined
+   - Verify no successful entry in payments table
+
+2. Send paymentV2 request using a Non-Cardstream merchant_id
+   - Verify the request is rejected
+   - Verify no successful entry in payments table
+
+3. Send paymentV2 request with an incorrect CVV
+   - Verify the sale is declined
+   - If sent to gateway: verify payments table entry with transaction_status_id = 7 (Declined)
+   - TxAuthNo: NULL
+
+4. Send paymentV2 request with an incorrect email
+   - Verify the request is declined or rejected
+
+5. Send paymentV2 request with sending = ""collection""
+   - Verify whether the request is processed or rejected based on current behaviour
+
+6. For each invalid scenario: validate payments table and Cardstream MMS dashboard","1. Non-CS token → request rejected, no successful payments table entry
+
+2. Non-CS merchant → request rejected, no successful payments table entry
+
+3. Incorrect CVV → sale declined, payments table entry with transaction_status_id=7,
+   TxAuthNo: NULL, last_4_digits: NULL, psp_reference: NULL or decline reference
+
+4. Incorrect email → request declined or rejected
+
+5. sending=collection → request handled per current system behaviour
+
+DB: no incorrect entries created for truly rejected requests","express_checkout_cs;
+negative_test;
+invalid_token;
+incorrect_cvv;
+",P1,Automated,UK,NA,"CS_EC_TC_004_invalid_cvv_sanity.spec.js,
+CS_EC_TC_012_merchantid_scenarios.spec.js"
+TC066,CARDSTREAM - Express Pay - Full and Partial Refund with payments table validation,,"Completed Express Pay order_id
+Full refund: destination = CARD
+Partial refund: 50% of original amount
+Refund endpoint: /api2.php?action=refund","1. Complete a successful Express Pay sale and note the order_id and amount
+
+FULL REFUND:
+2. Process a full refund with destination = CARD and valid shopper_id
+3. Verify ""Success"" response
+4. Verify payments table refund entry:
+   - transaction_status_id: 2 (refunded)
+   - payment_provider_id: 1
+   - gross: refunded amount in pence
+5. Verify MMS Dashboard shows the refund entry
+6. Verify webhook_log has a refund webhook entry
+
+PARTIAL REFUND:
+7. Process a partial refund for 50% of the original amount
+8. Verify partial refund entry in payments table
+9. Verify original payment shows partially_refunded status
+10. Verify remaining amount is eligible for further refund
+
+OVER-REFUND (negative):
+11. Attempt a refund exceeding the original sale amount
+12. Verify an error is returned
+13. Verify no additional payments table entry created","Full refund:
+- ""Success"" response returned
+- payments table: transaction_status_id = 2
+- MMS Dashboard: refund entry visible
+- webhook_log: refund webhook triggered
+
+Partial refund:
+- Partial entry in payments table
+- Original payment: partially_refunded status
+- Remaining amount eligible for further refund
+
+Over-refund:
+- Error returned: amount exceeds refundable balance
+- No additional payments table entry created","express_checkout_cs;
+refund;
+partial_refund;
+payments_table;
+",P1,Automated,UK,NA,CS_EC_TC_019_sale_refund_to_wallet_sanity.spec.js
+TC067,CARDSTREAM - KOUNT DI - Express Pay sale - UK,,"curl --location --request POST
+'https://legacy-qa-1.datmanpay.com/api2.php?action=paymentV2' \
+--header 'Content-Type: application/json' \
+--header 'api_token: 4HfhV2aYtUp7fwbonPM0gXPFUJ4PF98Q4fi' \
+--data-raw '{
+""order_id"": <unique_order_id>,
+""merchantTokenId"": ""<valid_cs_master_token>"",
+""amount"": ""20.00"",
+""host"": ""google.com"",
+""merchant_id"": <kount_di_enabled_cs_merchant_id>,
+""provider"": ""FH"",
+""first_name"": ""QA"",
+""last_name"": ""Testing"",
+""sending"": ""to"",
+""address"": {""house_number"": ""10"", ""address1"": ""Test Street"", ""postcode"": ""NN17 8YG""},
+""avs"": {""house_number"": ""10"", ""postcode"": ""NN17 8YG""},
+""cvv"": ""356"",
+""email"": ""qa@datman.je""
+}'","1. Use the cURL from test data with a valid Cardstream master token
+   - Merchant ID must be KOUNT DI enabled and pointing to UK (country_code: GB, currency: GBP)
+   - Amount: 20.00 (below 40)
+   - sending: to
+
+2. Send the request and verify the payment is processed successfully
+
+3. Verify payments table (1 entry):
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1 (Success)
+   - transaction_mode_id: 1 (Non-3DS)
+   - transaction_method_id: 4 (Express Pay)
+   - country_code: GB
+   - currency_code: GBP
+   - gross: 2000 (£20.00 in pence)
+   - psp_reference: populated from Cardstream gateway
+   - internal_reference: O<order_id>M<merchant_id>T<payment_id>
+   - last_4_digits: populated
+   - cs_mid: populated
+   - delete_status: 0
+   - withdrawn_status: 0
+
+4. Verify webhook_log is updated with no duplicate entries","1. Express Pay sale processed successfully
+
+DB Validation - payments table (1 entry):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1 (Success)
+-> transaction_mode_id: 1
+-> transaction_method_id: 4 (Express Pay)
+-> country_code: GB / currency_code: GBP
+-> gross: 2000
+-> psp_reference: populated
+-> internal_reference: O<order_id>M<merchant_id>T<id>
+-> last_4_digits: populated
+-> delete_status: 0, withdrawn_status: 0
+
+2. webhook_log: entry created, no duplicates",kount_di;express_checkout_cs;uk;payments_table;,P1,Automated,UK,NA,CS_EC_TC_002_sale_smoke_sanity.spec.js
+TC068,CARDSTREAM - KOUNT DI - Express Pay - 3DS Sale and Refund - UK,,"From DB: Datman_global_config >> express_pay_3ds_toggle = 1
+KOUNT DI enabled Cardstream merchant (UK, GB, GBP)
+Amount: 20.00
+Valid 3DS test card","1. Set express_pay_3ds_toggle = 1 in Datman_global_config
+
+2. Use the paymentV2 cURL with a valid Cardstream master token
+   - Merchant must be KOUNT DI enabled and UK (country_code: GB, currency: GBP)
+   - Amount: 20.00
+
+3. Complete 3DS authentication successfully
+
+4. Verify payment processed successfully
+
+5. Verify payments table (1 entry):
+   - payment_provider_id: 1 (Cardstream)
+   - transaction_status_id: 1 (Success)
+   - transaction_mode_id: 2 (3DS)
+   - transaction_method_id: 4 (Express Pay)
+   - country_code: GB / currency_code: GBP
+   - gross: 2000
+   - psp_reference: populated
+   - internal_reference: O<order_id>M<merchant_id>T<payment_id>
+
+6. Process a full refund with destination = CARD
+
+7. Verify refund success and payments table refund entry:
+   - transaction_status_id: 2 (refunded)","1. 3DS Express Pay through KOUNT DI merchant processed successfully
+
+DB Validation - payments table (1 entry - 3DS Sale):
+-> payment_provider_id: 1 (Cardstream)
+-> transaction_status_id: 1 (Success)
+-> transaction_mode_id: 2 (3DS)
+-> transaction_method_id: 4 (Express Pay)
+-> country_code: GB / currency_code: GBP
+-> gross: 2000
+-> psp_reference: populated
+
+2. Full refund success
+DB Validation - payments table (refund entry):
+-> transaction_status_id: 2 (refunded)",kount_di;express_checkout_cs;3ds;refund;uk;payments_table;,P1,Automated,UK,NA,CS_EC_TC_095_uk_sale_pay_by_link_partial_refund_to_card.spec.js
+TC070,CARDSTREAM - Price Uplift (type_id=7) - Express Pay - Different fee_tiers - UK,,"Sale amount = 30
+Price Uplift (type_id = 7) = 5
+Main sale amount = 25
+Cardstream UK merchant
+Test with fee_tier_id: 1, 2, 19 (zero_fee_tier)
+Amount must be below 40","1. Pick a valid Cardstream merchant pointing to UK and update to fee_tier_id = 1
+
+2. Initiate an Express Pay sale with type_id = 7 in the split:
+   Amount: 30.00, Price Uplift: 5.00
+
+3. Verify payments table:
+   - transaction_status_id: 1
+   - country_code: GB / currency_code: GBP
+   - gross: 3000 / fee: calculated per fee_tier_id=1 / net: gross - fee
+
+4. Verify payments_split_commission:
+   - commission_type_id: 7
+   - Fee calculated for main sale amount (25) as per fee_tier_id
+   - Fee calculated for price uplift amount (5) as per fee_tier_id for the merchant
+
+5. Repeat steps 1-4 with fee_tier_id = 2
+
+6. Repeat steps 1-4 with fee_tier_id = 19 (zero_fee_tier):
+   - Verify fee = 0.00 and net = gross","fee_tier_id = 1:
+-> payments table: gross: 3000, fee: as per tier 1, net: gross - fee
+-> country_code: GB, currency_code: GBP
+
+fee_tier_id = 2:
+-> payments table: gross: 3000, fee: as per tier 2, net: gross - fee
+
+fee_tier_id = 19 (zero_fee_tier):
+-> payments table: gross: 3000, fee: 0, net: 3000
+
+All scenarios:
+-> payments_split_commission: commission_type_id=7, fee split correctly
+-> Main sale fee: calculated for 25 per merchant fee_tier_id
+-> Price uplift fee: calculated for 5 per fee_tier_id passed",price_uplift;type_id_7;fee_tier;express_checkout_cs;uk;payments_table;,P1,Automated,UK,NA,CS_EC_TC_038_3ds_sale_price_uplift_partial_refund_to_wallet.spec.js

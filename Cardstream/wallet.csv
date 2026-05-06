@@ -1,4 +1,4 @@
-Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status,Countries applicable,Partners applicable,Automation mapped TC
 WALLET,wallet_recharge,WR-CS,WR-CS-TC001,Wallet Recharge - Duplicate order_id - Cardstream provider,"- Cardstream merchant configured
 - Customer has wallet balance available
 - Wallet recharge enabled","- Refer Apidog for the Wallet recharge API request
@@ -25,7 +25,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC001,Wallet Recharge - Duplicate order_id - 
 
 4. transaction_wallet: Only one entry for the original recharge
 
-5. payments table: Only one entry for the original recharge",wallet_recharge;duplicate_order_id;negative_test;cardstream;,P1,Not-Automated
+5. payments table: Only one entry for the original recharge",wallet_recharge;duplicate_order_id;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC002,Wallet Recharge - End to End - Cardstream merchant - AccountOnFile token,"- Cardstream merchant configured
 - Customer has valid AccountOnFile master token
 - Wallet recharge enabled","curl --location 'https://stage.datmanpay.com/api2.php?action=wallet_rechargeV2'
@@ -102,7 +102,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC002,Wallet Recharge - End to End - Cardstre
 
 8. Wallet history shows payment entry
 
-9. transaction_wallet table updated with payment entry",wallet_recharge;wallet_payment;end_to_end;cardstream;accountonfile;sanity;,P1,Not-Automated
+9. transaction_wallet table updated with payment entry",wallet_recharge;wallet_payment;end_to_end;cardstream;accountonfile;sanity;,P1,Automated,UK,NA,CS_WA_TC_002_recharge_balance_and_history_smoke.spec.js
 WALLET,wallet_recharge,WR-CS,WR-CS-TC003,Wallet Recharge - Invalid Master Token - Special characters,"- Cardstream merchant configured
 - Customer provides invalid/special character master token
 - Token validation occurs before gateway call","- Refer Apidog for the Wallet recharge API request
@@ -168,57 +168,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC003,Wallet Recharge - Invalid Master Token 
 
 9. Valid token + invalid email → ""Card declined""
 
-10. Valid token + sending=Collection → Sale SUCCESS, DB updated",wallet_recharge;invalid_master_token;negative_test;cardstream;token_validation;sanity;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC004,Wallet Recharge + Payment - OMT Reference Validation in AWS Metadata,"- Cardstream merchant configured
-- Customer has valid AccountOnFile master token
-- AWS ECS log access available","curl --location 'https://stage.datmanpay.com/api2.php?action=wallet_rechargeV2'
---header 'Content-Type: application/json'
---header 'api_token: <api_token>'
---header 'qa-auth: <qa_auth>'
---data-raw '{
-""shopper_id"": <valid_shopper_id>,
-""merchantTokenId"": ""<valid_master_token>"",
-""amount"": ""10.00"",
-""order_id"": <unique_order_id>,
-""merchant_id"": <cardstream_merchant_id>,
-""first_name"": ""QA"",
-""last_name"": ""Testing"",
-""sending"": ""to"",
-""address"": {""house_number"": ""10"",""flat"": ""11"",""address1"": ""10"",""address2"": ""11"",""postcode"": ""NN178YG""},
-""avs"": {""house_number"": ""11, 10"",""postcode"": ""NN178YG""},
-""cvv"": ""356"",
-""email"": ""sundaresan@datman.je""
-}'","1. Send wallet recharge API request with valid Cardstream master token
-
-2. Verify API response is success (HTTP 200, outcome: success)
-
-3. Verify payments table entry is as expected (origin: API_WALLET, payment_provider: CARDSTREAM)
-
-4. Verify wallet balance updated with recharge amount
-
-5. Verify wallet history shows recharge transaction
-
-6. Using same order_id, send wallet payment API request and verify success
-
-7. Verify payments table entry for payment (origin: WALLET, payment_provider: WALLET)
-
-8. Verify wallet balance deducted and history updated
-
-9. Verify transaction_wallet table has payment entry
-
-10. Navigate to AWS ECS logs and verify OMT reference is visible in metadata","1. Wallet recharge SUCCESSFUL - HTTP 200, outcome: success
-
-2. Wallet payment SUCCESSFUL - HTTP 200, outcome: success
-
-3. payments table (recharge): origin: API_WALLET, method: AccountOnFile, customer_id: 0, payment_provider: CARDSTREAM
-
-4. payments table (payment): origin: WALLET, method: empty, customer_id: <merchant_id>, payment_provider: WALLET
-
-5. Wallet balance and history updated correctly
-
-6. transaction_wallet table has payment entry
-
-7. AWS ECS logs: OMT reference is visible in metadata",wallet_recharge;wallet_payment;omt_reference;metadata;aws_logs;cardstream;sanity;,P1,Not-Automated
+10. Valid token + sending=Collection → Sale SUCCESS, DB updated",wallet_recharge;invalid_master_token;negative_test;cardstream;token_validation;sanity;,P1,Automated,UK,NA,CS_WA_TC_035_recharge__with_invalid_master_token.spec.js
 WALLET,wallet_recharge,WR-CS,WR-CS-TC005,Wallet Recharge - Invalid Master Token Variants - Token validation edge cases,"- Cardstream merchant configured
 - Various invalid master token scenarios
 - Token format validation","- Refer Apidog for the Wallet recharge API request
@@ -253,48 +203,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC005,Wallet Recharge - Invalid Master Token 
 
 5. Invalid AVS and Collection sending: sale SUCCESS
 
-6. No DB entries created for failed transactions",wallet_recharge;invalid_master_token;token_validation;negative_test;cardstream;sanity;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC006,Wallet Recharge - Collection and Delivery Payload Variations,"- Cardstream/Optomany/Checkout-HF/Cardstream-CH/DNA merchant configured
-- Various sending values tested (to/collection)
-- is_billing_address variations tested","- Refer Apidog for the Wallet recharge API request
-- sending: ""to"" (delivery) or ""collection""
-- address: empty, valid, or invalid values
-- is_billing_address: 0 or 1
-- Providers: Cardstream, Optomany, Paystack-HF, Checkout-HF, Cardstream-CH, DNA","1. Collection order with no address values (sending=collection, address empty) → verify success
-
-2. Collection order with valid address values (sending=collection, valid address) → verify success
-
-3. Collection order with invalid address values (sending=collection, invalid postcode) → verify success
-
-4. Verify payments/card_payment table entry for each above
-
-5. Test is_billing_address=0 with sending=collection → verify request processed
-
-6. Test is_billing_address=1 with sending=collection → verify request processed
-
-7. Repeat steps 1-6 for all providers (Cardstream, Optomany, Paystack-HF, Checkout-HF, Cardstream-CH, DNA)
-
-8. Delivery order with no address values (sending=to, address empty) → verify success
-
-9. Delivery order with valid address values (sending=to, valid address) → verify success
-
-10. Delivery order with invalid address values (sending=to, invalid postcode) → verify success
-
-11. Test is_billing_address=0 with sending=to → verify request processed
-
-12. Test is_billing_address=1 with sending=to → verify request processed
-
-13. Repeat steps 8-12 for all providers","1. All collection orders succeed regardless of address values
-
-2. All delivery orders succeed regardless of address validity (postcode mismatch does not block)
-
-3. payments/card_payment table has new entry for each transaction
-
-4. Provider dashboard updated for each transaction
-
-5. is_billing_address=0 and =1 both process as expected
-
-6. All providers handle sending variations consistently",wallet_recharge;collection;delivery;address_validation;is_billing_address;multi_provider;cardstream;,P1,Not-Automated
+6. No DB entries created for failed transactions",wallet_recharge;invalid_master_token;token_validation;negative_test;cardstream;sanity;,P1,Pending,UK,NA,NA
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC001,"Wallet to Card - Invalid Payload Values - order_id, shopper_id, amount","- Cardstream merchant configured
 - Customer has wallet balance with eligible refund (withdrawal_status=1)
 - Wallet to card API available","- Refer Apidog for the Wallet to card API request
@@ -331,7 +240,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC001,"Wallet to Card - Invalid Payload Valu
 
 4. Invalid shopper_id: Error response received, withdrawal_status unchanged (1), no new DB entry
 
-5. Invalid amount: Error response ""Mismatched amount or not eligible for reversal to the card"", withdrawal_status unchanged (1), no new DB entry",wallet_to_card;invalid_payload;negative_test;cardstream;order_id_validation;shopper_id_validation;,P1,Not-Automated
+5. Invalid amount: Error response ""Mismatched amount or not eligible for reversal to the card"", withdrawal_status unchanged (1), no new DB entry",wallet_to_card;invalid_payload;negative_test;cardstream;order_id_validation;shopper_id_validation;,P1,Automated,UK,NA,CS_WA_TC_026_W2C_new_card_sale_refund_invalid_payload.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC001,Wallet Payment - Verify payment based on shopper_id - Cardstream and Checkout-HF,"- Cardstream and Checkout-HF merchants configured
 - Customer has valid master token in master_token table
 - shopper_id mapping configured in DB","- Refer Apidog for the Wallet payment API request
@@ -405,7 +314,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC001,Wallet Payment - Verify payment based on
 
 4. Invalid shopper_id scenarios:
    → Error: {""message"": ""Transaction failed - <master_token_value>"", ""outcome"": ""failed"", ""code"": 1010}
-   → No payments table entry created for failed transactions",wallet_payment;shopper_id;cardstream;checkout_hf;cross_provider;,P1,Not-Automated
+   → No payments table entry created for failed transactions",wallet_payment;shopper_id;cardstream;checkout_hf;cross_provider;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,wallet_recharge,WR-CS,WR-CS-TC007,Wallet Recharge - Token Validation - Cardstream token availability across providers,"- Cardstream and Checkout-HF merchants configured
 - Token availability varies across providers
 - shopper_id correctly mapped in DB","curl --location --request POST 'https://ws5.datmanpay.com/api2.php?action=wallet_rechargeV2'
@@ -450,7 +359,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC007,Wallet Recharge - Token Validation - Ca
 -> Token in CS only: CS recharge SUCCESS
 -> Token in both: both SUCCESS
 -> No tokens: recharge FAILS
--> Token in Checkout-HF only: CS FAILS, Checkout-HF SUCCESS",wallet_recharge;wallet_payment;token_validation;cardstream;checkout_hf;split_commission;,P1,Not-Automated
+-> Token in Checkout-HF only: CS FAILS, Checkout-HF SUCCESS",wallet_recharge;wallet_payment;token_validation;cardstream;checkout_hf;split_commission;,P1,Pending,UK,NA,NA
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC002,Wallet to Card - Partial Wallet + Partial Card Payment - Refund and W2C Withdrawal,"- Cardstream merchant configured
 - Customer completes recharge and payment with same and different amounts
 - Refund to wallet available
@@ -516,7 +425,7 @@ Scenario B results:
 
 payments table entries:
    Recharge row: merchant_id=0, payment_provider_id=1, transaction_mode_id=2, cs_mid=<cs_mid>
-   Wallet payment row: merchant_id=<merchant_id>, payment_provider_id=9, transaction_mode_id=1, transaction_method_id=6, cs_mid=NULL",wallet_to_card;wallet_recharge;wallet_payment;refund_to_wallet;refund_to_card;cardstream;withdrawal_status;,P1,Not-Automated
+   Wallet payment row: merchant_id=<merchant_id>, payment_provider_id=9, transaction_mode_id=1, transaction_method_id=6, cs_mid=NULL",wallet_to_card;wallet_recharge;wallet_payment;refund_to_wallet;refund_to_card;cardstream;withdrawal_status;,P1,Automated,UK,NA,CS_WA_TC_018_W2C_partial_card_partial_wallet_refund.spec.js
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC003,Wallet to Card - Google Pay / Apple Pay / GFO Sale - Withdrawal to card after wallet refund,"- Checkout-HF merchant configured
 - Google Pay / Apple Pay / GFO sale completed
 - Wallet refund eligible (withdrawal_status=1)","- Refer Apidog (https://apidog.com/apidoc/project-420514) for W2C API request
@@ -556,7 +465,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC003,Wallet to Card - Google Pay / Apple Pa
 -> New entry: transaction_type_id=9, same order_id, same amount
 -> Original refund entry: withdrawal_status=2
 
-5. Checkout-HF dashboard: withdrawal entry visible with correct amount and details",wallet_to_card;google_pay;apple_pay;gfo;checkout_hf;withdrawal_status;,P1,Not-Automated
+5. Checkout-HF dashboard: withdrawal entry visible with correct amount and details",wallet_to_card;google_pay;apple_pay;gfo;checkout_hf;withdrawal_status;,P1,Automated,UK,NA,CS_WA_TC_020_W2C_googlepay_refund_to_wallet.spec.js
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC004,Wallet to Card - Wallet Balance Update After Withdrawal Transaction,"- Cardstream merchant configured
 - Customer has wallet balance with eligible refund
 - Wallet balance API available","- Refer Apidog (https://apidog.com/apidoc/project-420514) for wallet balance and W2C API requests
@@ -591,7 +500,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC004,Wallet to Card - Wallet Balance Update
 
 4. transaction_wallet updated correctly: transaction_type_id=9, original entry withdrawal_status=2
 
-5. Wallet balance API response: balance reflects W2C deduction (withdrawal amount subtracted)",wallet_to_card;wallet_balance;balance_update;cardstream;withdrawal_status;,P1,Not-Automated
+5. Wallet balance API response: balance reflects W2C deduction (withdrawal amount subtracted)",wallet_to_card;wallet_balance;balance_update;cardstream;withdrawal_status;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC005,Wallet to Card - Transaction Older Than 30 Days - W2C Not Allowed,"- Cardstream merchant configured
 - Customer has wallet refund with withdrawal_status=1
 - created_at in transaction_wallet manually modified to >30 days ago","- Refer Apidog (https://apidog.com/apidoc/project-420514) for W2C API request
@@ -628,7 +537,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC005,Wallet to Card - Transaction Older Tha
 4. W2C FAILED with error:
 -> ""Please note that withdrawals can only be made within 30 days from the date of the transaction.""
 
-5. transaction_wallet: withdrawal_status remains 1, no new entry created",wallet_to_card;30_day_limit;eligibility;negative_test;cardstream;,P1,Not-Automated
+5. transaction_wallet: withdrawal_status remains 1, no new entry created",wallet_to_card;30_day_limit;eligibility;negative_test;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC006,Wallet to Card - Multiple Partial Refunds to Wallet - Process W2C for All,"- Cardstream merchant configured
 - Customer completes sale
 - Multiple partial refunds made to wallet (each with withdrawal_status=1)
@@ -672,52 +581,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC006,Wallet to Card - Multiple Partial Refu
 -> transaction_type_id=9 for each W2C entry
 -> withdrawal_status=2 for all original refund entries
 
-5. Wallet balance API: balance reflects all W2C deductions",wallet_to_card;multiple_partial_refunds;wallet_payment;cardstream;withdrawal_status;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC008,Wallet Recharge + Payment - Invalid Xref - Cardstream refund queue validation,"- Cardstream merchant configured with and without correct cs_mid in cardstream_settings
-- CARDSTREAM_REFUND_QUEUE cron available","curl --location 'https://stage.datmanpay.com/api2.php?action=wallet_rechargeV2'
---header 'Content-Type: application/json'
---header 'api_token: <api_token>'
---header 'qa-auth: <qa_auth>'
---data-raw '{
-""shopper_id"": <valid_shopper_id>,
-""merchantTokenId"": ""<valid_master_token>"",
-""amount"": ""10.00"",
-""order_id"": <unique_order_id>,
-""merchant_id"": <cardstream_merchant_id>,
-...
-}'","1. Send wallet recharge API request with valid Cardstream master token
-
-2. Verify recharge SUCCESS (HTTP 200, outcome: success)
-
-3. Verify payments table: origin=API_WALLET, method=AccountOnFile, customer_id=0, payment_provider=CARDSTREAM
-
-4. Verify wallet balance and history updated
-
-5. Using same order_id, process wallet payment and verify SUCCESS
-
-6. Verify payments table for payment: origin=WALLET, method=empty, customer_id=<merchant_id>, payment_provider=WALLET
-
-7. Verify wallet balance deducted and transaction_wallet updated
-
-8. Run CARDSTREAM_REFUND_QUEUE cron on the next day
-
-9. Verify refund processing:
--> For merchant where cs_mid is CORRECTLY set in cardstream_settings: refund processed successfully
--> For merchant where cs_mid is NOT correctly set: sale shows invalid xref","1. Wallet recharge SUCCESS - HTTP 200, outcome: success
-
-2. payments table (recharge): origin=API_WALLET, method=AccountOnFile, payment_provider=CARDSTREAM
-
-3. Wallet balance and history updated correctly
-
-4. Wallet payment SUCCESS
-
-5. payments table (payment): origin=WALLET, payment_provider=WALLET
-
-6. transaction_wallet entry present
-
-7. CARDSTREAM_REFUND_QUEUE cron results:
--> Correct cs_mid: refund processed successfully
--> Incorrect cs_mid: sale shows invalid xref error",wallet_recharge;wallet_payment;invalid_xref;cardstream_settings;refund_queue;cardstream;sanity;,P1,Not-Automated
+5. Wallet balance API: balance reflects all W2C deductions",wallet_to_card;multiple_partial_refunds;wallet_payment;cardstream;withdrawal_status;,P1,Automated,UK,NA,CS_WA_TC_022_W2C_multiple_times_sanity.spec.js
 WALLET,wallet_recharge,WR-CS,WR-CS-TC009,Wallet Recharge + Payment - Ireland Cardstream - Verify Billing Descriptor,"- Cardstream Ireland merchant configured
 - Valid Cardstream master token available for Ireland merchant
 - MMS access available
@@ -774,7 +638,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC009,Wallet Recharge + Payment - Ireland Car
 -> statementNarrative1: ""FH""
 -> statementNarrative2: <business_name of respective MID>
 
-6. Cardstream (MMS) dashboard: billing descriptor matches expected values",wallet_recharge;wallet_payment;ireland;billing_descriptor;statement_narrative;cardstream;sanity;,P1,Not-Automated
+6. Cardstream (MMS) dashboard: billing descriptor matches expected values",wallet_recharge;wallet_payment;ireland;billing_descriptor;statement_narrative;cardstream;sanity;,P1,Pending,UK,NA,NA
 WALLET,wallet_payment,WP-CS-SPLIT,WP-CS-SPLIT-001,Cardstream Wallet Payment - Split Commission - Global Split Type Sale Succeeds,"- Cardstream merchant configured
 - Customer has wallet balance available
 - Global split type exists (e.g. type_id=3, ""Delivery Fee Restaurant"")
@@ -804,7 +668,7 @@ Note: Global split type IDs (1-8, 11, 100) can be used across all providers. New
 
 6. Fund transfer processed
 
-7. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen)",wallet_payment;split_commission;global_split;cardstream;,P1,Not-Automated
+7. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen)",wallet_payment;split_commission;global_split;cardstream;,P1,Automated,UK,NA,CS_WA_TC_121_wallet_payment_with_one_dynamic_split.spec.js
 WALLET,wallet_payment,WP-CS-SPLIT,WP-CS-SPLIT-002,Cardstream Wallet Payment - Split Commission - Invalid Split Type ID Rejected,"- Cardstream merchant configured
 - Customer has wallet balance available
 - Only valid global split types accepted for Cardstream","split_fee: [{type_id: 9999, value_type: ""amount"", value: 2.50}]
@@ -826,7 +690,7 @@ Note: Only valid global split type IDs (e.g. 1-8, 11, 100) or newly created spli
 
 5. Wallet balance unchanged
 
-6. Only valid split type IDs from split_commission_types table are accepted",wallet_payment;split_commission;invalid_split_type;negative_test;cardstream;,P1,Not-Automated
+6. Only valid split type IDs from split_commission_types table are accepted",wallet_payment;split_commission;invalid_split_type;negative_test;cardstream;,P1,Automated,UK,NA,CS_WA_TC_122_edining_invalid_sale_with_one_dynamic_split.spec.js
 WALLET,wallet_payment,WP-CS-SPLIT,WP-CS-SPLIT-003,Cardstream Wallet Payment - Split Commission - Soft-Deleted Split Type Blocks Sale,"- Cardstream merchant configured
 - Customer has wallet balance available
 - A split type has been soft-deleted via DELETE API (delete_status=0)","split_fee: [{type_id: <soft_deleted_split_id>, value_type: ""amount"", value: 2.50}]
@@ -852,31 +716,7 @@ Precondition: Use DELETE API on an existing split type → verify delete_status=
 
 6. No payment record created
 
-7. Wallet balance unchanged",wallet_payment;split_commission;soft_deleted;negative_test;cardstream;,P1,Not-Automated
-WALLET,wallet_payment,WP-CS-SPLIT,WP-CS-SPLIT-004,Cardstream Wallet Payment - Split Commission - Updated Split Type via API Used in Sale Succeeds,"- Cardstream merchant configured
-- Customer has wallet balance available
-- A split type has been updated via UPDATE API","split_fee: [{type_id: <updated_split_id>, value_type: ""amount"", value: 3.00}]
-Precondition: Use Update API to modify an existing split type → verify updated values in split_commission_types table","1. Use the Update API to modify an existing split type (e.g. update name or value)
-
-2. Verify split_commission_types table reflects updated values
-
-3. Initiate wallet payment using the updated split type_id in split_fee payload
-
-4. Complete payment successfully
-
-5. Query payments_split_commission table for split entry
-
-6. Verify commission entry reflects the updated split type","1. Update API successfully modifies the split type
-
-2. split_commission_types table reflects updated values
-
-3. Sale with updated split type succeeds: transaction_status_id=1
-
-4. payments_split_commission table: entry with updated commission_type_id
-
-5. commission_amount: 3.00 as per payload
-
-6. split_payment_flag=1 in payments table",wallet_payment;split_commission;updated_split_type;cardstream;,P1,Not-Automated
+7. Wallet balance unchanged",wallet_payment;split_commission;soft_deleted;negative_test;cardstream;,P1,Automated,UK,NA,CS_WA_TC_125_sale_with_one_dynamic_split_delete_status_zero.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC001,Wallet+X - New Card - End to End - Cardstream merchant - payments table validation,"- Cardstream merchant configured (UK)
 - Customer has wallet balance available
 - txnType: WALLET_RECHARGE_AGAINST_ORDER
@@ -1003,7 +843,7 @@ Wallet payment row:
    → payments table refund entries present with correct transaction_status_id=2
 
 8. transaction_wallet — wallet refund entry:
-   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;new_card;cardstream;payments_table;fund_transfer;refund_split;,P1,Not-Automated
+   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;new_card;cardstream;payments_table;fund_transfer;refund_split;,P1,Automated,UK,NA,CS_WA_TC_039_wallet_plus_new_card_sale_sanity.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC002,Wallet+X - Saved Card - End to End - Cardstream merchant - payments table validation,"- Cardstream merchant configured (UK)
 - Customer has wallet balance available
 - Customer has saved card token available
@@ -1130,7 +970,7 @@ Wallet payment row:
    → payments table refund entries present with correct transaction_status_id=2
 
 8. transaction_wallet — wallet refund entry:
-   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;saved_card;cardstream;payments_table;fund_transfer;refund_split;,P1,Not-Automated
+   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;saved_card;cardstream;payments_table;fund_transfer;refund_split;,P1,Automated,UK,NA,CS_WA_TC_040_wallet_plus_saved_card_sale.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC003,Wallet+X - Google Pay - End to End - Cardstream merchant - payments table validation,"- Cardstream merchant configured (UK)
 - Customer has wallet balance available
 - Google Pay enabled and configured
@@ -1257,7 +1097,7 @@ Wallet payment row:
    → payments table refund entries present with correct transaction_status_id=2
 
 8. transaction_wallet — wallet refund entry:
-   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;google_pay;cardstream;payments_table;fund_transfer;refund_split;,P1,Not-Automated
+   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;google_pay;cardstream;payments_table;fund_transfer;refund_split;,P1,Automated,UK,NA,CS_WA_TC_092_uk_checkout_wallet_plus_googlepay_sale_complete_refund.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC004,Wallet+X - Apple Pay - End to End - Cardstream merchant - payments table validation,"- Cardstream merchant configured (UK)
 - Customer has wallet balance available
 - Apple Pay enabled and configured
@@ -1384,7 +1224,7 @@ Wallet payment row:
    → payments table refund entries present with correct transaction_status_id=2
 
 8. transaction_wallet — wallet refund entry:
-   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;apple_pay;cardstream;payments_table;fund_transfer;refund_split;,P1,Not-Automated
+   → withdrawal_status=1 (eligible for W2C within 30 days)",wallet+x;apple_pay;cardstream;payments_table;fund_transfer;refund_split;,P1,Automated,UK,NA,CS_WA_TC_093_uk_checkout_wallet_plus_applepay_uk_commission_partial_refund.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC005,Wallet+X - Partial Recharge + Partial Wallet - payments table validation and refund split,"- Cardstream merchant configured (UK)
 - Customer has partial wallet balance (less than sale amount)
 - txnType: WALLET_RECHARGE_AGAINST_ORDER
@@ -1522,7 +1362,7 @@ Wallet payment row:
 
 8. transaction_wallet — wallet refund entry:
    → withdrawal_status=1 ✓
-   → Eligible for Wallet to Card (W2C) within 30 days",wallet+x;partial_recharge;partial_wallet;new_card;cardstream;payments_table;refund_split;fund_transfer;,P1,Not-Automated
+   → Eligible for Wallet to Card (W2C) within 30 days",wallet+x;partial_recharge;partial_wallet;new_card;cardstream;payments_table;refund_split;fund_transfer;,P1,Automated,UK,NA,CS_WA_TC_039_wallet_plus_new_card_sale_sanity.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC002,Wallet Payment - End to End with Sufficient Balance - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Customer has wallet balance available (e.g. £100.00)
 - Wallet payment API available","- Refer Apidog for the Wallet payment API request
@@ -1574,7 +1414,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC002,Wallet Payment - End to End with Suffici
 
 6. Wallet history: payment entry visible ✓
 
-7. Fund transfer to merchant: processed ✓",wallet_payment;end_to_end;sufficient_balance;cardstream;payments_table;,P1,Not-Automated
+7. Fund transfer to merchant: processed ✓",wallet_payment;end_to_end;sufficient_balance;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC003,Wallet Payment - Insufficient Balance (Payment > Balance) - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Customer wallet balance less than payment amount","- Email: valid@datman.je
 - Wallet balance: £30.00
@@ -1601,7 +1441,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC003,Wallet Payment - Insufficient Balance (P
 
 4. transaction_wallet: NO debit entry ✓
 
-5. Wallet balance: £30.00 (unchanged) ✓",wallet_payment;insufficient_balance;negative_test;cardstream;,P1,Not-Automated
+5. Wallet balance: £30.00 (unchanged) ✓",wallet_payment;insufficient_balance;negative_test;cardstream;,P1,Automated,UK,NA,CS_WA_TC_011_MC_wallet_payment_more_than_balance.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC004,Wallet Payment - No Wallet Balance (Zero Balance) - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Customer wallet balance is £0.00","- Email: valid@datman.je
 - Wallet balance: £0.00
@@ -1625,7 +1465,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC004,Wallet Payment - No Wallet Balance (Zero
 
 4. transaction_wallet: NO debit entry ✓
 
-5. Wallet balance: £0.00 (unchanged) ✓",wallet_payment;zero_balance;negative_test;cardstream;,P1,Not-Automated
+5. Wallet balance: £0.00 (unchanged) ✓",wallet_payment;zero_balance;negative_test;cardstream;,P1,Automated,UK,NA,CS_WA_TC_014_MC_wallet_with_no_balance_payment.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC005,Wallet Refund - Complete Refund (100%) - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Original wallet payment completed successfully
 - Refund requested for full amount","- Email: valid@datman.je
@@ -1670,7 +1510,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC005,Wallet Refund - Complete Refund (100%) -
 
 5. Wallet history: refund entry visible ✓
 
-6. Fund transfer reversal (Merchant → Datman): processed ✓",wallet_payment;complete_refund;full_refund;cardstream;payments_table;,P1,Not-Automated
+6. Fund transfer reversal (Merchant → Datman): processed ✓",wallet_payment;complete_refund;full_refund;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_081_wallet_payment_refund_to_card.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC006,Wallet Refund - Partial Refund (50%) - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Original wallet payment of £80.00 completed
 - Partial refund requested","- Email: valid@datman.je
@@ -1709,7 +1549,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC006,Wallet Refund - Partial Refund (50%) - C
 
 6. Remaining amount eligible for further refund: £40.00 ✓
 
-7. Fund transfer partial reversal: processed ✓",wallet_payment;partial_refund;cardstream;payments_table;,P1,Not-Automated
+7. Fund transfer partial reversal: processed ✓",wallet_payment;partial_refund;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_003_payment_partial_refund_wallet.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC007,Wallet Refund - Multiple Partial Refunds (3 refunds) - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Original wallet payment of £100.00 completed
 - Multiple partial refunds requested","- Email: valid@datman.je
@@ -1743,7 +1583,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC007,Wallet Refund - Multiple Partial Refunds
 
 5. Original payment: refunded_amount=£75.00, remaining=£25.00 ✓
 
-6. Fund transfer reversals: 3 separate reversals processed ✓",wallet_payment;multiple_partial_refunds;cardstream;payments_table;,P1,Not-Automated
+6. Fund transfer reversals: 3 separate reversals processed ✓",wallet_payment;multiple_partial_refunds;cardstream;payments_table;,P1,Pending,UK,NA,NA
 WALLET,wallet_payment,WP-CS,WP-CS-TC008,Wallet APIs - Race Condition - Concurrent Wallet Balance Updates - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Customer wallet balance: £100.00
 - Two simultaneous payment requests of £50.00","- Email: valid@datman.je
@@ -1773,72 +1613,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC008,Wallet APIs - Race Condition - Concurren
 
 4. payments table: ONE success entry only ✓
 
-5. transaction_wallet: ONE debit entry only ✓",wallet_payment;race_condition;concurrent;db_locking;cardstream;,P1,Not-Automated
-WALLET,wallet_payment,WP-CS,WP-CS-TC009,Wallet APIs - Payload Validation - Special Characters in shopper_id - Cardstream merchant,"- Cardstream merchant configured (UK)
-- Input validation and sanitization required","- shopper_id: <script>alert('XSS')</script>
-- order_id: valid
-- amount: valid","1. Submit wallet_payment API request with special characters in shopper_id
-
-2. Verify API validates and rejects request
-
-3. Verify no SQL injection or XSS vulnerability
-
-4. Verify no payments table entry created
-
-5. Verify no wallet balance affected","1. Request REJECTED with validation error ✓
-
-2. HTTP 400 Bad Request
-   → error: Invalid shopper_id format
-   → No malicious code executed ✓
-
-3. payments table: NO entry created ✓
-
-4. Wallet balance: unchanged ✓
-
-5. Security logs updated with attempt ✓",wallet_payment;payload_validation;special_characters;xss_prevention;security;cardstream;,P1,Not-Automated
-WALLET,wallet_payment,WP-CS,WP-CS-TC010,Wallet APIs - Payload Validation - Empty Values in Required Fields - Cardstream merchant,"- Cardstream merchant configured (UK)
-- Required field validation","- shopper_id: """" (empty)
-- order_id: """" (empty)
-- amount: """" (empty)","1. Submit wallet_payment API request with empty values in required fields
-
-2. Verify API validates required fields
-
-3. Verify request is rejected with clear error message identifying missing fields
-
-4. Verify no payments table entry created
-
-5. Verify wallet balance unchanged","1. Request REJECTED with validation error ✓
-
-2. HTTP 400 Bad Request:
-   → error: Validation Failed
-   → Required fields: shopper_id, order_id, amount
-   → All empty fields listed in error ✓
-
-3. payments table: NO entry created ✓
-
-4. Wallet balance: unchanged ✓",wallet_payment;payload_validation;empty_values;required_fields;cardstream;,P1,Not-Automated
-WALLET,wallet_payment,WP-CS,WP-CS-TC011,Wallet APIs - SQL Injection Attempts - Cardstream merchant,"- Cardstream merchant configured (UK)
-- Security validation required","- shopper_id: 12345' OR '1'='1
-- order_id: 1; DROP TABLE payments;--
-- reason: '; DELETE FROM transaction_wallet WHERE '1'='1","1. Submit wallet_payment API requests with SQL injection payloads in shopper_id, order_id, reason fields
-
-2. Verify ALL attempts blocked by input validation
-
-3. Verify no SQL execution of malicious code
-
-4. Verify payments table intact after attempts
-
-5. Verify security logs record the attempts","1. All SQL injection attempts BLOCKED ✓
-
-2. HTTP 400 Bad Request:
-   → error: Invalid Input
-   → Input sanitized or rejected ✓
-
-3. Parameterized queries used — NO SQL injection possible ✓
-
-4. payments table and transaction_wallet: intact, no data altered ✓
-
-5. Security incident logged ✓",wallet_payment;sql_injection;security;input_sanitization;cardstream;negative_test;,P1,Not-Automated
+5. transaction_wallet: ONE debit entry only ✓",wallet_payment;race_condition;concurrent;db_locking;cardstream;,P1,Automated,UK,NA,CS_WA_TC_070_new_card_sale_w2c_race_condition.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC012,Wallet APIs - Cross-Shopper Access Prevention - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Two customers with separate wallets
 - Unauthorized access prevention","- Shopper A: shopper_id=12345, balance £100.00
@@ -1863,7 +1638,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC012,Wallet APIs - Cross-Shopper Access Preve
 
 4. Shopper B balance: £75.00 (unchanged) ✓
 
-5. Security incident logged ✓",wallet_payment;cross_shopper;unauthorized_access;security;cardstream;negative_test;,P1,Not-Automated
+5. Security incident logged ✓",wallet_payment;cross_shopper;unauthorized_access;security;cardstream;negative_test;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC010,Wallet Recharge - Declined from Gateway - Balance and History Not Updated - Cardstream,"- Cardstream merchant configured
 - Valid token but card insufficient funds
 - Gateway declines the transaction","- Email: valid@datman.je
@@ -1890,7 +1665,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC010,Wallet Recharge - Declined from Gateway
 
 5. Wallet balance: UNCHANGED ✓
 
-6. Wallet history: NO balance change visible ✓",wallet_recharge;gateway_declined;negative_test;cardstream;balance_unchanged;,P1,Not-Automated
+6. Wallet history: NO balance change visible ✓",wallet_recharge;gateway_declined;negative_test;cardstream;balance_unchanged;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC011,Wallet Recharge - Invalid CVV - Verify Recharge Not Processed - Cardstream,"- Cardstream merchant configured
 - Valid token but wrong CVV provided","- Email: valid@datman.je
 - Token: valid master token
@@ -1910,7 +1685,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC011,Wallet Recharge - Invalid CVV - Verify 
 
 4. transaction_wallet: NO new entry ✓
 
-5. Wallet balance: UNCHANGED ✓",wallet_recharge;invalid_cvv;cvv_declined;negative_test;cardstream;,P1,Not-Automated
+5. Wallet balance: UNCHANGED ✓",wallet_recharge;invalid_cvv;cvv_declined;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC012,Wallet Recharge - Exceeds Country Transaction Limit - Cardstream,"- Cardstream merchant configured
 - Recharge amount exceeds country-level transaction limit","- Email: valid@datman.je
 - Country: UK / Recharge amount: e.g. £1500 (exceeds £1000 country limit)","1. Verify master_token and customer_id are available; submit recharge with amount exceeding country limit
@@ -1933,7 +1708,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC012,Wallet Recharge - Exceeds Country Trans
 
 4. transaction_wallet: NO new entry ✓
 
-5. Wallet balance: UNCHANGED ✓",wallet_recharge;country_limit;transaction_limit;negative_test;cardstream;,P1,Not-Automated
+5. Wallet balance: UNCHANGED ✓",wallet_recharge;country_limit;transaction_limit;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC013,Wallet Recharge - Exceeds Merchant Transaction Limit - Cardstream,"- Cardstream merchant configured with custom limit
 - Recharge amount exceeds merchant-specific limit","- Email: valid@datman.je
 - Country limit: £1000 / Merchant limit: £500
@@ -1955,55 +1730,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC013,Wallet Recharge - Exceeds Merchant Tran
 
 4. payments table: NO entry ✓
 
-5. Wallet balance: UNCHANGED ✓",wallet_recharge;merchant_limit;transaction_limit;negative_test;cardstream;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC014,Wallet Recharge - Auto-recharge When Balance Insufficient - Split Payment - Cardstream,"- Cardstream merchant configured
-- Wallet balance insufficient for full payment
-- Auto-recharge triggered for shortfall
-- Valid card token available","- Email: valid@datman.je
-- Current wallet balance: £5.00
-- Payment amount: £10.00
-- Auto-recharge amount: £5.00 (shortfall)","1. Verify wallet balance is £5.00 and payment amount is £10.00 requiring auto-recharge of £5.00
-
-2. Verify card authentication triggered for recharge amount £5.00
-
-3. Verify payments table has TWO entries after completion:
-   Recharge entry:
-   → merchant_id: 0
-   → payment_provider_id: 1 (CARDSTREAM)
-   → transaction_status_id: 1
-   → transaction_mode_id: 2 (card_charge)
-   → transaction_method_id: 19/20 (new/saved card)
-   → gross: 500 (£5.00 in pence)
-   → cs_mid: <cardstream_cs_mid>
-
-   Wallet payment entry:
-   → merchant_id: <merchant_id>
-   → payment_provider_id: 9 (WALLET)
-   → transaction_status_id: 1
-   → transaction_mode_id: 1 (wallet_payment)
-   → transaction_method_id: 6 (wallet)
-   → gross: 1000 (£10.00 in pence)
-   → last_4_digits: NULL / master_token_id: NULL / cs_mid: NULL
-
-4. Verify transaction_wallet:
-   → Recharge entry: transaction_type_id=1, withdrawal_status=0
-   → Payment entry: transaction_type_id=4, withdrawal_status=0
-
-5. Verify fund transfer to merchant: £10.00 ONLY (full wallet amount after recharge)
-   NO fund transfer for the recharge portion (£5.00)
-
-6. Verify final wallet balance: £0.00","1. Auto-recharge and split payment SUCCESSFUL ✓
-
-2. payments table — TWO rows:
-   Recharge row: payment_provider_id=1, transaction_mode_id=2, cs_mid set ✓
-   Payment row: payment_provider_id=9, transaction_mode_id=1, cs_mid=NULL ✓
-
-3. transaction_wallet: recharge entry (type 1) + payment entry (type 4) ✓
-
-4. Fund transfer to merchant: £10.00 ONLY ✓
-   NO transfer for £5.00 recharge portion ✓
-
-5. Wallet balance: £0.00 ✓",wallet_recharge;auto_recharge;split_payment;insufficient_balance;cardstream;payments_table;,P1,Not-Automated
+5. Wallet balance: UNCHANGED ✓",wallet_recharge;merchant_limit;transaction_limit;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC015,Wallet Recharge - Balance Sufficient - No Recharge Needed - Cardstream,"- Cardstream merchant configured
 - Wallet balance sufficient for payment
 - No auto-recharge triggered","- Email: valid@datman.je
@@ -2036,7 +1763,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC015,Wallet Recharge - Balance Sufficient - 
 
 5. Wallet balance: £20.00 ✓
 
-6. Card NOT charged — balance was sufficient ✓",wallet_payment;sufficient_balance;no_recharge;cardstream;payments_table;,P1,Not-Automated
+6. Card NOT charged — balance was sufficient ✓",wallet_payment;sufficient_balance;no_recharge;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_049_wallet_plus_new_card_sale_same_amount_as_wallet_balance.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC006,Wallet+X - New Card Through Saved Card Flow - Cardstream merchant - payments table validation,"- Cardstream merchant configured (UK)
 - Customer initiates new card via saved card flow
 - txnType: WALLET_RECHARGE_AGAINST_ORDER
@@ -2079,7 +1806,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC006,Wallet+X - New Card Through Saved Card Fl
 3. Wallet balance: £0.00 ✓
 
 4. Fund transfer: £50.00 (wallet portion) ONLY ✓
-   NO transfer for card recharge (£45.00) ✓",wallet+x;new_card_through_saved_card;cardstream;payments_table;fund_transfer;,P1,Not-Automated
+   NO transfer for card recharge (£45.00) ✓",wallet+x;new_card_through_saved_card;cardstream;payments_table;fund_transfer;,P1,Automated,UK,NA,CS_WA_TC_041_wallet_plus_new_card_sale_through_saved_card.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC007,Wallet+X - Card Payment Fails (3DS / Decline) - Wallet Balance Not Deducted - Cardstream,"- Cardstream merchant configured (UK)
 - Customer has wallet balance
 - Card portion fails (3DS failure or card decline)
@@ -2115,7 +1842,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC007,Wallet+X - Card Payment Fails (3DS / Decl
 
 6. CRITICAL — Atomic transaction:
    Card failure prevents entire transaction ✓
-   Wallet NOT debited on card failure ✓",wallet+x;card_failure;3ds_failure;negative_test;atomic_transaction;cardstream;,P1,Not-Automated
+   Wallet NOT debited on card failure ✓",wallet+x;card_failure;3ds_failure;negative_test;atomic_transaction;cardstream;,P1,Automated,UK,NA,CS_WA_TC_051_wallet_plus_new_card_sale_amount_more_than_max_limit.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC008,Wallet+X - Retrying Successful Payment - Duplicate Payment Prevention - Cardstream,"- Cardstream merchant configured (UK)
 - Wallet+X payment already completed
 - Customer attempts to retry same payment","- Email: valid@datman.je
@@ -2144,7 +1871,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC008,Wallet+X - Retrying Successful Payment - 
 
 5. Wallet balance: unchanged from original payment ✓
 
-6. Idempotency enforced: same order cannot be paid twice ✓",wallet+x;duplicate_payment;idempotency;negative_test;cardstream;,P1,Not-Automated
+6. Idempotency enforced: same order cannot be paid twice ✓",wallet+x;duplicate_payment;idempotency;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC009,Wallet+X - Exact Wallet Balance Match - No Additional Payment Needed - Cardstream,"- Cardstream merchant configured (UK)
 - Wallet balance exactly equals sale amount
 - No card recharge should be triggered","- Email: valid@datman.je
@@ -2163,7 +1890,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC009,Wallet+X - Exact Wallet Balance Match - N
 3. If processed as wallet payment:
    → payments table: ONE wallet payment entry (payment_provider_id=9) ✓
    → transaction_wallet: ONE debit entry ✓
-   → Wallet balance: £0.00 ✓",wallet+x;exact_balance;no_recharge;cardstream;,P1,Not-Automated
+   → Wallet balance: £0.00 ✓",wallet+x;exact_balance;no_recharge;cardstream;,P1,Automated,UK,NA,CS_WA_TC_049_wallet_plus_new_card_sale_same_amount_as_wallet_balance.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC010,Wallet+X - Zero Wallet Balance - Payment as Regular Card Payment - Cardstream,"- Cardstream merchant configured (UK)
 - Customer wallet balance is £0.00
 - Full payment via card only","- Email: valid@datman.je
@@ -2193,7 +1920,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC010,Wallet+X - Zero Wallet Balance - Payment 
 
 4. gateway_request_log: no WALLET_RECHARGE_AGAINST_ORDER txnType ✓
 
-5. Regular payment flow executed (zero balance = no Wallet+X) ✓",wallet+x;zero_balance;regular_card_payment;no_wallet_flow;cardstream;,P1,Not-Automated
+5. Regular payment flow executed (zero balance = no Wallet+X) ✓",wallet+x;zero_balance;regular_card_payment;no_wallet_flow;cardstream;,P1,Automated,UK,NA,CS_WA_TC_048_wallet_plus_new_card_sale_0_wallet_balance.spec.js
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC007,Wallet to Card - End to End - Cardstream merchant - payments table validation,"- Cardstream merchant configured (UK)
 - Customer has wallet refund available (withdrawal_status=1)
 - Refund within 30 days","- Refer Apidog for W2C API request
@@ -2223,7 +1950,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC007,Wallet to Card - End to End - Cardstre
 
 4. Cardstream MMS: withdrawal visible ✓
 
-5. API response: {""outcome"": ""success""} ✓",wallet_to_card;end_to_end;cardstream;payments_table;withdrawal_status;,P1,Not-Automated
+5. API response: {""outcome"": ""success""} ✓",wallet_to_card;end_to_end;cardstream;payments_table;withdrawal_status;,P1,Automated,UK,NA,CS_WA_TC_015_W2C_new_card_refund_to_wallet.spec.js
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC008,Wallet to Card - Multiple Refunds for Same Sale - W2C Processed for All Eligible - Cardstream,"- Cardstream merchant configured (UK)
 - Multiple wallet refunds available for same sale
 - All with withdrawal_status=1, all within 30 days","- Original sale: £100.00
@@ -2248,7 +1975,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC008,Wallet to Card - Multiple Refunds for 
 
 4. payments table: 3 separate W2C refund transfer entries ✓
 
-5. API response for each: {""outcome"": ""success""} ✓",wallet_to_card;multiple_refunds;cardstream;payments_table;withdrawal_status;,P1,Not-Automated
+5. API response for each: {""outcome"": ""success""} ✓",wallet_to_card;multiple_refunds;cardstream;payments_table;withdrawal_status;,P1,Automated,UK,NA,CS_WA_TC_080_W2C_wallet_plus_new_card_sale_multiple_times.spec.js
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC009,Wallet to Card - Already Processed - Duplicate W2C Prevention - Cardstream,"- Cardstream merchant configured (UK)
 - W2C already completed for the entry (withdrawal_status=2)
 - Duplicate attempt blocked","- withdrawal_status: 2 (already processed)
@@ -2273,50 +2000,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC009,Wallet to Card - Already Processed - D
 
 4. NO duplicate entry created ✓
 
-5. NO additional refund transfer ✓",wallet_to_card;already_processed;duplicate_prevention;negative_test;cardstream;,P1,Not-Automated
-WALLET,wallet_concurrent,WP-CS-CONC,WP-CS-CONC-001,Concurrent Wallet Refund and Payment - Race Condition Handling - Cardstream merchant,"- Cardstream merchant configured
-- Customer wallet balance: £10.00
-- Refund in progress: £50.00
-- Simultaneous payment attempt: £60.00","- Initial balance: £10.00
-- Refund amount: £50.00 (processing)
-- Payment amount: £60.00
-- Available after refund: £60.00 (£10 + £50)","1. Customer wallet balance: £10.00
-
-2. Refund of £50.00 initiated (processing, not yet committed to transaction_wallet)
-
-3. Customer simultaneously attempts wallet payment of £60.00
-
-4. System checks current balance
-
-5. SCENARIO A — Refund committed first:
-   → Balance = £10 + £50 = £60 → payment SUCCEEDS
-   → payments table: payment entry (payment_provider_id=9, transaction_status_id=1)
-   → transaction_wallet: refund entry (type 1) + payment entry (type 4), sequential timestamps
-
-6. SCENARIO B — Refund NOT yet committed:
-   → Balance = £10 → payment FAILS (insufficient)
-   → payments table: failed payment entry
-   → transaction_wallet: only refund entry (no payment debit)
-
-7. Verify DB locking prevents race condition in both scenarios
-
-8. Verify ACID properties maintained — no partial states","SCENARIO A — Refund committed before payment check:
-   → Payment SUCCESSFUL ✓
-   → Balance: £10 → £60 (refund) → £0 (payment) ✓
-   → payments table: transaction_status_id=1, payment_provider_id=9 ✓
-   → transaction_wallet: 2 sequential entries ✓
-
-SCENARIO B — Refund not yet committed:
-   → Payment REJECTED (insufficient balance) ✓
-   → Error: Insufficient wallet balance ✓
-   → Balance remains £10.00 ✓
-   → transaction_wallet: refund entry only ✓
-
-CRITICAL — DB integrity:
-   → Row-level locking enforced ✓
-   → No race condition ✓
-   → No double-spend ✓
-   → ACID properties maintained ✓",wallet;concurrent;race_condition;refund;payment;cardstream;db_locking;,P1,Not-Automated
+5. NO additional refund transfer ✓",wallet_to_card;already_processed;duplicate_prevention;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC001,Wallet Balance API - Get Balance - Cardstream merchant (GBP),"- Cardstream merchant configured
 - Shopper has GBP wallet with balance
 - wallet_balance API available","- Refer Apidog for wallet_balance API request
@@ -2339,7 +2023,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC001,Wallet Balance API - Get Balance - C
 
 4. Balance accurate: matches transaction_wallet sum ✓
 
-5. Response time: < 200ms ✓",wallet_balance;get_balance;cardstream;region_uk;currency_gbp;,P1,Not-Automated
+5. Response time: < 200ms ✓",wallet_balance;get_balance;cardstream;region_uk;currency_gbp;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,transaction_wallet,WB-CS,WB-CS-TC002,Wallet Balance API - Zero Balance - Cardstream merchant,"- Cardstream merchant configured
 - Shopper exists with £0.00 balance",- shopper_id: valid / Balance: £0.00,"1. Send wallet_balance request for shopper with zero balance
 
@@ -2351,7 +2035,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC002,Wallet Balance API - Zero Balance - 
 
 3. Response: {""shopper_id"": ""<id>"", ""currency"": ""GBP"", ""balance"": 0.00} ✓
 
-4. No errors for zero balance ✓",wallet_balance;zero_balance;edge_case;cardstream;,P1,Not-Automated
+4. No errors for zero balance ✓",wallet_balance;zero_balance;edge_case;cardstream;,P1,Automated,UK,NA,CS_WA_TC_009_MC_wallet_balance_and_history_with_no_balance.spec.js
 WALLET,transaction_wallet,WB-CS,WB-CS-TC003,Wallet Balance API - Invalid API Key - Authentication Failure - Cardstream merchant,"- Cardstream merchant configured
 - Invalid or expired API key used","- shopper_id: valid
 - API key: invalid_key_123","1. Send wallet_balance request with invalid API key
@@ -2366,7 +2050,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC003,Wallet Balance API - Invalid API Key
 
 3. Error: {""error"": ""Authentication Failed"", ""message"": ""Invalid API key""}
 
-4. No wallet data returned ✓",wallet_balance;invalid_api_key;authentication;security;negative_test;cardstream;,P1,Not-Automated
+4. No wallet data returned ✓",wallet_balance;invalid_api_key;authentication;security;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC004,Wallet Balance API - Real-time Balance After Transaction - Cardstream merchant,"- Cardstream merchant configured
 - Transaction just completed
 - Balance must reflect immediately","- Initial balance: £100.00
@@ -2383,7 +2067,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC004,Wallet Balance API - Real-time Balan
 
 3. Balance accurate immediately after transaction ✓
 
-4. No stale cached values ✓",wallet_balance;real_time;transaction_sync;cardstream;,P1,Not-Automated
+4. No stale cached values ✓",wallet_balance;real_time;transaction_sync;cardstream;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,wallet_history,WH-CS,WH-CS-TC001,Wallet History API - Get Transaction History - Cardstream merchant (GBP),"- Cardstream merchant configured
 - Shopper has multiple transaction types in history
 - wallet_history API available","- Refer Apidog for wallet_history API request
@@ -2417,7 +2101,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC001,Wallet History API - Get Transaction His
 
 6. Sorted by timestamp DESC ✓
 
-7. Pagination metadata correct ✓",wallet_history;get_history;cardstream;region_uk;currency_gbp;,P1,Not-Automated
+7. Pagination metadata correct ✓",wallet_history;get_history;cardstream;region_uk;currency_gbp;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,wallet_history,WH-CS,WH-CS-TC002,Wallet History API - Empty History (No Transactions) - Cardstream merchant,"- Cardstream merchant configured
 - New shopper with no transactions","- shopper_id: valid (new shopper)
 - No transactions yet","1. Send wallet_history request for shopper with no transactions
@@ -2432,7 +2116,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC002,Wallet History API - Empty History (No T
 
 3. No errors ✓
 
-4. Appropriate messaging: no transaction history available ✓",wallet_history;empty_history;new_shopper;cardstream;,P1,Not-Automated
+4. Appropriate messaging: no transaction history available ✓",wallet_history;empty_history;new_shopper;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC003,Wallet History API - Invalid API Key - Authentication Failure - Cardstream merchant,"- Cardstream merchant configured
 - Invalid API key used for history request","- shopper_id: valid
 - API key: invalid_key_12345","1. Send wallet_history request with invalid API key
@@ -2447,7 +2131,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC003,Wallet History API - Invalid API Key - A
 
 3. Error: {""error"": ""Unauthorized"", ""message"": ""Invalid API key""} ✓
 
-4. No transaction data returned ✓",wallet_history;invalid_api_key;authentication_failed;security;negative_test;cardstream;,P1,Not-Automated
+4. No transaction data returned ✓",wallet_history;invalid_api_key;authentication_failed;security;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC004,Wallet History API - Pagination - Multiple Pages - Cardstream merchant,"- Cardstream merchant configured
 - Shopper with 50+ transactions
 - Pagination working correctly","- shopper_id: valid (high-activity shopper)
@@ -2473,7 +2157,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC004,Wallet History API - Pagination - Multip
 
 5. Page 0: HTTP 400 validation error ✓
 
-6. Oversized page: empty array or HTTP 400 — graceful handling ✓",wallet_history;pagination;multi_page;cardstream;,P1,Not-Automated
+6. Oversized page: empty array or HTTP 400 — graceful handling ✓",wallet_history;pagination;multi_page;cardstream;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC013,Wallet Payment - Currency Validation - UK Region (GBP) - Cardstream merchant,"- Cardstream merchant configured (country_id UK)
 - Customer has GBP wallet balance
 - Currency-specific wallet isolation enforced","- Email: valid@datman.je
@@ -2507,7 +2191,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC013,Wallet Payment - Currency Validation - U
 
 4. GBP wallet: £100.00 → £50.00 ✓
 
-5. Other currency wallets: UNCHANGED ✓",wallet_payment;currency_validation;region_uk;currency_gbp;cardstream;,P1,Not-Automated
+5. Other currency wallets: UNCHANGED ✓",wallet_payment;currency_validation;region_uk;currency_gbp;cardstream;,P1,Automated,UK,NA,CS_WA_TC_001_payment_balance_and_history_smoke_sanity.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC014,Wallet Payment - Cross-Region Balance Prevention - GBP wallet cannot pay USD - Cardstream,"- Cardstream merchant configured for US
 - Customer has GBP wallet but NO USD wallet
 - Cross-currency prevention enforced","- Country: US / Payment currency: USD
@@ -2533,7 +2217,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC014,Wallet Payment - Cross-Region Balance Pr
 3. Error response: HTTP 400
    → Insufficient USD wallet balance / Currency mismatch ✓
 
-4. Both wallet balances UNCHANGED ✓",wallet_payment;cross_region;currency_mismatch;cross_currency;negative_test;cardstream;,P1,Not-Automated
+4. Both wallet balances UNCHANGED ✓",wallet_payment;cross_region;currency_mismatch;cross_currency;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_payment,WP-CS,WP-CS-TC015,Wallet APIs - Payload Validation - Emojis in Text Fields - Cardstream merchant,"- Cardstream merchant configured
 - Emoji/unicode characters passed in payload
 - Unicode handling and encoding tested","- order_id: ORDER_�_12345
@@ -2556,7 +2240,7 @@ Option B — Rejected:
    → Error: Invalid characters in field ✓
    → No DB entries created ✓
 
-Either outcome valid — test confirms consistent, non-corrupting behaviour ✓",wallet_payment;payload_validation;emojis;unicode;character_encoding;cardstream;,P1,Not-Automated
+Either outcome valid — test confirms consistent, non-corrupting behaviour ✓",wallet_payment;payload_validation;emojis;unicode;character_encoding;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_payment,WP-CS,WP-CS-TC016,"Wallet APIs - Unsupported Currency Codes (EUR, JPY) - Cardstream merchant","- Cardstream merchant supports GBP/USD/AUD only
 - EUR and JPY not supported
 - Currency validation at API layer","- Currency: EUR or JPY (unsupported)
@@ -2576,36 +2260,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC016,"Wallet APIs - Unsupported Currency Code
 
 3. payments table: NO entries for either attempt ✓
 
-4. Wallet balance: UNCHANGED ✓",wallet_payment;unsupported_currency;currency_validation;eur;jpy;negative_test;cardstream;,P1,Not-Automated
-WALLET,wallet_payment,WP-CS,WP-CS-TC017,Wallet APIs - Concurrent DB Updates - Database Locking - Payment + Recharge Simultaneous - Cardstream,"- Cardstream merchant configured
-- Same wallet accessed by concurrent payment and recharge requests
-- DB locking prevents inconsistent state","- Wallet balance: £100.00
-- Concurrent: Payment £50 + Recharge £25 simultaneously","1. Trigger concurrent DB updates for same shopper_id:
-   → Request A: wallet payment of £50.00 (debit)
-   → Request B: wallet recharge of £25.00 (credit)
-
-2. Both attempt read/write on same wallet balance simultaneously
-
-3. Verify DB locking serialises the operations
-
-4. Verify final balance is correct:
-   Option A: Payment first → £100 → £50 → £75
-   Option B: Recharge first → £100 → £125 → £75
-   Final balance: £75.00 in both cases
-
-5. Verify transaction_wallet has two sequential entries (no timestamp overlap)
-
-6. Verify payments table: both entries present with correct status","1. Concurrent updates handled with DB locking ✓
-
-2. Operations serialised — one completes before other starts ✓
-
-3. Final balance: £75.00 (correct regardless of execution order) ✓
-
-4. transaction_wallet: two sequential entries, no overlap ✓
-
-5. payments table: both entries correct ✓
-
-6. No race condition / no balance corruption ✓",wallet_api;concurrent_db;db_locking;race_condition_prevention;cardstream;,P1,Not-Automated
+4. Wallet balance: UNCHANGED ✓",wallet_payment;unsupported_currency;currency_validation;eur;jpy;negative_test;cardstream;,P1,Automated,UK,NA,CS_WA_TC_012_MC_wallet_unsupported_currency_payment.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC018,Wallet APIs - Orphaned Records - Payment Processed but DB Not Updated - Cardstream,"- Cardstream merchant configured
 - Simulate: gateway accepts payment but DB write fails
 - Reconciliation process validates consistency","- Wallet balance: £100.00
@@ -2638,7 +2293,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC018,Wallet APIs - Orphaned Records - Payment
 4. Final consistent state:
    → payments table: entry created ✓
    → Balance: £50.00 ✓
-   → Audit log: orphan event recorded ✓",wallet_api;orphaned_records;db_failure;reconciliation;consistency;negative_test;cardstream;,P1,Not-Automated
+   → Audit log: orphan event recorded ✓",wallet_api;orphaned_records;db_failure;reconciliation;consistency;negative_test;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_payment,WP-CS,WP-CS-TC019,Wallet APIs - Rate Limiting - Multiple Rapid Requests from Same shopper_id - Cardstream,"- Cardstream merchant configured
 - Rate limiting enforced per shopper_id
 - DDoS/abuse prevention","- shopper_id: valid
@@ -2662,7 +2317,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC019,Wallet APIs - Rate Limiting - Multiple R
 
 4. Rate limit resets after window → new requests succeed ✓
 
-5. DDoS/abuse prevention working ✓",wallet_api;rate_limiting;throttling;ddos_prevention;http_429;cardstream;,P1,Not-Automated
+5. DDoS/abuse prevention working ✓",wallet_api;rate_limiting;throttling;ddos_prevention;http_429;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_payment,WP-CS,WP-CS-TC020,Wallet APIs - Concurrent Recharge and Payment - Race Condition on Same Wallet - Cardstream,"- Cardstream merchant configured
 - Customer initiates recharge and payment simultaneously on same wallet
 - Atomic operations required","- Wallet balance: £10.00
@@ -2692,31 +2347,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC020,Wallet APIs - Concurrent Recharge and Pa
    → Recharge: payment_provider_id=1 (CARDSTREAM), transaction_mode_id=2 ✓
    → Payment: payment_provider_id=9 (WALLET), transaction_mode_id=1 ✓
 
-6. No corruption ✓",wallet_api;concurrent_recharge_payment;race_condition;db_locking;cardstream;,P1,Not-Automated
-WALLET,wallet_payment,WP-CS,WP-CS-TC021,Wallet APIs - XSS Prevention - Special Characters in Name and Address Fields - Cardstream,"- Cardstream merchant configured
-- XSS payloads injected into name, address, reason fields
-- Input sanitisation and output encoding validated","- name: <script>alert('XSS')</script>
-- address: <img src=x onerror=alert('XSS')>
-- reason: <iframe src=""javascript:alert('XSS')""></iframe>","1. Submit wallet_payment requests with XSS payloads in name, address, and reason fields
-
-2. Verify ALL attempts sanitised or rejected
-
-3. Verify no JavaScript execution when data is displayed
-
-4. Verify HTML encoding applied if data stored
-
-5. Verify payments table: no executable code stored","1. XSS attempts PREVENTED ✓
-
-2. Input sanitisation:
-   → HTML tags stripped or encoded ✓
-   → JavaScript removed ✓
-   → Event handlers blocked ✓
-
-3. If stored: HTML entities encoded (&lt;script&gt;) ✓
-
-4. Output encoding: safe to display without execution ✓
-
-5. payments table: no active/executable code stored ✓",wallet_api;xss_prevention;security;input_sanitization;output_encoding;negative_test;cardstream;,P1,Not-Automated
+6. No corruption ✓",wallet_api;concurrent_recharge_payment;race_condition;db_locking;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC016,Wallet Recharge - Invalid / Non-existent Token - Balance and History Not Updated - Cardstream,"- Cardstream merchant configured
 - Token does not exist or is non-existent
 - Token validation at API layer before gateway call","- Email: valid@datman.je
@@ -2745,7 +2376,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC016,Wallet Recharge - Invalid / Non-existen
 
 6. Wallet balance: UNCHANGED ✓
 
-7. Wallet history: NO new entry ✓",wallet_recharge;invalid_token;token_validation;negative_test;cardstream;,P1,Not-Automated
+7. Wallet history: NO new entry ✓",wallet_recharge;invalid_token;token_validation;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC017,Wallet Recharge - Token with Wrong Shopper Reference - Recharge Fails - Cardstream,"- Cardstream merchant configured
 - Token exists but belongs to a different shopper
 - Cross-customer security validation","- shopper_id: 12345 (requesting shopper)
@@ -2770,114 +2401,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC017,Wallet Recharge - Token with Wrong Shop
 
 5. Wallet balance: UNCHANGED ✓
 
-6. Cross-customer token usage blocked ✓",wallet_recharge;wrong_shopper_reference;security_validation;negative_test;cardstream;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC018,Wallet Recharge - Token from Different shopper_id - Security Check - Cardstream,"- Cardstream merchant configured
-- Token is associated with shopper_id 67890 but request uses shopper_id 12345
-- Strict shopper_id ↔ token binding enforced","- shopper_id in request: 12345
-- Token shopper_id in DB: 67890 (mismatch)
-- Recharge amount: within limit","1. Submit wallet_rechargeV2 where merchantTokenId shopper_id (67890) does not match request shopper_id (12345)
-
-2. Verify request fails with shopper_id validation error
-
-3. Verify payments table: NO new entry
-
-4. Verify transaction_wallet: NO new entry
-
-5. Verify wallet balance unchanged
-
-6. Verify security incident logged","1. Recharge FAILED — shopper_id mismatch ✗
-
-2. Error: Token shopper_id mismatch / Unauthorised ✓
-
-3. payments table: NO entry ✓
-
-4. transaction_wallet: NO entry ✓
-
-5. Wallet balance: UNCHANGED ✓
-
-6. Security incident logged ✓",wallet_recharge;different_shopper_id;security_check;negative_test;cardstream;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC019,Wallet Recharge - Merchant Token Isolation - Token from Merchant A Rejected on Merchant B - Cardstream,"- Same shopper has tokens for two different Cardstream merchants
-- Merchant isolation enforced
-- Token from Merchant A must not be usable on Merchant B","- Same shopper_id
-- Merchant A token: mxtoken_MERCHANT_A_...
-- Merchant B merchant_id used in request
-- Token from Merchant A should be rejected on Merchant B","1. Verify shopper has tokens registered against both Merchant A and Merchant B
-
-2. Submit wallet_rechargeV2 using Merchant A master_token but Merchant B merchant_id
-
-3. Verify request fails with merchant isolation / token mismatch error
-
-4. Verify payments table: NO new entry
-
-5. Verify transaction_wallet: NO new entry
-
-6. Verify merchant isolation is enforced
-
-7. Verify token used on own merchant (Merchant A) still succeeds","1. Recharge FAILED on cross-merchant token ✗
-
-2. Error: Token belongs to a different merchant / Merchant isolation enforced ✓
-
-3. payments table: NO entry ✓
-
-4. transaction_wallet: NO entry ✓
-
-5. Wallet balance: UNCHANGED ✓
-
-6. Same token on correct Merchant A: SUCCESS ✓
-
-7. Merchant isolation confirmed ✓",wallet_recharge;merchant_isolation;token_cross_merchant;security;negative_test;cardstream;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC020,Wallet Recharge - 3DS Without Optional URLs - Verify Transaction Handling - Cardstream,"- Cardstream merchant configured
-- 3DS recharge attempted without optional URL parameters
-- System behaviour with missing URLs validated","- Valid 3DS master token
-- CancelUrl: NOT provided
-- WebhookUrl: NOT provided
-- RedirectUrl: NOT provided
-- BackUrl: NOT provided","1. Submit wallet_rechargeV2 with valid 3DS token but omit all optional URL parameters
-
-2. Verify system handles missing URLs:
-   Option A: System uses configured default URLs → recharge SUCCEEDS
-   Option B: System requires URLs → recharge FAILS with validation error
-
-3. For Option A: verify payments table entry created, wallet balance updated
-
-4. For Option B: verify payments table NO entry, wallet balance unchanged
-
-5. Confirm system behaviour is consistent and documented","Option A — Default URLs used:
-   → Recharge SUCCESS ✓
-   → Default URLs applied from merchant config ✓
-   → payments table entry created ✓
-   → Wallet balance updated ✓
-
-Option B — URLs required:
-   → Recharge FAILED ✗
-   → HTTP 400: Missing required URL parameters ✓
-   → payments table: NO entry ✓
-   → Wallet balance: UNCHANGED ✓
-
-Either outcome valid — confirms consistent, documented behaviour ✓",wallet_recharge;3ds;missing_urls;url_validation;cardstream;,P1,Not-Automated
-WALLET,wallet_recharge,WR-CS,WR-CS-TC021,Wallet Recharge - User Abandons 3DS Authentication Page - Cardstream,"- Cardstream merchant configured
-- 3DS challenge presented to user
-- User closes/abandons the 3DS page before completing","- Valid 3DS token
-- User action: closes 3DS page / presses back / lets it time out","1. Submit wallet_rechargeV2 with valid 3DS token — 3DS challenge presented
-
-2. User abandons / closes / times out the 3DS authentication page
-
-3. Verify recharge is NOT completed
-
-4. Verify payments table: NO successful entry (may have cancelled/pending entry)
-
-5. Verify transaction_wallet: NO new entry
-
-6. Verify wallet balance unchanged","1. Recharge CANCELLED — user abandoned 3DS ✗
-
-2. payments table: NO successful entry ✓
-   → May have entry with transaction_status_id=3 (cancelled/abandoned)
-
-3. transaction_wallet: NO new entry ✓
-
-4. Wallet balance: UNCHANGED ✓
-
-5. Card NOT charged ✓",wallet_recharge;3ds_abandoned;user_cancelled;authentication_cancelled;negative_test;cardstream;,P1,Not-Automated
+6. Cross-customer token usage blocked ✓",wallet_recharge;wrong_shopper_reference;security_validation;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_recharge,WR-CS,WR-CS-TC022,Wallet APIs - Recharge with Split Commission - Type 1 to 6 - Cardstream merchant,"- Cardstream merchant configured
 - Split commission enabled on recharge
 - Global split types 1-6 configured","- Recharge amount: £50.00
@@ -2911,7 +2435,7 @@ WALLET,wallet_recharge,WR-CS,WR-CS-TC022,Wallet APIs - Recharge with Split Commi
 
 4. Total splits = recharge amount ✓
 
-5. All split types 1-6 work correctly ✓",wallet_recharge;split_commission;split_types_1_to_6;cardstream;payments_table;,P1,Not-Automated
+5. All split types 1-6 work correctly ✓",wallet_recharge;split_commission;split_types_1_to_6;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_060_wallet_plus_saved_card_sale_split_sanity.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC011,Wallet+X - Complete Refund to CARD - Card Portion to Card + Wallet Portion to Wallet - Cardstream,"- Cardstream merchant (UK)
 - Wallet+X sale completed: £100.00 (wallet: £60, card: £40)
 - Complete refund to CARD requested","- Original sale: £100.00 (wallet £60 + card £40)
@@ -2952,7 +2476,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC011,Wallet+X - Complete Refund to CARD - Card
 
 6. Fund transfer reversal Merchant→Datman: £60.00 ✓
 
-7. Cardstream MMS: card refund £40.00 visible ✓",wallet+x;complete_refund_to_card;refund_split;fund_transfer;cardstream;payments_table;,P1,Not-Automated
+7. Cardstream MMS: card refund £40.00 visible ✓",wallet+x;complete_refund_to_card;refund_split;fund_transfer;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_042_wallet_plus_new_card_sale_partial_refund_wallet.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC012,Wallet+X - Complete Refund to WALLET - Full Amount Credited to Wallet - Cardstream,"- Cardstream merchant (UK)
 - Wallet+X sale completed: £100.00 (wallet: £60, card: £40)
 - Complete refund to WALLET requested","- Original sale: £100.00 (wallet £60 + card £40)
@@ -2990,7 +2514,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC012,Wallet+X - Complete Refund to WALLET - Fu
 
 7. Wallet balance: +£100.00 ✓
 
-NOTE — CS Wallet+X refund rule: refund to WALLET destination is supported via the same destination=WALLET flag. The system credits the wallet portion back to wallet and the card portion back to card.",wallet+x;complete_refund_to_wallet;full_wallet_refund;fund_transfer;cardstream;payments_table;,P1,Not-Automated
+NOTE — CS Wallet+X refund rule: refund to WALLET destination is supported via the same destination=WALLET flag. The system credits the wallet portion back to wallet and the card portion back to card.",wallet+x;complete_refund_to_wallet;full_wallet_refund;fund_transfer;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_083_wallet_plus_new_card_sale_split_price_uplift.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC013,Wallet+X - Partial Refund to WALLET - Partial Amount to Wallet Balance - Cardstream,"- Cardstream merchant (UK)
 - Wallet+X sale: £100.00 (wallet: £60, card: £40)
 - Partial refund of £30.00 to WALLET","- Original sale: £100.00 (wallet £60 + card £40)
@@ -3028,77 +2552,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC013,Wallet+X - Partial Refund to WALLET - Par
 
 7. Original payment: refund_status=partially_refunded ✓
 
-NOTE — CS Wallet+X refund rule: refund to WALLET destination is supported via the same destination=WALLET flag. The system credits the wallet portion back to wallet and the card portion back to card.",wallet+x;partial_refund_to_wallet;fund_transfer;cardstream;payments_table;,P1,Not-Automated
-WALLET,wallet_plus_x,WX-CS,WX-CS-TC014,Wallet+X - Changing Payment Method During Checkout - Verify Final Method Used - Cardstream,"- Cardstream merchant (UK)
-- Customer changes payment method during Wallet+X checkout
-- Final selected method must be what processes","- Wallet balance: £50.00
-- Sale amount: £85.00
-- Initial method: New card
-- Changed to: Saved card before submitting","1. Open Wallet+X payment page (wallet: £50, sale: £85, recharge: £35)
-
-2. Customer initially selects New card
-
-3. Customer changes to Saved card before completing payment
-
-4. Complete payment with Saved card
-
-5. Verify payments table — recharge entry reflects SAVED CARD:
-   → transaction_method_id: 20 (saved_card)
-   → payment_provider_id: 1 (CARDSTREAM)
-   → gross: 3500 (£35.00 recharge in pence)
-
-6. Verify payments table — wallet payment entry:
-   → payment_provider_id: 9 (WALLET) / transaction_method_id: 6
-   → gross: 8500 (£85.00 total in pence)
-
-7. Verify transaction_wallet: recharge + payment entries
-
-8. Verify gateway_request_log: shows saved card as final method (NOT new card)","1. Payment with changed method SUCCESS ✓
-
-2. payments table — recharge:
-   → transaction_method_id: 20 (saved_card) ✓ (NOT 19/new_card)
-   → payment_provider_id: 1 (CARDSTREAM) ✓
-
-3. payments table — wallet payment:
-   → payment_provider_id: 9 / transaction_method_id: 6 ✓
-
-4. gateway_request_log: final method = saved card ✓
-
-5. Initial new card selection: NOT processed ✓
-
-6. Wallet balance: £0.00 ✓",wallet+x;payment_method_change;method_switch;cardstream;payments_table;,P1,Not-Automated
-WALLET,wallet_plus_x,WX-CS,WX-CS-TC015,Wallet+X - Sensitive Data Encryption - PCI Compliance Validation - Cardstream,"- Cardstream merchant (UK)
-- PCI DSS compliance validation
-- Sensitive card data must never be stored in plain text","- Wallet balance: £50.00
-- Sale amount: £90.00
-- New card details entered (PAN, CVV, expiry)","1. Open Wallet+X payment page and enter new card details (PAN, CVV, expiry)
-
-2. Verify sensitive data encrypted/tokenised before transmission
-
-3. Complete payment
-
-4. Verify gateway_request_log:
-   → Contains encrypted/masked card data only
-   → NO plain text PAN or CVV
-
-5. Verify payments table:
-   → last_4_digits: only last 4 digits stored
-   → No full PAN stored anywhere
-
-6. Verify CVV: NOT stored in any DB table (PCI requirement)
-
-7. Verify card tokenised — master_token_id references token, not raw card data","1. Sensitive data encryption validated ✓
-
-2. gateway_request_log: encrypted/masked only, NO plain text PAN ✓
-
-3. payments table:
-   → last_4_digits: only last 4 ✓
-   → NO full PAN ✓
-   → CVV: NOT stored ✓
-
-4. Card tokenised in master_token table ✓
-
-5. PCI DSS compliance: data encrypted in transit and at rest ✓",wallet+x;encryption;pci_compliance;security;data_protection;cardstream;,P1,Not-Automated
+NOTE — CS Wallet+X refund rule: refund to WALLET destination is supported via the same destination=WALLET flag. The system credits the wallet portion back to wallet and the card portion back to card.",wallet+x;partial_refund_to_wallet;fund_transfer;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_042_wallet_plus_new_card_sale_partial_refund_wallet.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC016,Wallet+X - Very Low Wallet Balance (£0.50) - Verify Payment Completes - Cardstream,"- Cardstream merchant (UK)
 - Customer has very low wallet balance: £0.50
 - Sale amount: £100.00 (card recharge: £99.50)","- Wallet balance: £0.50 (very low)
@@ -3133,7 +2587,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC016,Wallet+X - Very Low Wallet Balance (£0.5
 
 4. Wallet balance: £0.00 ✓
 
-5. System handles minimal balance correctly — no minimum threshold issue ✓",wallet+x;low_balance;minimal_wallet;cardstream;payments_table;fund_transfer;,P1,Not-Automated
+5. System handles minimal balance correctly — no minimum threshold issue ✓",wallet+x;low_balance;minimal_wallet;cardstream;payments_table;fund_transfer;,P1,Automated,UK,NA,CS_WA_TC_066_wallet_plus_new_card_sale_cent_amount_as_wallet_balance.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC017,Wallet+X - Very High Wallet Balance (£500) vs Low Sale (£75) - Wallet Only Used - Cardstream,"- Cardstream merchant (UK)
 - Customer has very high wallet balance: £500.00
 - Sale amount: £75.00 (well within wallet)","- Wallet balance: £500.00
@@ -3169,7 +2623,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC017,Wallet+X - Very High Wallet Balance (£50
 
 6. Card NOT charged — wallet sufficient ✓
 
-7. gateway_request_log: no Wallet+X txnType ✓",wallet+x;high_balance;wallet_only;no_recharge;cardstream;payments_table;,P1,Not-Automated
+7. gateway_request_log: no Wallet+X txnType ✓",wallet+x;high_balance;wallet_only;no_recharge;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_050_wallet_plus_new_card_sale_less_amount_to_wallet_balance.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC018,"Wallet+X - Browser Compatibility - Chrome, Firefox, Safari, Edge - Cardstream","- Cardstream merchant (UK)
 - Wallet+X payment flow tested across major browsers
 - Cross-browser UI and functional consistency","- Browsers: Chrome, Firefox, Safari, Edge
@@ -3197,7 +2651,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC018,"Wallet+X - Browser Compatibility - Chrom
 
 6. No console errors in any browser ✓
 
-7. DB entries identical regardless of browser ✓",wallet+x;browser_compatibility;chrome;firefox;safari;edge;cross_browser;cardstream;,P1,Not-Automated
+7. DB entries identical regardless of browser ✓",wallet+x;browser_compatibility;chrome;firefox;safari;edge;cross_browser;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC005,Wallet Balance API - Multi-Currency Balance (GBP + USD + AUD) - Cardstream merchant,"- Cardstream merchant supports multiple currencies
 - Shopper has wallets in GBP, USD, AUD","- shopper_id: valid
 - GBP wallet: £50.00 / USD wallet: $75.00 / AUD wallet: A$100.00","1. Send wallet_balance request for shopper with multi-currency wallets
@@ -3218,7 +2672,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC005,Wallet Balance API - Multi-Currency 
 
 4. GBP payment: only GBP wallet deducted ✓
 
-5. USD and AUD: UNCHANGED ✓",wallet_balance;multi_currency;gbp;usd;aud;cardstream;,P1,Not-Automated
+5. USD and AUD: UNCHANGED ✓",wallet_balance;multi_currency;gbp;usd;aud;cardstream;,P1,Automated,UK,NA,CS_WA_TC_009_MC_wallet_balance_and_history_with_no_balance.spec.js
 WALLET,transaction_wallet,WB-CS,WB-CS-TC006,Wallet Balance API - Non-existent Shopper - Cardstream merchant,"- shopper_id does not exist in system
 - API key valid",- shopper_id: 99999999 (non-existent),"1. Send wallet_balance request with non-existent shopper_id
 
@@ -3232,7 +2686,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC006,Wallet Balance API - Non-existent Sh
 
 3. Error: {""error"": ""Shopper Not Found"", ""shopper_id"": ""99999999""} ✓
 
-4. No balance data disclosed ✓",wallet_balance;non_existent_shopper;error_handling;negative_test;cardstream;,P1,Not-Automated
+4. No balance data disclosed ✓",wallet_balance;non_existent_shopper;error_handling;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC007,Wallet Balance API - Missing shopper_id Parameter - Cardstream merchant,"- Required shopper_id parameter omitted
 - API key valid",- shopper_id: NOT provided,"1. Send wallet_balance request without shopper_id parameter
 
@@ -3246,7 +2700,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC007,Wallet Balance API - Missing shopper
 
 3. Error: {""error"": ""Validation Error"", ""message"": ""Required parameter 'shopper_id' is missing""} ✓
 
-4. No DB query executed ✓",wallet_balance;missing_parameter;validation;negative_test;cardstream;,P1,Not-Automated
+4. No DB query executed ✓",wallet_balance;missing_parameter;validation;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC008,Wallet Balance API - Invalid Currency Code (EUR) - Cardstream merchant,"- Unsupported currency EUR requested
 - API key valid","- shopper_id: valid
 - Currency filter: EUR (unsupported)","1. Send wallet_balance request with unsupported currency filter (EUR)
@@ -3261,40 +2715,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC008,Wallet Balance API - Invalid Currenc
 
 3. Error: {""error"": ""Invalid Currency"", ""supported_currencies"": [""GBP"",""USD"",""AUD""]} ✓
 
-4. No balance data disclosed ✓",wallet_balance;invalid_currency;currency_validation;negative_test;cardstream;,P1,Not-Automated
-WALLET,transaction_wallet,WB-CS,WB-CS-TC009,Wallet Balance API - Expired API Key - Cardstream merchant,"- API key has expired
-- Shopper exists","- shopper_id: valid
-- API key: expired key","1. Send wallet_balance request with expired API key
-
-2. Verify authentication fails with HTTP 401
-
-3. Verify error indicates key expiry (distinct from invalid key)
-
-4. Verify no balance data disclosed","1. Authentication FAILED — expired key ✓
-
-2. HTTP 401 Unauthorized ✓
-
-3. Error: {""error"": ""Expired API Key"", ""message"": ""API key has expired. Please renew.""} ✓
-
-4. No wallet data returned ✓",wallet_balance;expired_api_key;authentication;security;negative_test;cardstream;,P1,Not-Automated
-WALLET,transaction_wallet,WB-CS,WB-CS-TC010,Wallet Balance API - Invalid shopper_id Format (XSS Attempt) - Cardstream merchant,"- shopper_id contains invalid/malicious characters
-- Input validation and XSS prevention",- shopper_id: <script>alert('xss')</script>,"1. Send wallet_balance request with malicious/invalid shopper_id format
-
-2. Verify input validation rejects request
-
-3. Verify no XSS vulnerability
-
-4. Verify HTTP 400 Bad Request
-
-5. Verify security logs record the attempt","1. Validation FAILED — invalid format ✓
-
-2. HTTP 400 Bad Request ✓
-
-3. Error: {""error"": ""Invalid Input"", ""message"": ""shopper_id contains invalid characters""} ✓
-
-4. XSS attempt blocked — no code execution ✓
-
-5. Security incident logged ✓",wallet_balance;invalid_format;xss_prevention;security;negative_test;cardstream;,P1,Not-Automated
+4. No balance data disclosed ✓",wallet_balance;invalid_currency;currency_validation;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC011,Wallet Balance API - Concurrent Balance Requests (10 Simultaneous) - Cardstream merchant,"- Multiple simultaneous balance requests for same shopper
 - Consistency validation","- shopper_id: valid
 - Concurrent requests: 10 simultaneous","1. Send 10 simultaneous wallet_balance requests for same shopper_id
@@ -3313,30 +2734,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC011,Wallet Balance API - Concurrent Bala
 
 4. Response times: all < 300ms ✓
 
-5. Database read consistency maintained ✓",wallet_balance;concurrent_requests;performance;consistency;cardstream;,P1,Not-Automated
-WALLET,transaction_wallet,WB-CS,WB-CS-TC012,Wallet APIs - Multi-Currency Wallet - Currency Isolation During Payments - Cardstream merchant,"- Cardstream merchant supports multiple countries
-- Customer has GBP, USD, AUD wallets
-- Currency isolation validated through actual payments",- GBP wallet: £50.00 / USD wallet: $75.00 / AUD wallet: A$100.00,"1. Query wallet balance — verify all three currency balances returned
-
-2. Make a GBP payment and verify ONLY GBP wallet deducted
-
-3. Make a USD payment and verify ONLY USD wallet deducted
-
-4. Verify no automatic currency conversion between wallets
-
-5. Verify transaction_wallet entries have correct currency_code per transaction
-
-6. Verify exchange rates NOT applied between wallets","1. All currency balances returned correctly ✓
-
-2. GBP payment: only GBP deducted ✓ / USD unchanged / AUD unchanged ✓
-
-3. USD payment: only USD deducted ✓ / GBP unchanged / AUD unchanged ✓
-
-4. No automatic currency conversion ✓
-
-5. transaction_wallet: correct currency_code per entry ✓
-
-6. No exchange rates applied ✓",wallet_balance;multi_currency;currency_isolation;cardstream;,P1,Not-Automated
+5. Database read consistency maintained ✓",wallet_balance;concurrent_requests;performance;consistency;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC013,Wallet APIs - Invalid or Empty API Token - Authentication Failure - Cardstream merchant,"- API requires valid token in header
 - Invalid token and empty token tested",- API token: invalid_token_123 OR empty string,"1. Send wallet API request with invalid api_token header
 
@@ -3356,7 +2754,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC013,Wallet APIs - Invalid or Empty API T
 
 4. No default access granted for empty token ✓
 
-5. Failed attempts logged ✓",wallet_balance;invalid_token;empty_token;authentication;security;negative_test;cardstream;,P1,Not-Automated
+5. Failed attempts logged ✓",wallet_balance;invalid_token;empty_token;authentication;security;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,transaction_wallet,WB-CS,WB-CS-TC014,Wallet APIs - Response Time / Latency Check - Performance Testing - Cardstream merchant,"- Cardstream merchant configured
 - Sequential load test to measure latency
 - Performance SLA validation","- 100 sequential wallet_balance requests
@@ -3381,104 +2779,7 @@ WALLET,transaction_wallet,WB-CS,WB-CS-TC014,Wallet APIs - Response Time / Latenc
 
 4. API availability: 100% ✓
 
-5. SLA met ✓",wallet_balance;performance;response_time;latency;cardstream;,P1,Not-Automated
-WALLET,wallet_history,WH-CS,WH-CS-TC005,Wallet History API - Full Transaction History with All Types - Cardstream merchant (GBP),"- Cardstream merchant configured
-- Shopper has recharge, payment, refund, and wallet_to_card transactions
-- All four transaction types present in history","- shopper_id: valid
-- Transactions: recharge +£50, payment -£30, refund +£15, wallet_to_card -£20
-- Current balance: £15.00
-- page: 1","1. Send wallet_history POST request: {""shopper_id"": <id>, ""page"": 1}
-
-2. Verify HTTP 200 OK
-
-3. Verify response structure:
-   → shopper_id, currency, currency_symbol (£), current_balance
-   → page metadata: page, page_size, total_transactions, total_pages, has_next, has_previous
-   → transactions array
-
-4. Verify all four transaction types present:
-   → recharge: +£50.00 (credit)
-   → payment: -£30.00 (debit)
-   → refund: +£15.00 (credit)
-   → wallet_to_card: -£20.00 (debit)
-
-5. Verify balance tracking across all transactions:
-   → recharge: £0 → £50
-   → payment: £50 → £20
-   → refund: £20 → £35
-   → wallet_to_card: £35 → £15
-
-6. Verify sorted by timestamp DESC (newest first)
-
-7. Verify each transaction has: transaction_id, transaction_type, amount,
-   balance_before, balance_after, currency, timestamp, status","1. HTTP 200 OK ✓
-
-2. All 4 transaction types present ✓
-
-3. Balance tracking accurate across all transactions ✓
-   → Final balance: £15.00 ✓
-
-4. Sorted by timestamp DESC ✓
-
-5. All required fields present on each transaction ✓
-
-6. Pagination metadata correct:
-   → total_transactions: 4 / total_pages: 1 / has_next: false ✓",wallet_history;full_history;all_transaction_types;recharge;payment;refund;wallet_to_card;cardstream;,P1,Not-Automated
-WALLET,wallet_history,WH-CS,WH-CS-TC006,Wallet History API - Multi-Currency Shopper - All Currency Transactions - Cardstream merchant,"- Shopper has transactions in GBP, USD, and AUD
-- Request without currency filter returns all","- shopper_id: valid (multi-currency)
-- GBP transactions: 2
-- USD transactions: 2
-- AUD transactions: 2
-- page: 1","1. Send wallet_history request without currency filter
-
-2. Verify response groups transactions by currency
-
-3. Verify GBP section: 2 transactions, correct balance
-
-4. Verify USD section: 2 transactions, correct balance
-
-5. Verify AUD section: 2 transactions, correct balance
-
-6. Verify no currency mixing — each currency in its own section
-
-7. Verify each section sorted by timestamp DESC","1. HTTP 200 OK — all currencies returned ✓
-
-2. GBP section: 2 transactions, currency=GBP, symbol=£ ✓
-
-3. USD section: 2 transactions, currency=USD, symbol=$ ✓
-
-4. AUD section: 2 transactions, currency=AUD, symbol=A$ ✓
-
-5. No currency mixing ✓
-
-6. Each currency sorted by timestamp DESC ✓
-
-7. total_currencies: 3 ✓",wallet_history;multi_currency;all_currencies;gbp;usd;aud;cardstream;,P1,Not-Automated
-WALLET,wallet_history,WH-CS,WH-CS-TC007,Wallet History API - Page 1 of Multi-Page History (50 transactions) - Cardstream merchant,"- Shopper has 50 total transactions
-- Page size: 20
-- First page returns newest 20","- shopper_id: valid (50 transactions)
-- page: 1
-- Expected: 20 transactions, has_next=true","1. Send wallet_history request with page=1
-
-2. Verify exactly 20 transactions returned (page size)
-
-3. Verify pagination metadata:
-   → page: 1 / page_size: 20 / total_transactions: 50
-   → total_pages: 3 / has_next: true / has_previous: false
-
-4. Verify transactions are the NEWEST 20 (sorted DESC)
-
-5. Verify next_page: 2 indicated in response","1. HTTP 200 OK ✓
-
-2. Exactly 20 transactions returned ✓
-
-3. Pagination metadata:
-   → total_transactions: 50 / total_pages: 3 ✓
-   → has_next: true / has_previous: false ✓
-
-4. Newest 20 transactions returned (DESC) ✓
-
-5. next_page: 2 ✓",wallet_history;pagination;page_1;has_next;multi_page;cardstream;,P1,Not-Automated
+5. SLA met ✓",wallet_balance;performance;response_time;latency;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC008,Wallet History API - Page 2 of Multi-Page History (Middle Page) - Cardstream merchant,"- 50 total transactions / Page 2 of 3
 - Bidirectional navigation","- shopper_id: valid
 - page: 2
@@ -3500,7 +2801,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC008,Wallet History API - Page 2 of Multi-Pag
 
 4. next_page: 3 / previous_page: 1 ✓
 
-5. Bidirectional navigation confirmed ✓",wallet_history;pagination;page_2;middle_page;bidirectional;cardstream;,P1,Not-Automated
+5. Bidirectional navigation confirmed ✓",wallet_history;pagination;page_2;middle_page;bidirectional;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC009,"Wallet History API - Last Page (Partial Page, 10 transactions) - Cardstream merchant",- 50 total transactions / Page 3 = last page with 10 transactions,"- shopper_id: valid
 - page: 3
 - Expected: 10 transactions (partial page), has_next=false","1. Send wallet_history request with page=3
@@ -3519,7 +2820,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC009,"Wallet History API - Last Page (Partial
 
 4. Oldest transactions visible ✓
 
-5. Partial page handled without error ✓",wallet_history;pagination;last_page;partial_page;cardstream;,P1,Not-Automated
+5. Partial page handled without error ✓",wallet_history;pagination;last_page;partial_page;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC010,Wallet History API - Invalid Page Number (Page 0) - Cardstream merchant,"- Page 0 is invalid (pages start at 1)
 - Validation error expected","- shopper_id: valid
 - page: 0 (INVALID)","1. Send wallet_history request with page=0
@@ -3534,7 +2835,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC010,Wallet History API - Invalid Page Number
 
 3. Valid range explained: page 1 onwards ✓
 
-4. No transaction data returned ✓",wallet_history;invalid_page;page_zero;validation_error;negative_test;cardstream;,P1,Not-Automated
+4. No transaction data returned ✓",wallet_history;invalid_page;page_zero;validation_error;negative_test;cardstream;,P1,Pending,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC011,Wallet History API - Extremely Large Page Number (Beyond Available Pages) - Cardstream merchant,"- Shopper has 3 pages total
 - Request for page 999999","- shopper_id: valid
 - page: 999999 (way beyond available pages)","1. Send wallet_history request with page=999999
@@ -3553,7 +2854,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC011,Wallet History API - Extremely Large Pag
 
 3. No HTTP 500 ✓
 
-4. Response time acceptable ✓",wallet_history;invalid_page;large_page_number;edge_case;negative_test;cardstream;,P1,Not-Automated
+4. Response time acceptable ✓",wallet_history;invalid_page;large_page_number;edge_case;negative_test;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC012,Wallet History API - Large History Pagination Performance (1000+ Transactions) - Cardstream merchant,"- High-volume shopper with 1500 transactions
 - Performance under large dataset validated","- shopper_id: valid (1500 transactions)
 - page_size: 20 / total_pages: 75
@@ -3581,7 +2882,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC012,Wallet History API - Large History Pagin
 
 6. DB query uses index (no full table scan) ✓
 
-7. All pages within SLA ✓",wallet_history;large_history;1000_plus;performance;pagination;cardstream;,P1,Not-Automated
+7. All pages within SLA ✓",wallet_history;large_history;1000_plus;performance;pagination;cardstream;,P1,Cant be automated,UK,NA,NA
 WALLET,wallet_history,WH-CS,WH-CS-TC013,Wallet History API - Missing Required Parameter (shopper_id) - Cardstream merchant,"- shopper_id omitted from request
 - API key valid","- Request body: {""page"": 1} — shopper_id MISSING","1. Send wallet_history request without shopper_id parameter
 
@@ -3597,7 +2898,7 @@ WALLET,wallet_history,WH-CS,WH-CS-TC013,Wallet History API - Missing Required Pa
 
 3. No DB query executed ✓
 
-4. No transaction data returned ✓",wallet_history;missing_parameter;shopper_id_required;validation_error;negative_test;cardstream;,P1,Not-Automated
+4. No transaction data returned ✓",wallet_history;missing_parameter;shopper_id_required;validation_error;negative_test;cardstream;,P1,Automated,UK,NA,CS_WA_TC_036_history_with_invalid_values.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-CS-TC019,Wallet+X - New Card - Price Uplift (type_id=7) - End to End - Cardstream merchant,"- Cardstream merchant configured (UK)
 - Customer has wallet balance available
 - type_id=7 price uplift enabled on merchant
@@ -3654,7 +2955,7 @@ WALLET,wallet_plus_x,WX-CS,WX-CS-TC019,Wallet+X - New Card - Price Uplift (type_
 
 6. Wallet balance: £0.00
 
-7. Fund transfer: wallet portion only",wallet+x;new_card;price_uplift;type_id_7;cardstream;split_commission;,P1,Not-Automated
+7. Fund transfer: wallet portion only",wallet+x;new_card;price_uplift;type_id_7;cardstream;split_commission;,P1,Automated,UK,NA,CS_WA_TC_083_wallet_plus_new_card_sale_split_price_uplift.spec.js
 WALLET,wallet_payment,WP-CS,WP-CS-TC022,Wallet Payment - Price Uplift (type_id=7) - End to End - Cardstream merchant,"- Cardstream merchant configured with price uplift enabled
 - Customer has sufficient wallet balance
 - type_id=7 split available","- Wallet balance: £100.00
@@ -3702,7 +3003,7 @@ WALLET,wallet_payment,WP-CS,WP-CS-TC022,Wallet Payment - Price Uplift (type_id=7
 
 6. Wallet balance: £70.00
 
-7. Fund transfer: processed",wallet_payment;price_uplift;type_id_7;cardstream;split_commission;,P1,Not-Automated
+7. Fund transfer: processed",wallet_payment;price_uplift;type_id_7;cardstream;split_commission;,P1,Automated,UK,NA,CS_WA_TC_068_payment_balance_and_history_uk_commission.spec.js
 WALLET,wallet_recharge,WR-CS,WR-CS-TC023,Wallet Recharge - Price Uplift (type_id=7) - Negative: invalid split values,"- Cardstream merchant configured with price uplift enabled
 - Customer has valid AccountOnFile master token
 - Wallet recharge enabled","Scenario 1: type_id=7, value=0
@@ -3734,7 +3035,7 @@ Cardstream merchant with price uplift enabled","1. Send wallet_rechargeV2 reques
 
 4. Invalid type_id=9999 → ""invalid type id"" error, no payments_split_commission entry
 
-All scenarios: no transaction_wallet entry created",wallet_recharge;price_uplift;type_id_7;negative_test;cardstream;,P1,Not-Automated
+All scenarios: no transaction_wallet entry created",wallet_recharge;price_uplift;type_id_7;negative_test;cardstream;,P1,Automated,UK,NA,CS_WA_TC_083_wallet_plus_new_card_sale_split_price_uplift.spec.js
 WALLET,wallet_to_card,W2C-CS,W2C-CS-TC010,Wallet to Card - Withdrawal eligibility after price uplift sale refund to wallet,"- Cardstream merchant configured
 - Price uplift sale with type_id=7 completed
 - Refund to wallet processed (withdrawal_status=1)
@@ -3770,45 +3071,7 @@ WALLET,wallet_to_card,W2C-CS,W2C-CS-TC010,Wallet to Card - Withdrawal eligibilit
 
 4. MMS: withdrawal entry visible
 
-5. Duplicate W2C: ""Wallet to card has already been processed""",wallet_to_card;price_uplift;refund_to_wallet;withdrawal_status;cardstream;,P1,Not-Automated
-WALLET,wallet_history,WH-CS,WH-CS-TC014,Wallet History API - Verify history after price uplift sale and refund - Cardstream merchant,"- Cardstream merchant configured with price uplift enabled
-- Customer has wallet balance
-- Price uplift sale and refund to wallet completed","- Initial wallet balance: £50.00
-- Price uplift wallet payment amount: £30.00
-- Refund to wallet: £30.00
-- shopper_id: valid
-- page: 1","1. Check initial wallet balance: £50.00
-
-2. Process a wallet payment with price uplift (type_id=7), amount=£30.00
-
-3. Verify wallet balance: £20.00
-
-4. Process refund to WALLET for the price uplift sale
-
-5. Verify wallet balance: £50.00 (restored)
-
-6. Send wallet_history API request for the shopper_id
-
-7. Verify the response contains entries for:
-   - The wallet payment (debit: -£30.00)
-   - The wallet refund (credit: +£30.00)
-
-8. Verify balance tracking is accurate:
-   - After payment: balance_after = £20.00
-   - After refund: balance_after = £50.00
-
-9. Verify each transaction entry includes transaction_type, amount,
-   balance_before, balance_after, currency, timestamp, status","1. wallet_history API: HTTP 200 OK
-
-2. History entries present for:
-   - Wallet payment: amount=-£30.00, balance_after=£20.00
-   - Wallet refund: amount=+£30.00, balance_after=£50.00
-
-3. Balance tracking accurate across all entries
-
-4. Transactions sorted by timestamp DESC
-
-5. All required fields present per transaction entry",wallet_history;price_uplift;refund_to_wallet;balance_tracking;cardstream;,P1,Not-Automated
+5. Duplicate W2C: ""Wallet to card has already been processed""",wallet_to_card;price_uplift;refund_to_wallet;withdrawal_status;cardstream;,P1,Automated,UK,NA,CS_WA_TC_087_W2C_new_card_refund_to_wallet_uplift.spec.js
 WALLET,wallet_recharge,WR-CS,WR-KOUNT-001,CARDSTREAM - KOUNT DI - Wallet Recharge and Payment - UK,"- KOUNT DI enabled Cardstream merchant configured (UK)
 - Customer has valid AccountOnFile master token
 - Wallet recharge enabled
@@ -3876,7 +3139,7 @@ DB Validation - payments table (wallet payment entry):
 -> customer_id: <merchant_id>
 
 4. Wallet balance deducted by payment amount
-5. Wallet history updated",kount_di;wallet_recharge;wallet_payment;uk;cardstream;payments_table;,P1,Not-Automated
+5. Wallet history updated",kount_di;wallet_recharge;wallet_payment;uk;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_002_recharge_balance_and_history_smoke.spec.js
 WALLET,wallet_payment,WP-CS,WP-PU-001,CARDSTREAM - Price Uplift (type_id=7) - Wallet Payment - UK,"- Cardstream merchant configured with price uplift enabled (UK)
 - Customer has sufficient wallet balance
 - type_id=7 split available
@@ -3934,7 +3197,7 @@ datman_commission:
 -> Entry for uplift amount (datman_commission = 16)
 
 2. transaction_wallet: debit for £30.00
-3. Wallet balance: £70.00",price_uplift;type_id_7;wallet_payment;uk;cardstream;payments_table;,P1,Not-Automated
+3. Wallet balance: £70.00",price_uplift;type_id_7;wallet_payment;uk;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_068_payment_balance_and_history_uk_commission.spec.js
 WALLET,wallet_plus_x,WX-CS,WX-PU-001,CARDSTREAM - Price Uplift (type_id=7) - Wallet+X New Card - UK,"- Cardstream merchant configured with price uplift enabled (UK)
 - Customer has partial wallet balance (less than sale amount)
 - txnType: WALLET_RECHARGE_AGAINST_ORDER
@@ -4003,4 +3266,4 @@ datman_commission:
 -> Entry for uplift (datman_commission = 16)
 
 2. Wallet balance: £0.00
-3. Fund transfer: £10.00 (wallet portion only)",price_uplift;type_id_7;wallet+x;new_card;uk;cardstream;payments_table;,P1,Not-Automated
+3. Fund transfer: £10.00 (wallet portion only)",price_uplift;type_id_7;wallet+x;new_card;uk;cardstream;payments_table;,P1,Automated,UK,NA,CS_WA_TC_075_wallet_plus_new_card_sale_big_table_uk_commission.spec.js

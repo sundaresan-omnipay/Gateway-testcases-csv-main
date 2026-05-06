@@ -1,0 +1,844 @@
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation status,Countries applicable,Partners applicable,Automation mapped TC
+Gift Card,Gift Card,AP-T446,AP-T446,Gift Card - New card,"- Merchant configured in CardStream
+- Gift card functionality enabled
+- Payment provider: CardStream (payment_provider_id: 1)
+- CS-CH and Checkout-HF integration active
+- New card details available","- Payment provider: CardStream (payment_provider_id: 1) / CS-CH (payment_provider_id: 3)
+- New card: Visa (4929000000006)
+- Amount: £50.00
+- Gift card code: Auto-generated (unique gc_reference)
+- Invalid gc_reference: Empty string / already used reference","1. Make a New card sale with Checkout_hf and CS-CH for gift card
+2. Vaidate the payload for a new card sale with all the parameters for CS-CH 
+and Checkout-HF
+3. Validate the sale with different invalid GC_reference in the payload and 
+try to create a GC","User should able to see the GC is getting created for CS-CH and Checkout
+User should see the sale is happening like same as Regular New card sale
+User should see the GC is not getting created","DN-8624, DN-9931",P2,Automated,UK,NA,CS_NC_TC_058_gift_card_sale_full_redemption_sanity.spec.js
+Gift Card,Gift Card,AP-T818,AP-T818,Gift Card - Saved card,"- Merchant configured in CardStream
+- Gift card functionality enabled
+- Payment provider: CardStream (payment_provider_id: 1)
+- CS-CH and Checkout-HF integration active
+- Customer has a valid saved card token in CardStream
+- master_token table entry exists with delete_status: 0 (active)","- Payment provider: CardStream (payment_provider_id: 1) / CS-CH (payment_provider_id: 3)
+- Saved card token: Valid CardStream token (active, delete_status: 0)
+- Card: Saved Visa (last 4 digits: valid)
+- Amount: £100.00
+- Gift card code: Auto-generated (unique gc_reference)
+- Invalid gc_reference: Empty string / already used reference","1. Make a Saved card sale with Checkout_hf and CS-CH for gift card
+2. Vaidate the payload for a new card sale with all the parameters for CS-CH 
+and Checkout-HF
+3. Validate the sale with different invalid GC_reference in the payload and 
+try to create a GC","User should able to see the GC is getting created for CS-CH and Checkout
+User should see the sale is happening like same as Regular New card sale
+User should see the GC is not getting created","DN-8624, DN-9931",P2,Automated,UK,NA,CS_SC_TC_017_gc_sale_via_pluto_full_redeem_smoke_sanity.spec.js
+Gift Card,Gift Card,AP-T447,AP-T447,Gift Card - Purchase for FH Account,"- FH merchant configured in CardStream
+- Gift card merchant for FH purchase exists
+- Country configuration in country table
+- CS-CH and Checkout-HF integration active
+- New card and Saved card details available","- Payment provider: CardStream (payment_provider_id: 1) / CS-CH (payment_provider_id: 3)
+- FH Merchant ID: Valid FH merchant identifier
+- New card: Visa (4929000000006)
+- Saved card token: Valid CardStream token
+- Amount: £75.00
+- Gift card merchant: Configured in country table","1. From the given payload, Try to purchase a FH gift card from
+1) New Card
+2) Saved Card
+2. Validate the DB entries
+3. Validate the transaction with Cardstream-CH & Checkout","User should see the Gift card is purchased for FH
+User should able to see the entries in Payment table, 
+gift_card_transactions
+User should able to see the New card & Saved sales are going through for 
+gift card","DN-8624, DN-10534, DN-12156, DN-14155",P2,Automated,UK,NA,CS_NC_TC_063_gift_card_sale_multiple_redemption_from_fh.spec.js
+Gift Card,Gift Card,AP-T451,AP-T451,Gift Card - Purchase from Direct merchant,"- Merchant configured in CardStream
+- Gift card functionality enabled
+- Direct merchant configured with CardStream
+- CS-CH integration active
+- New card and Saved card details available","- Payment provider: CS-CH (payment_provider_id: 3)
+- Direct Merchant ID: Valid Direct merchant identifier
+- New card: Visa (4929000000006)
+- Saved card token: Valid CardStream token
+- Amount: £50.00
+- Gift card code: Auto-generated (unique gc_reference)","1. from the given Payload, Try to make a New card sale for GC with a Direct 
+merchant
+2. Validate the DB entries
+3. Try to do a New card sale with the Direct merchant
+4. Try to do a Saved card sale with the Direct merchant","User should be able to see the sale is getting without any issue.
+User should be able to see the entries in payments table
+User should see an entry in gift_card_transactions
+User should see the entries in New card sale
+User should see the entries in New card sale","DN-8624, DN-9931, DN-10534, DN-12156",P2,Automated,UK,NA,CS_SC_TC_021_gc_sale_via_pluto_multiple_redeem_.spec.js
+Gift Card,Gift Card,AP-T453,AP-T453,Gift Card - Country limit validation,"- Merchant configured in CardStream
+- Gift card functionality enabled
+- Country table configured with gc_enabled, gc_max_limit, gc_fh_mid columns
+- CS-CH MID and Checkout-HF MID available for testing
+- CS MID and Spreedly MID available for negative testing","- Test 1 (gc_enabled): Country A: gc_enabled = 1 | Country B: gc_enabled = 0
+- Test 2 (gc_max_limit): gc_max_limit > 100 with sale < 100 (£50.00) | gc_max_limit > 100 with sale > 100 (£600.00) | gc_max_limit = 0 with any sale amount
+- Test 3 (gc_fh_mid): CS-CH MID (GC generated) | Checkout-HF MID (GC generated) | CS MID (GC not generated) | Spreedly MID (GC not generated)
+- Amount: £50.00 per transaction","1. In the country table, Validate the coulumn
+i) gc_enabled = 0
+ii) gc_enabled = 1
+2. In country table, Validate the coloumn gc_max_limit with the below 
+scenarios
+1) gc_max_limit > 100 & Try to make a sale less than 100
+2) gc_max_limit > 100 & Try to make a sale more than 100
+3) gc_max_limit  = 0 & try to make a sale more than 0
+3. In the country table, Validate the coloumn gc_fh_mid
+1) Validate a Sale with CS-CH MID
+2) Validate a sale with Checkout-HF MID
+3) Validate a Sale with CS MID
+4) Validate a Sale with Spreedly MID","User should see if the below responses as per the requirement
+i) If gc_enabled = 0, User should see the gc is not getting generated for 
+that country.
+ii) If gc_enabled = 1, User able to see the gc is getting generated for 
+that country.
+User should see the sale is happening as per the below things
+1) User should see the GC is getting generated
+2) user should see the GC is not getting generated
+3) GC should not be created
+User should see the below sales happening as per the conditions
+1) User should see the GC is getting generated
+2) User should see the GC is getting generated
+3) User should see the Gift card is not getting generated
+4) User should see the GC is not getting generated","DN-8624, DN-14155",P2,Pending,UK,NA,NA
+Gift Card,Gift Card,AP-T445,AP-T445,Gift Card - Refund,"- Gift card purchased successfully via CardStream
+- Gift card is active and unused (not redeemed)
+- Refund API available
+- Payment provider: CardStream (payment_provider_id: 1)","- Gift card code: Valid gc_reference from a successful purchase
+- Purchase amount: £100.00
+- Redeemed amount: £0.00 (unused)
+- Refund amount: £100.00 (full)
+- Partial cancel amount: Any amount less than full (to validate no partial cancel)","1. From the given API, try to Refund the gift card
+2. Validate DB for entries for having the cancelled gift card
+3. Try to Refund the same gift card again
+4. Process a gift card transaction and try to cancel it partially","User should see the gift card is cancelled without any issue
+User should see the gift card cancelled transaction in the 
+gift_card_transaction table as type - Refunded
+User should see the same gift card is not cancelled, as it is already 
+Refunded
+User should see that, there is no partial cancellation","DN-8624, DN-9931, DN-10534, DN-12156",P2,Pending,UK,NA,NA
+Gift Card,Gift Card,AP-T444,AP-T444,Gift Card - Redemption Process,"- Gift card purchased successfully via CardStream
+- Gift card is active with valid gc_reference
+- Redemption API available
+- FH MID configured
+- gc_transaction_type_id: 1 (PURCHASE) entry exists in gift_card_transactions table","- Gift card code: Valid gc_reference
+- FH MID: Valid FH merchant identifier
+- Valid customer_id: Existing customer
+- Invalid customer_id: Non-existent / 0
+- Redemption amount: Equal to purchased amount (full) and higher than purchased amount
+- Invalid gc_reference: Non-existent reference
+- Duplicate redemption: Same gc_reference used twice","1. With the given API, try to redeem the gift card for the FH mid
+1) Valid Customer_id
+2) Unvalid Customer_id
+3) Customer_id = 0
+2. Try to redeem the same GC again after the redeemption is done
+3. Try to redeem the GC with invalid gc_refence
+4. Try to Hit multiple times the API with valid and invalid GC_refence
+5. Redeem with other gc reference
+In gc try to add different gc reference than purchase one
+6. Higher amount than purchased
+In gift card when i am trying to redeem after with higher. amount than the 
+purchased one we should be able to see that gift card redeem api response 
+is success.
+7. Try with all field in the payload with different values.
+1. gc redeemption type other than full & partial redeem should be success.
+2. merchant id, shopper id, first name, last name, address, email id.","User should see the GC is getting redemmed for
+1) Used Customer_id as expected
+2) Different Customer_id than the purchase as expected
+3) No GC should be redemmed
+User should see the redeemption should only be happened once
+User should see GC is not redeemed with Invalid GC reference
+User should see only once the GC should be redeemed
+We should be able to see that redeem is success.
+We should be able to see that gc redeem is success.
+We should be able to process the redeemption without any issue.","DN-8624, DN-9931, DN-12156, DN-14155",P2,Pending,UK,NA,NA
+Gift Card,Gift Card,AP-T2407,AP-T2407,Gift Card Cancel Redemption validation ,"- Gift card redemption completed successfully via CardStream
+- Valid payment_id available from redemption
+- Cancel redemption API available
+- gc_reference from purchase available","- Valid payment_id: payment_id from a successful redemption
+- Invalid payment_id: Non-existent / random payment_id
+- gc_reference: Different gc_reference than the one used at purchase
+- Cancel amount: Higher than redeemed amount
+- Reason field: >600 characters | numeric values | special characters","1. with different payment id
+
+In gift card cancel try to add invalid payment id it should give us failed 
+as api response.
+2. Higher amount than redeem
+In gift card cancel redemption we should be able to see that api response 
+is failing.
+3. Different GC reference than purchase 
+Try it with different gc reference than purchased gc reference.
+4. Reason field should be validated
+In cancel of gift card in reason field try to add more than 
+1. 600 characters.
+2. try to numbers.
+3. try to add special character & other details in this field","In api response we should get the api response as failed.
+In gift card cancel redemption we should be able to see api response as 
+failed.
+We should be able to see that cancel of sale will be done here.
+We should be able to see that regardless of anything this should get 
+passed.","DN-8624, DN-9931, DN-14155",P2,Pending,UK,NA,NA
+Gift Card,Saved Card Purchase,GC-SAV-002,GC-SAV-002,Saved card purchase with expired token,"- Customer has saved card
+- Token expired in CardStream
+- master_token entry exists but token invalid","- master_token_id: Token ID
+- Token: Expired CardStream token
+- Amount: £50.00","1. Customer selects saved card
+2. System attempts to use expired token
+3. CardStream rejects expired token","1. Purchase FAILED ✓
+
+Response:
+-> Error: ""Saved card token expired""
+-> Message: ""Please use a different card""
+
+Database - payments table:
+-> transaction_status_id: 2 (failed)
+-> reason: ""Token expired""
+
+Database - master_token table:
+-> Token marked as invalid/expired
+
+2. Customer prompted to add new card ✓",gift_card;saved_card;token_expired;negative_test,P2,Pending,UK,NA,NA
+Gift Card,Saved Card Purchase,GC-SAV-004,GC-SAV-004,Saved card purchase with CVV required for security,"- Merchant requires CVV for saved cards
+- CVV verification enabled
+- Card saved without CVV stored","- Saved card: Visa ending 1234
+- CVV: 123 (required)
+- Amount: £100.00","1. Customer selects saved card
+2. System prompts for CVV
+3. Customer enters CVV
+4. Purchase processed","1. CVV validation SUCCESSFUL ✓
+
+Database - payments table:
+-> transaction_status_id: 1
+-> transaction_method_id: 2 (saved card)
+-> CVV verified (not stored)
+
+Database - gift_card_transactions table:
+
+2. CVV requirement satisfied ✓
+3. Purchase completed ✓",gift_card;saved_card;cvv_required;security;positive_test,P2,Automated,UK,NA,CS_SC_TC_021_gc_sale_via_pluto_multiple_redeem_.spec.js
+Gift Card,Redemption,GC-RED-003,GC-RED-003,Multiple redemptions until gift card balance exhausted,"- Gift card balance: £100.00
+- Multiple orders over time","- Initial balance: £100.00
+- Redemption 1: £30.00
+- Redemption 2: £40.00
+- Redemption 3: £30.00","1. First redemption: £30.00 (balance: £70.00)
+2. Second redemption: £40.00 (balance: £30.00)
+3. Third redemption: £30.00 (balance: £0.00)
+4. Verify final status","1. All redemptions SUCCESSFUL ✓
+
+Database - gift_card_transactions table:
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code being redeemed
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> created_at: Timestamp
+
+
+Balance Calculation (not stored, calculated from transactions):
+-> Query all transactions for this gc_reference
+-> Balance = PURCHASE amount - SUM(REDEEM amounts) + SUM(REFUND amounts)
+-> Example: £100 (purchase) - £60 (redeemed) = £40 (current balance)
+After Redemption 1:
+
+After Redemption 2:
+
+After Redemption 3:
+
+2. Multiple redemptions tracked ✓
+3. Final status: Fully Redeemed ✓",gift_card;redemption;multiple_redemptions;exhausted;positive_test,P1,Automated,UK,NA,CS_SC_TC_021_gc_sale_via_pluto_multiple_redeem_.spec.js
+Gift Card,Redemption,GC-RED-004,GC-RED-004,Redemption attempt with insufficient gift card balance,"- Gift card balance: £20.00
+- Order total: £50.00","- Gift card code: Valid code
+- Current balance: £20.00
+- Redemption attempt: £50.00
+- Shortage: £30.00","1. Customer applies gift card
+2. System checks balance
+3. Insufficient balance detected
+4. Customer notified","1. Partial application or rejection ✓
+
+Option A - Partial Application:
+-> Applied: £20.00 (available balance)
+-> Remaining to pay: £30.00
+-> Customer chooses additional payment method
+
+Option B - Rejected:
+-> Error: ""Insufficient gift card balance""
+-> Available: £20.00, Required: £50.00
+
+Database - gift_card_transactions table:
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code being redeemed
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> created_at: Timestamp
+
+
+
+Balance Calculation (not stored, calculated from transactions):
+-> Query all transactions for this gc_reference
+-> Balance = PURCHASE amount - SUM(REDEEM amounts) + SUM(REFUND amounts)
+-> Example: £100 (purchase) - £60 (redeemed) = £40 (current balance)
+2. Customer informed of shortage ✓",gift_card;redemption;insufficient_balance;negative_test,P2,Pending,UK,NA,NA
+Gift Card,Redemption,GC-RED-008,GC-RED-008,Gift card redemption across multiple separate orders,"- Gift card balance: £100.00
+- Multiple orders at different times","- Gift card: Single card
+- Order 1: £30.00 (Day 1)
+- Order 2: £25.00 (Day 3)
+- Order 3: £45.00 (Day 5)","1. Order 1: Use £30.00
+2. Order 2: Use £25.00
+3. Order 3: Use £45.00
+4. Verify balance tracking","1. All orders SUCCESSFUL ✓
+
+Database - gift_card_transactions table:
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code being redeemed
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> created_at: Timestamp
+After Order 1:
+
+After Order 2:
+
+After Order 3:
+
+2. Multiple orders processed ✓
+3. Balance tracked correctly ✓",gift_card;redemption;multiple_orders;tracking;positive_test,P2,Pending,UK,NA,NA
+Gift Card,Redemption,GC-RED-009,GC-RED-009,Concurrent redemption attempts on same gift card (race condition),"- Gift card balance: £50.00
+- Two simultaneous redemption attempts
+- Same card code used","- Gift card: Balance £50.00
+- Attempt 1: £30.00 (simultaneous)
+- Attempt 2: £30.00 (simultaneous)","1. User submits two orders simultaneously
+2. Both attempt to use same gift card
+3. System handles race condition","1. Race condition handled ✓
+
+Option A - First wins:
+-> First redemption: Success (£30.00)
+-> Second redemption: Failed (insufficient balance)
+-> Final balance: £20.00
+
+Option B - Lock mechanism:
+-> First locks card
+-> Second waits or fails
+-> Prevents double redemption
+
+Database - gift_card_transactions table:
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code being redeemed
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> created_at: Timestamp
+-> Only one redemption succeeds
+-> Transaction locking works
+
+2. Double redemption prevented ✓
+3. Data integrity maintained ✓",gift_card;redemption;concurrent;race_condition;locking;negative_test,P1,Pending,UK,NA,NA
+Gift Card,Redemption,GC-RED-010,GC-RED-010,Gift card redemption retry after initial failure,"- First redemption failed (timeout/error)
+- Gift card still valid
+- Balance unchanged","- Gift card: Valid code
+- Balance: £50.00
+- First attempt: Failed (timeout)
+- Second attempt: Retry","1. First redemption attempt fails
+2. Customer retries
+3. Second attempt processes successfully","1. Retry SUCCESSFUL ✓
+
+Database - gift_card_transactions table:
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> gc_transaction_type_id: 2 (REDEEM)
+-> gc_reference: Gift card code being redeemed
+-> amount: Redemption amount
+-> merchant_id: Merchant identifier
+-> shopper_id: Customer identifier
+-> payment_id: Links to payments.id
+-> created_at: Timestamp
+-> No double redemption
+-> Retry handled properly
+
+Database - payments table:
+-> Only one successful transaction
+-> First attempt: Failed/Timeout
+-> Second attempt: Success
+
+2. Idempotency maintained ✓
+3. No duplicate deduction ✓",gift_card;redemption;retry;error_recovery;positive_test,P2,Pending,UK,NA,NA
+Gift Card,Redemption,GC-RED-012,GC-RED-012,Redemption with multiple gift cards on single order,"- Customer has 2 gift cards
+- Card 1: Balance £30.00
+- Card 2: Balance £40.00
+- Order total: £60.00","- Gift card 1: £30.00
+- Gift card 2: £40.00
+- Order total: £60.00
+- Combined: £70.00 (£10.00 excess)","1. Apply gift card 1: £30.00
+2. Apply gift card 2: £30.00 (partial)
+3. Process order: £60.00 total
+4. Verify both cards updated","1. Multiple cards applied ✓
+
+Database - gift_card_transactions (Card 1):
+
+Database - gift_card_transactions (Card 2):
+
+Database - payments table:
+-> Multiple entries OR combined
+-> Total: £60.00
+-> transaction_method_id: 8 (gift card)
+
+2. Order paid with 2 gift cards ✓
+3. Correct balances updated ✓",gift_card;redemption;multiple_cards;positive_test,P1,Automated,UK,NA,CS_SC_TC_021_gc_sale_via_pluto_multiple_redeem_.spec.js
+Gift Card,Redemption,GC-RED-014,GC-RED-014,Gift card redemption - Split fee value exceeds sale amount (sale fails),"- Gift card exists with valid balance
+- Redemption API active
+- Split fee payload validation active
+- split_fee value > total sale amount","- Gift card code: Valid code with £100 balance
+- Redemption amount (sale total): £50.00
+- split_fee: [{type_id: 3, value_type: ""amount"", value: 60.00}] (£60 > £50 sale)
+- Test 2: split_fee: [{type_id: 3, value_type: ""amount"", value: 50.01}] (just over sale)
+- Test 3: split_fee: [{type_id: 3, value_type: ""amount"", value: 50.00}] (equal to sale - edge case)","1. Initiate gift card redemption with sale amount £50.00
+2. Pass split_fee with value: 60.00 (exceeds sale amount)
+3. Verify sale fails with API error
+4. Verify error message: ""split_fee[0].value must be less than total""
+5. Verify no payment entry created
+6. Verify no gift_card_transactions entry created
+7. Verify gift card balance unchanged
+8. Repeat with split_fee value: 50.01 (just over sale)
+9. Verify same failure
+10. Repeat with split_fee value: 50.00 (equal to sale - edge case)
+11. Verify behavior (pass or fail based on validation rule)","1. Split fee > sale amount — Sale FAILED ✓
+
+Test 1 (split_fee £60 > sale £50):
+-> Sale FAILS
+-> API Response: {""message"": ""split_fee[0].value must be less than total""}
+-> No payment entry created
+-> No gift_card_transactions entry created
+-> Gift card balance unchanged: £100.00
+
+Test 2 (split_fee £50.01 > sale £50):
+-> Sale FAILS
+-> API Response: {""message"": ""split_fee[0].value must be less than total""}
+-> No payment entry created
+-> Gift card balance unchanged: £100.00
+
+Test 3 (split_fee £50.00 = sale £50 — edge case):
+-> Verify behavior: May pass or fail depending on validation (< vs <=)
+-> If fails: {""message"": ""split_fee[0].value must be less than total""}
+-> If passes: payment created with full split
+
+Database - payments table:
+-> No entry for Test 1 and Test 2
+-> Test 3: Depends on validation rule
+
+Database - gift_card_transactions table:
+-> No entry for Test 1 and Test 2
+
+Database - payment_split_commission table:
+-> No entry for Test 1 and Test 2
+
+2. Split fee validation enforced ✓
+3. Exact error message returned ✓
+4. No partial processing on failure ✓
+5. Gift card balance not affected ✓",gift_card;redemption;split_fee;validation;amount_exceeded;negative_test,P1,Pending,UK,NA,NA
+Gift Card,Limits & Restrictions,GC-LIM-001,GC-LIM-001,Gift card country restriction validation,"- Country limits configured in country table
+- UK (country_id: 1): max £500.00
+- US (country_id: 7): max $500.00
+- AU (country_id: 3): max $750.00","- Test 1: UK merchant, £600.00 (exceeds)
+- Test 2: US merchant, $400.00 (within)
+- Test 3: AU merchant, $800.00 (exceeds)","1. Attempt purchase in each country
+2. System validates against country limit
+3. Accept/Reject based on limit","1. Country limits enforced ✓
+
+Test 1 (UK - £600):
+-> REJECTED: Exceeds £500 limit
+-> Error: ""Amount exceeds country maximum""
+
+Test 2 (US - $400):
+-> ACCEPTED: Within $500 limit
+-> Purchase successful
+
+Test 3 (AU - $800):
+-> REJECTED: Exceeds $750 limit
+-> Error: ""Amount exceeds country maximum""
+
+Database - country table:
+-> Limits enforced per country_id
+-> Validation working correctly
+
+2. Country-specific limits validated ✓",gift_card;limits;country_restriction;validation;boundary_test,P1,Pending,UK,NA,NA
+Gift Card,Limits & Restrictions,GC-LIM-002,GC-LIM-002,Gift card merchant restriction validation,"- Merchant-specific limits configured
+- Merchant A: Enabled, max £300.00
+- Merchant B: Disabled for gift cards
+- Merchant C: Enabled, max £1000.00","- Merchant A: £250.00 purchase
+- Merchant B: £50.00 purchase
+- Merchant C: £500.00 purchase","1. Attempt purchase at each merchant
+2. Validate merchant configuration
+3. Apply merchant-specific rules","1. Merchant restrictions enforced ✓
+
+Merchant A (£250):
+-> ACCEPTED: Within £300 limit
+-> Purchase successful
+
+Merchant B (£50):
+-> REJECTED: Gift cards disabled
+-> Error: ""Gift cards not available for this merchant""
+
+Merchant C (£500):
+-> ACCEPTED: Within £1000 limit
+-> Purchase successful
+
+Database - merchant configuration:
+-> gift_card_enabled flag checked
+-> Per-merchant limits enforced
+
+2. Merchant-specific rules validated ✓",gift_card;limits;merchant_restriction;validation;config_test,P1,Pending,UK,NA,NA
+Gift Card,Purchase,GC-PUR-016,GC-PUR-016,Gift card purchase - Invalid payload validation (First Name & Last Name with alphanumeric/special characters),"- Merchant configured in CardStream
+- Gift card functionality enabled
+- Country: UK (country_id: 1)
+- Payload validation rules active","- Test 1: First Name = ""John123"", Last Name = ""Doe456"" (alphanumeric)
+- Test 2: First Name = ""O'Brien"", Last Name = ""Smith-Jones"" (special chars: apostrophe, hyphen)
+- Test 3: First Name = ""  John  "", Last Name = ""  Doe  "" (leading/trailing spaces)
+- Test 4: First Name = ""José"", Last Name = ""Müller"" (accented characters)
+- Test 5: First Name = ""123!@#"", Last Name = ""$%^&*"" (only special chars/numbers)
+- Amount: £50.00 for each test
+- Card: Valid Visa 4929000000006","1. Initiate gift card purchase with First Name = ""John123"", Last Name = ""Doe456""
+2. Complete payment and verify sale succeeds
+3. Verify first_name and last_name are trimmed/sanitized in DB
+4. Repeat with First Name = ""O'Brien"", Last Name = ""Smith-Jones""
+5. Verify sale succeeds with special characters trimmed
+6. Repeat with names containing leading/trailing spaces
+7. Verify spaces are trimmed in DB
+8. Repeat with accented characters
+9. Verify sale succeeds
+10. Repeat with only special chars/numbers
+11. Verify sale succeeds - all values trimmed","1. All sales SUCCESSFUL ✓ — names are trimmed and accepted
+
+Test 1 (Alphanumeric names):
+-> Sale succeeds with transaction_status_id: 1
+-> first_name stored as ""John123"" (trimmed)
+-> last_name stored as ""Doe456"" (trimmed)
+
+Test 2 (Special char names - apostrophe, hyphen):
+-> Sale succeeds with transaction_status_id: 1
+-> first_name stored as ""O'Brien"" (trimmed)
+-> last_name stored as ""Smith-Jones"" (trimmed)
+
+Test 3 (Leading/trailing spaces):
+-> Sale succeeds with transaction_status_id: 1
+-> first_name stored as ""John"" (spaces trimmed)
+-> last_name stored as ""Doe"" (spaces trimmed)
+
+Test 4 (Accented characters):
+-> Sale succeeds with transaction_status_id: 1
+-> first_name stored as ""José"" (trimmed)
+-> last_name stored as ""Müller"" (trimmed)
+
+Test 5 (Only special chars/numbers):
+-> Sale succeeds with transaction_status_id: 1
+-> Values trimmed and stored
+
+Database - payments table:
+-> transaction_status_id: 1 for all tests
+-> All name fields trimmed before storage
+
+2. All name variations accepted ✓
+3. All values trimmed in DB ✓
+4. No validation errors on name fields ✓",gift_card;purchase;payload_validation;name_validation;trimming;positive_test,P2,Pending,UK,NA,NA
+Gift Card,Purchase,GC-PUR-017,GC-PUR-017,Gift card purchase - Invalid email validation (sale fails),"- Merchant configured in CardStream
+- Gift card functionality enabled
+- Email validation active in payload","- Test 1: email = """" (empty)
+- Test 2: email = ""invalid-email"" (no @ symbol)
+- Test 3: email = ""@domain.com"" (no local part)
+- Test 4: email = ""user@"" (no domain)
+- Test 5: email = ""user@domain"" (no TLD)
+- Test 6: email = null (missing field)
+- Amount: £50.00 for each test
+- Card: Valid Visa 4929000000006","1. Initiate gift card purchase with empty email
+2. Verify sale fails with email validation error
+3. Repeat with ""invalid-email"" (no @ symbol)
+4. Verify sale fails
+5. Repeat with ""@domain.com"" (no local part)
+6. Verify sale fails
+7. Repeat with ""user@"" (no domain)
+8. Verify sale fails
+9. Repeat with ""user@domain"" (no TLD)
+10. Verify sale fails
+11. Repeat with null/missing email field
+12. Verify sale fails","1. All sales FAILED ✓ — invalid email rejected
+
+Test 1 (empty email):
+-> Sale FAILS
+-> API error: Email validation failed
+
+Test 2 (no @ symbol):
+-> Sale FAILS
+-> API error: Invalid email format
+
+Test 3 (no local part):
+-> Sale FAILS
+-> API error: Invalid email format
+
+Test 4 (no domain):
+-> Sale FAILS
+-> API error: Invalid email format
+
+Test 5 (no TLD):
+-> Sale FAILS
+-> API error: Invalid email format
+
+Test 6 (null/missing):
+-> Sale FAILS
+-> API error: Email is required
+
+Database - payments table:
+-> No payment entry created for any test
+-> No gift_card_transactions entry created
+
+2. All invalid emails rejected ✓
+3. No payment processed with invalid email ✓
+4. Proper error messages returned ✓",gift_card;purchase;email_validation;invalid_email;negative_test,P1,Pending,UK,NA,NA
+Gift Card,Redemption Cancel,GC-RCAN-007,GC-RCAN-007,Cancel redemption after settlement state,"- Gift card redemption completed
+- Transaction already settled
+- Settlement period passed","- Payment ID: Settled payment
+- Settlement status: Completed","1. Complete gift card redemption
+2. Wait for settlement to complete
+3. Attempt cancel redemption after settlement
+4. Verify handling of post-settlement cancel","1. Post-settlement cancel handling ✓
+
+Option A - Refund processed:
+-> Cancel processed as refund
+-> Refund initiated through settlement channel
+-> Gift card balance restored
+-> Customer notified of refund timeline
+
+Option B - Rejected:
+-> Error: ""Transaction already settled""
+-> Message: ""Contact support for post-settlement cancellation""
+
+Database - gift_card_transactions table:
+-> Cancel/refund entry if processed
+-> Settlement status tracked
+
+2. Post-settlement handling validated ✓
+3. Customer informed of timeline ✓",gift_card;redemption_cancel;settlement;edge_case;post_settlement,P1,Pending,UK,NA,NA
+Gift Card,Email Notification,GC-EMAIL-001,GC-EMAIL-001,Email notification on gift card purchase success,"- Gift card purchase completed successfully
+- Email service configured and active
+- Customer email: Valid email address
+- Merchant notification: Configured","- Customer email: gc_buyer@example.com
+- Merchant email: merchant@example.com
+- Gift card amount: £50.00
+- Gift card code: GC-XXXX-XXXX","1. Complete gift card purchase successfully
+2. Verify customer email triggered
+3. Verify email content (gift card code, amount, balance)
+4. Verify merchant notification (if configured)
+5. Check email delivery logs","1. Purchase email notification SENT ✓
+
+Customer Email:
+-> To: gc_buyer@example.com
+-> Subject: Gift card purchase confirmation
+-> Body contains: Gift card code, purchase amount, balance
+-> Gift card code visible in email
+-> Merchant branding applied
+
+Merchant Email (if configured):
+-> To: merchant@example.com
+-> Subject: New gift card purchase notification
+-> Body contains: Transaction reference, amount
+
+Email Logs:
+-> Email sent timestamp
+-> Delivery status: Delivered
+-> Template: Gift card purchase template
+
+2. Customer email received ✓
+3. Gift card code included in email ✓
+4. Merchant notification sent ✓",gift_card;email;purchase;notification;positive_test,P2,Cant be automated,UK,NA,NA
+Gift Card,Email Notification,GC-EMAIL-002,GC-EMAIL-002,Email notification on gift card cancellation,"- Gift card cancelled/refunded successfully
+- Email service configured
+- Customer email: Valid email address","- Customer email: gc_buyer@example.com
+- Cancelled gift card code: GC-XXXX-XXXX
+- Refund amount: £50.00","1. Cancel/refund gift card successfully
+2. Verify customer email triggered for cancellation
+3. Verify email content (refund amount, gift card reference)
+4. Verify merchant notification (if configured)","1. Cancellation email notification SENT ✓
+
+Customer Email:
+-> To: gc_buyer@example.com
+-> Subject: Gift card cancellation confirmation
+-> Body contains: Refund amount, gift card reference, refund timeline
+-> Cancellation reason (if provided)
+
+Merchant Email (if configured):
+-> To: merchant@example.com
+-> Subject: Gift card cancellation notification
+-> Body contains: Cancelled reference, refund amount
+
+2. Customer cancellation email received ✓
+3. Refund details included ✓
+4. Merchant notified ✓",gift_card;email;cancellation;notification;positive_test,P2,Cant be automated,UK,NA,NA
+Gift Card,Email Notification,GC-EMAIL-003,GC-EMAIL-003,Email notification on gift card redemption cancel,"- Gift card redemption cancelled successfully
+- Email service configured
+- Customer and merchant emails available","- Customer email: gc_buyer@example.com
+- Merchant email: merchant@example.com
+- Cancelled redemption amount: £50.00
+- Updated gift card balance: £50.00 (restored)","1. Cancel gift card redemption successfully
+2. Verify customer email triggered
+3. Verify email content (cancelled amount, updated balance)
+4. Verify merchant notification","1. Redemption cancel email SENT ✓
+
+Customer Email:
+-> To: gc_buyer@example.com
+-> Subject: Gift card redemption cancellation
+-> Body contains: Cancelled amount, updated gift card balance
+-> Gift card code reference
+
+Merchant Email (if configured):
+-> Notification of redemption cancellation
+-> Updated balance information
+
+2. Customer notified of redemption cancel ✓
+3. Updated balance communicated ✓",gift_card;email;redemption_cancel;notification;positive_test,P2,Cant be automated,UK,NA,NA
+Gift Card,Payment Methods,GC-PAY-005,GC-PAY-005,Gift card purchase with different card types (Visa/MC/Amex),"- CS-CH configured
+- Gift card feature enabled
+- Multiple card types available","- Card 1: Visa 4929000000006
+- Card 2: Mastercard 5555555555554444
+- Card 3: Amex 370000000000002
+- Amount: £50.00 each","1. Purchase gift card with Visa card
+2. Purchase gift card with Mastercard
+3. Purchase gift card with Amex
+4. Verify each purchase creates gift card
+5. Verify 3DS challenge for each card type
+6. Validate DB entries for each","1. All card types SUCCESSFUL ✓
+
+Visa Purchase:
+-> transaction_status_id: 1
+-> scheme_name: 'visa'
+-> last_4_digit: '1111'
+-> Gift card created
+
+Mastercard Purchase:
+-> transaction_status_id: 1
+-> scheme_name: 'mastercard'
+-> last_4_digit: '4444'
+-> Gift card created
+
+Amex Purchase:
+-> transaction_status_id: 1
+-> scheme_name: 'amex'
+-> last_4_digit: '0002'
+-> Gift card created
+
+Database - gift_card_transactions table:
+-> 3 separate PURCHASE entries
+-> Each with unique gc_reference
+
+2. All card types accepted ✓
+3. 3DS works for each card ✓
+4. Gift cards created for all ✓",gift_card;purchase;card_types;visa;mastercard;amex;positive_test,P2,Pending,UK,NA,NA
+Gift Card,Long Input Validation,GC-LONG-001,GC-LONG-001,Gift card purchase with long redirect_url and cancel_url,"- CS-CH configured
+- Gift card feature enabled
+- Long URL handling active","- redirect_url: 500+ character URL
+- cancel_url: 500+ character URL
+- Amount: £50.00
+- Card: Valid Visa","1. Initiate gift card purchase with long redirect_url (500+ chars)
+2. Include long cancel_url (500+ chars) in payload
+3. Complete purchase successfully
+4. Verify redirect to long redirect_url on success
+5. Test cancel scenario redirects to long cancel_url","1. Long URL handling SUCCESSFUL ✓
+
+Success Scenario:
+-> Payment completed
+-> Redirect to long redirect_url: SUCCESS
+-> Full URL preserved without truncation
+
+Cancel Scenario:
+-> Payment cancelled
+-> Redirect to long cancel_url: SUCCESS
+-> Full URL preserved without truncation
+
+Database - payments table:
+-> redirect_url stored correctly
+-> cancel_url stored correctly
+
+2. Long redirect_url works ✓
+3. Long cancel_url works ✓
+4. No URL truncation ✓",gift_card;long_url;redirect;cancel_url;boundary_test,P2,Pending,UK,NA,NA
+Gift Card,Long Input Validation,GC-LONG-002,GC-LONG-002,Gift card purchase with long gc_reference (>16 characters),"- CS-CH configured
+- Gift card feature enabled
+- gc_reference field validation","- gc_reference: ""GC-LONG-REF-12345678901234"" (>16 chars)
+- Amount: £50.00
+- Card: Valid Visa","1. Initiate gift card purchase with gc_reference > 16 characters
+2. Complete purchase
+3. Verify gift card created with long gc_reference
+4. Validate DB entries","1. Long gc_reference SUCCESSFUL ✓
+
+Database - gift_card_transactions table:
+-> gc_reference: Full long reference stored
+-> gc_transaction_type_id: 1 (PURCHASE)
+-> amount: £50.00
+-> No truncation of gc_reference
+
+Database - payments table:
+-> transaction_status_id: 1 (success)
+-> order_ref: Linked correctly
+
+2. gc_reference > 16 chars accepted ✓
+3. No truncation or data loss ✓
+4. Gift card created successfully ✓",gift_card;long_gc_reference;boundary_test;validation,P2,Pending,UK,NA,NA
+Gift Card,Long Input Validation,GC-LONG-003,GC-LONG-003,Gift card purchase with invalid gc_reference values,"- CS-CH configured
+- Gift card feature enabled
+- gc_reference validation active","- Test 1: gc_reference = null
+- Test 2: gc_reference = """" (empty string)
+- Test 3: gc_reference = ""INVALID_!@#$%""
+- Test 4: gc_reference = existing used reference","1. Attempt purchase with gc_reference = null
+2. Attempt purchase with gc_reference = empty
+3. Attempt purchase with gc_reference containing special chars
+4. Attempt purchase with already-used gc_reference
+5. Verify each scenario handled correctly","1. Invalid gc_reference validation ✓
+
+Test 1 (null):
+-> Purchase REJECTED or system generates reference
+-> Error: ""gc_reference required""
+
+Test 2 (empty string):
+-> Purchase REJECTED
+-> Error: ""gc_reference cannot be empty""
+
+Test 3 (special characters):
+-> Purchase REJECTED or sanitized
+-> Validation applied
+
+Test 4 (already used):
+-> Purchase REJECTED
+-> Error: ""gc_reference already exists""
+-> No duplicate gift card created
+
+2. Null/empty gc_reference handled ✓
+3. Special characters validated ✓
+4. Duplicate gc_reference prevented ✓",gift_card;invalid_gc_reference;validation;negative_test,P2,Pending,UK,NA,NA

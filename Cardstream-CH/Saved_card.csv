@@ -1,5 +1,5 @@
-Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T243,Cardstream-CH :  Payment failure: error code,"- Ensure the MID is pointed to Cardstream-CH
+"Module","Submodule","Parent ID","Test Case #","Scenario","Precondition","Test Data","Test steps","Expected Result","Labels","Priority","Automation Status","Countries applicable","Partners applicable","Automation mapped TC"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","AP-T243","Cardstream-CH :  Payment failure: error code","- Ensure the MID is pointed to Cardstream-CH
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
 Shopper: shopper_id=<shopper_id>
@@ -24,8 +24,8 @@ Try to process the sale by passing the invalid Merchant
 1. The page should throw proper error message stating that Payment failed : 
 50685-M63155116A4387L0821.
 The sale should not be processed and should throw proper error message.
-The payment should fail with the error message",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T265,Cardstream-CH : Saved card sale (USA),"- Ensure the MID is pointed to Cardstream-CH
+The payment should fail with the error message","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","AP-T265","Cardstream-CH : Saved card sale (USA)","- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
@@ -131,8 +131,8 @@ SELECT * FROM webhook_log WHERE order_ref='<order_ref>';
 
 -- Verify no duplicate in payments
 SELECT COUNT(*) FROM payments WHERE order_ref='<order_ref>';
--- Expected: COUNT = 1 (no duplicates)","Automated, sanity",P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T268,Cardstream-CH : Process payment with a non-US merchant,"- Ensure the MID is pointed to Cardstream-CH
+-- Expected: COUNT = 1 (no duplicates)","Automated, sanity","P2","Automated","US","Cardstream","CH_SC_TC_001_us_sale_smoke_sanity.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","AP-T268","Cardstream-CH : Process payment with a non-US merchant","- Ensure the MID is pointed to Cardstream-CH
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
 Shopper: shopper_id=<shopper_id>
@@ -190,8 +190,8 @@ c) Should be failed
 d) Should be failed
 e) Should be failed
 
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,AP-T1345,CARDSTREAM-CH : Saved Card Sale - Validation of OMT reference in metadata ,"- Ensure the MID is pointed to Cardstream-CH
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","AP-T1345","CARDSTREAM-CH : Saved Card Sale - Validation of OMT reference in metadata ","- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
@@ -231,8 +231,8 @@ FROM payments WHERE order_ref='<order_ref>';
 --   transaction_status_id = 1
 --   payment_provider_id   = 3  (Cardstream)
 --   transaction_mode_id   = 1
---   transaction_method_id = 2  (Saved Card)",Can't-be-automated,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-001,Cardstream-CH Saved Card - Split Commission - Global Split Type Sale Succeeds,"- Ensure the MID is pointed to Cardstream-CH
+--   transaction_method_id = 2  (Saved Card)","Can't-be-automated","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","PS-CSCH-SC-001","Cardstream-CH Saved Card - Split Commission - Global Split Type Sale Succeeds","- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
 - Test environment is accessible and stable
@@ -299,8 +299,8 @@ WHERE p.order_ref = '<order_ref>';
 
 -- 3. Verify split flag on payments
 SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
--- Expected: split_payment_flag = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-002,Cardstream-CH Saved Card - Split Commission - Invalid Split Type ID Rejected,"- Ensure the MID is pointed to Cardstream-CH
+-- Expected: split_payment_flag = 1","Automated","P2","Automated","US","Cardstream","CH_SC_TC_019_sale_with_one_dynamic_split.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","PS-CSCH-SC-002","Cardstream-CH Saved Card - Split Commission - Invalid Split Type ID Rejected","- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
 - Test environment is accessible and stable
@@ -337,8 +337,8 @@ SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
 SELECT COUNT(*) FROM payments_split_commission psc
 JOIN payments p ON p.id = psc.payment_id
 WHERE p.order_ref='<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-003,Cardstream-CH Saved Card - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale,"- Ensure the MID is pointed to Cardstream-CH
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","CH_SC_TC_022_sale_with_one_dynamic_split_with_delete_status_zero.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","PS-CSCH-SC-003","Cardstream-CH Saved Card - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale","- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
 - Test environment is accessible and stable
@@ -377,8 +377,8 @@ SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
 SELECT COUNT(*) FROM payments_split_commission psc
 JOIN payments p ON p.id = psc.payment_id
 WHERE p.order_ref='<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,PS-CSCH-SC-004,Cardstream-CH Saved Card - Split Commission - Updated Split Type via API Used in Sale Succeeds,"- Ensure the MID is pointed to Cardstream-CH
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","CH_SC_TC_022_sale_with_one_dynamic_split_with_delete_status_zero.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","PS-CSCH-SC-004","Cardstream-CH Saved Card - Split Commission - Updated Split Type via API Used in Sale Succeeds","- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
 - Test environment is accessible and stable
@@ -447,8 +447,8 @@ WHERE p.order_ref = '<order_ref>';
 
 -- 3. Verify split flag on payments
 SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
--- Expected: split_payment_flag = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-001,Cardstream-CH: Saved card sale with master_token linked to MasterCard (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: split_payment_flag = 1","Automated","P2","Automated","US","Cardstream","CH_SC_TC_019_sale_with_one_dynamic_split.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MT-DIFF-001","Cardstream-CH: Saved card sale with master_token linked to MasterCard (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
@@ -509,8 +509,8 @@ WHERE id = '<master_token_id>';
 SELECT id, order_ref, status, payload, created_at
 FROM webhook_log
 WHERE order_ref = '<order_ref>';
--- Expected: status = success, payload contains correct order/amount",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-002,Cardstream-CH: Saved card sale with master_token linked to Amex card (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: status = success, payload contains correct order/amount","Automated","P2","Automated","US","Cardstream","CH_SC_TC_007_us_cs_tokenisation_sale.spec.js; CH_SC_TC_013_us_sale_scheme_validation_sanity.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MT-DIFF-002","Cardstream-CH: Saved card sale with master_token linked to Amex card (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
@@ -570,8 +570,8 @@ WHERE id = '<master_token_id>';
 SELECT id, order_ref, status, payload, created_at
 FROM webhook_log
 WHERE order_ref = '<order_ref>';
--- Expected: status = success, payload contains correct order/amount",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-003,Cardstream-CH: Saved card — master_token belonging to different shopper is rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: status = success, payload contains correct order/amount","Automated","P2","Automated","US","Cardstream","CH_SC_TC_013_us_sale_scheme_validation_sanity.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MT-DIFF-003","Cardstream-CH: Saved card — master_token belonging to different shopper is rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
@@ -597,8 +597,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MT-DIFF-004,Cardstream-CH: Saved card — expired card master_token declined by gateway (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","CH_SC_TC_010_us_cs_tokenisation_sale_using_token_without_xref_toggle_off.spec.js; CH_SC_TC_011_us_cs_tokenisation_sale_using_token_without_xref_toggle_on.spec.js"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MT-DIFF-004","Cardstream-CH: Saved card — expired card master_token declined by gateway (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
@@ -627,8 +627,8 @@ WHERE order_ref = '<order_ref>';
 --   payment_provider_id   = 3  (Cardstream)
 --   transaction_status_id = <declined status id, not 1>
 --   transaction_method_id = 2  (Saved Card)
---   reason                = <gateway decline message>",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-001,Cardstream-CH: 3DSv2 saved card — frictionless flow (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--   reason                = <gateway decline message>","Automated","P2","Automated","US","Cardstream","CH_SC_TC_007_us_cs_tokenisation_sale.spec.js"
+"Cardstream-CH","Cardstream-CH - 3DS","3DS-CAR","3DS-CS-001","Cardstream-CH: 3DSv2 saved card — frictionless flow (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -695,8 +695,8 @@ SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
 SELECT id, order_ref, status, payload, created_at
 FROM webhook_log
 WHERE order_ref = '<order_ref>';
--- Expected: status = success, payload contains correct order/amount","Automated,sanity",P1,Automated
-Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-002,Cardstream-CH: 3DSv2 saved card — challenge flow (OTP required) (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: status = success, payload contains correct order/amount","Automated,sanity","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - 3DS","3DS-CAR","3DS-CS-002","Cardstream-CH: 3DSv2 saved card — challenge flow (OTP required) (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -763,8 +763,8 @@ SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
 SELECT id, order_ref, status, payload, created_at
 FROM webhook_log
 WHERE order_ref = '<order_ref>';
--- Expected: status = success, payload contains correct order/amount",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-003,Cardstream-CH: 3DSv2 saved card — failed authentication rejects sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: status = success, payload contains correct order/amount","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - 3DS","3DS-CAR","3DS-CS-003","Cardstream-CH: 3DSv2 saved card — failed authentication rejects sale (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -796,8 +796,8 @@ WHERE order_ref = '<order_ref>';
 -- Confirm no successful duplicate
 SELECT COUNT(*) FROM payments
 WHERE order_ref='<order_ref>' AND transaction_status_id=1;
--- Expected: COUNT = 0",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - 3DS,3DS-CAR,3DS-CS-004,Cardstream-CH: Australia merchant rejected — Cardstream-CH is USA only (out of scope),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - 3DS","3DS-CAR","3DS-CS-004","Cardstream-CH: Australia merchant rejected — Cardstream-CH is USA only (out of scope)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
 Region: Australia — OUT OF SCOPE
@@ -820,8 +820,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-001,Cardstream-CH: Error — invalid merchant ID (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","ERR-001","Cardstream-CH: Error — invalid merchant ID (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
 Region: USA only (Australia is out of scope for Cardstream-CH)
@@ -843,8 +843,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-002,Cardstream-CH: Error — duplicate order_id with different amount (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","ERR-002","Cardstream-CH: Error — duplicate order_id with different amount (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
@@ -865,8 +865,8 @@ Amount: <different_amount>","1. Process a successful sale with order_ref=X.
 ── DB VALIDATION ──
 -- Confirm only one payments record exists for this order_ref
 SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 1 (original only — no duplicate created)",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-003,Cardstream-CH: Error — missing mandatory fields in payload (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 1 (original only — no duplicate created)","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","ERR-003","Cardstream-CH: Error — missing mandatory fields in payload (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
 Region: USA only (Australia is out of scope for Cardstream-CH)
@@ -890,8 +890,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-004,Cardstream-CH: Error — tampered payment URL rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","ERR-004","Cardstream-CH: Error — tampered payment URL rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available","Payment method: Saved Card
 Region: USA only (Australia is out of scope for Cardstream-CH)
@@ -913,8 +913,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,ERR-005,Cardstream-CH: Error — gateway decline error code displayed correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","ERR-005","Cardstream-CH: Error — gateway decline error code displayed correctly (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table","Payment method: Saved Card
@@ -942,8 +942,8 @@ WHERE order_ref = '<order_ref>';
 --   payment_provider_id   = 3  (Cardstream)
 --   transaction_status_id = <declined status id, not 1>
 --   transaction_method_id = 2  (Saved Card)
---   reason                = <gateway decline message>",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-001,Cardstream-CH: CVV shown and required when cvv_enabled=1 in country table (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--   reason                = <gateway decline message>","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","CVV-001","Cardstream-CH: CVV shown and required when cvv_enabled=1 in country table (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -991,8 +991,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-002,Cardstream-CH: CVV hidden and sale proceeds without CVV when cvv_enabled=0 (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","CVV-002","Cardstream-CH: CVV hidden and sale proceeds without CVV when cvv_enabled=0 (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1040,8 +1040,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-003,Cardstream-CH: Invalid CVV when cvv_enabled=1 — sale rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","CVV-003","Cardstream-CH: Invalid CVV when cvv_enabled=1 — sale rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1067,8 +1067,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,CVV-004,Cardstream-CH: Empty CVV when cvv_enabled=1 — form blocks submission (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","CVV-004","Cardstream-CH: Empty CVV when cvv_enabled=1 — form blocks submission (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1093,8 +1093,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-001,Cardstream-CH: Sale below max_transaction_limit succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MAX-TXN-001","Cardstream-CH: Sale below max_transaction_limit succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1142,8 +1142,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-002,Cardstream-CH: Sale exceeding max_transaction_limit is rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MAX-TXN-002","Cardstream-CH: Sale exceeding max_transaction_limit is rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1169,8 +1169,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-003,Cardstream-CH: Sale exactly at max_transaction_limit is rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MAX-TXN-003","Cardstream-CH: Sale exactly at max_transaction_limit is rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1195,8 +1195,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card,SAV-CAR,MAX-TXN-004,Cardstream-CH: max_transaction_limit = NULL — large sale not blocked (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card","SAV-CAR","MAX-TXN-004","Cardstream-CH: max_transaction_limit = NULL — large sale not blocked (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1245,8 +1245,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-001,Cardstream-CH: Whitelabel saved card sale succeeds with correct branding (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card Whitelabel","WL-CAR","WL-SC-001","Cardstream-CH: Whitelabel saved card sale succeeds with correct branding (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1299,8 +1299,8 @@ WHERE order_ref = '<order_ref>';
 -- Confirm merchant_id is the whitelabel merchant
 SELECT id, merchant_id, payment_provider_id, transaction_status_id
 FROM payments WHERE order_ref='<order_ref>';
--- Expected: merchant_id = <whitelabel_merchant_id>",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-002,Cardstream-CH: Whitelabel — CVV shown/hidden per country cvv_enabled flag (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: merchant_id = <whitelabel_merchant_id>","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card Whitelabel","WL-CAR","WL-SC-002","Cardstream-CH: Whitelabel — CVV shown/hidden per country cvv_enabled flag (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1349,8 +1349,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-003,Cardstream-CH: Whitelabel — sale exceeding max_transaction_limit rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card Whitelabel","WL-CAR","WL-SC-003","Cardstream-CH: Whitelabel — sale exceeding max_transaction_limit rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1377,8 +1377,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-004,Cardstream-CH: Whitelabel — 3DSv2 challenge completes correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card Whitelabel","WL-CAR","WL-SC-004","Cardstream-CH: Whitelabel — 3DSv2 challenge completes correctly (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1443,8 +1443,8 @@ SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
 SELECT id, order_ref, status, payload, created_at
 FROM webhook_log
 WHERE order_ref = '<order_ref>';
--- Expected: status = success, payload contains correct order/amount",Manual,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Saved card Whitelabel,WL-CAR,WL-SC-005,"Cardstream-CH: Whitelabel — Australia merchant out of scope, rejected","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: status = success, payload contains correct order/amount","Manual","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Saved card Whitelabel","WL-CAR","WL-SC-005","Cardstream-CH: Whitelabel — Australia merchant out of scope, rejected","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - Whitelabel merchant with Australia config","Payment method: Saved Card
@@ -1467,8 +1467,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-001,Datman Checkout (Old UI v1): Saved card sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-001","Datman Checkout (Old UI v1): Saved card sale succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1521,8 +1521,8 @@ WHERE order_ref = '<order_ref>';
 
 -- Confirm datman_hosted_ui_version on customers
 SELECT id, datman_hosted_ui_version FROM customers WHERE id='<merchant_id>';
--- Expected: datman_hosted_ui_version = 1","Automated,sanity",P1,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-002,Datman Checkout (New UI v2): Saved card sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: datman_hosted_ui_version = 1","Automated,sanity","P1","Automated","US","Cardstream","CH_SC_TC_001_us_sale_smoke_sanity.spec.js"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-002","Datman Checkout (New UI v2): Saved card sale succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1575,8 +1575,8 @@ WHERE order_ref = '<order_ref>';
 
 -- Confirm datman_hosted_ui_version
 SELECT id, datman_hosted_ui_version FROM customers WHERE id='<merchant_id>';
--- Expected: datman_hosted_ui_version = 2","Automated,sanity",P1,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-003,Datman Checkout: Toggle v1→v2 — correct UI loads without cache (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: datman_hosted_ui_version = 2","Automated,sanity","P1","Automated","US","Cardstream","CH_SC_TC_001_us_sale_smoke_sanity.spec.js"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-003","Datman Checkout: Toggle v1→v2 — correct UI loads without cache (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1596,8 +1596,8 @@ Step A: datman_hosted_ui_version=1 | Step B: datman_hosted_ui_version=2","1. Set
 ── DB VALIDATION ──
 -- Verify toggle reflected in customers table
 SELECT id, datman_hosted_ui_version FROM customers WHERE id='<merchant_id>';
--- Expected after step B: datman_hosted_ui_version = 2",Manual,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-004,Datman Checkout (New UI v2): CVV shown/hidden per country cvv_enabled flag (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected after step B: datman_hosted_ui_version = 2","Manual","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-004","Datman Checkout (New UI v2): CVV shown/hidden per country cvv_enabled flag (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1648,8 +1648,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-005,Datman Checkout (New UI v2): Sale > max_transaction_limit rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-005","Datman Checkout (New UI v2): Sale > max_transaction_limit rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1677,8 +1677,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-006,Datman Checkout (New UI v2): 3DSv2 challenge renders correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-006","Datman Checkout (New UI v2): 3DSv2 challenge renders correctly (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1745,8 +1745,8 @@ SELECT id, threeds_version FROM customers WHERE id = '<merchant_id>';
 SELECT id, order_ref, status, payload, created_at
 FROM webhook_log
 WHERE order_ref = '<order_ref>';
--- Expected: status = success, payload contains correct order/amount",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-007,Datman Checkout (New UI v2): Inline error messages for invalid payload (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: status = success, payload contains correct order/amount","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-007","Datman Checkout (New UI v2): Inline error messages for invalid payload (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1773,8 +1773,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-008,Datman Checkout (New UI v2): MasterCard master_token shows correct card brand (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-008","Datman Checkout (New UI v2): MasterCard master_token shows correct card brand (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1829,8 +1829,8 @@ FROM payments WHERE order_ref='<order_ref>';
 -- Confirm master_token_id matches the MasterCard token used
 
 SELECT id, card_brand FROM master_token WHERE id='<master_token_id>';
--- Expected: card_brand = 'MasterCard'",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-009,Datman Checkout (New UI v2): Whitelabel merchant shows custom branding (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: card_brand = 'MasterCard'","Automated","P2","Automated","US","Cardstream","CH_SC_TC_013_us_sale_scheme_validation_sanity.spec.js"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-009","Datman Checkout (New UI v2): Whitelabel merchant shows custom branding (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1880,8 +1880,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Manual,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-010,Datman Checkout (Old UI v1): Regression — unchanged after new UI rollout (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Manual","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-010","Datman Checkout (Old UI v1): Regression — unchanged after new UI rollout (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -1930,8 +1930,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-","Automated,regression",P1,Automated
-Cardstream-CH,Cardstream-CH - Datman Checkout,DCO-CAR,DCO-011,Datman Checkout: Australia rejected on both v1 and v2 — out of scope,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated,regression","P1","Automated","US","Cardstream","CH_SC_TC_001_us_sale_smoke_sanity.spec.js"
+"Cardstream-CH","Cardstream-CH - Datman Checkout","DCO-CAR","DCO-011","Datman Checkout: Australia rejected on both v1 and v2 — out of scope","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - Australia merchant","Payment method: Saved Card
@@ -1953,8 +1953,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-001,Cardstream-CH: Split — single global split (amount-based) sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-001","Cardstream-CH: Split — single global split (amount-based) sale succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2017,8 +2017,8 @@ WHERE p.order_ref = '<order_ref>';
 
 -- 3. Verify split flag on payments
 SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
--- Expected: split_payment_flag = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-002,Cardstream-CH: Split — single global split (percentage-based) sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: split_payment_flag = 1","Automated","P2","Automated","US","Cardstream","CH_SC_TC_019_sale_with_one_dynamic_split.spec.js"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-002","Cardstream-CH: Split — single global split (percentage-based) sale succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2054,8 +2054,8 @@ WHERE p.order_ref='<order_ref>';
 
 -- Verify split flag
 SELECT split_payment_flag FROM payments WHERE order_ref='<order_ref>';
--- Expected: split_payment_flag = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-003,Cardstream-CH: Split — multiple split types in single sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: split_payment_flag = 1","Automated","P2","Automated","US","Cardstream","CH_SC_TC_019_sale_with_one_dynamic_split.spec.js"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-003","Cardstream-CH: Split — multiple split types in single sale (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2085,8 +2085,8 @@ ORDER BY psc.commission_type_id;
 -- Expected: 2 rows — type_id 3 with amount=2.50, type_id 5 with % of gross
 
 SELECT split_payment_flag FROM payments WHERE order_ref='<order_ref>';
--- Expected: split_payment_flag = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-004,Cardstream-CH: Split — invalid type_id (non-existent) rejects sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: split_payment_flag = 1","Automated","P2","Automated","US","Cardstream","CH_SC_TC_018_sale_with_two_dynamic_split.spec.js"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-004","Cardstream-CH: Split — invalid type_id (non-existent) rejects sale (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2119,8 +2119,8 @@ SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
 SELECT COUNT(*) FROM payments_split_commission psc
 JOIN payments p ON p.id = psc.payment_id
 WHERE p.order_ref='<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-005,Cardstream-CH: Split — soft-deleted type (delete_status=0) blocks sale (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","CH_SC_TC_022_sale_with_one_dynamic_split_with_delete_status_zero.spec.js"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-005","Cardstream-CH: Split — soft-deleted type (delete_status=0) blocks sale (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2155,8 +2155,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-006,Cardstream-CH: Split — updated split type used in sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","CH_SC_TC_022_sale_with_one_dynamic_split_with_delete_status_zero.spec.js"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-006","Cardstream-CH: Split — updated split type used in sale succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2225,8 +2225,8 @@ WHERE p.order_ref = '<order_ref>';
 
 -- 3. Verify split flag on payments
 SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
--- Expected: split_payment_flag = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-007,Cardstream-CH: Split + max_transaction_limit — sale > limit rejected (limit takes priority) (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: split_payment_flag = 1","Automated","P2","Automated","US","Cardstream","CH_SC_TC_019_sale_with_one_dynamic_split.spec.js"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-007","Cardstream-CH: Split + max_transaction_limit — sale > limit rejected (limit takes priority) (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2261,8 +2261,8 @@ SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
 SELECT COUNT(*) FROM payments_split_commission psc
 JOIN payments p ON p.id = psc.payment_id
 WHERE p.order_ref='<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Split Commission,SPLIT-CAR,SPLIT-CS-008,Cardstream-CH: Split — on New Datman Checkout UI (v2) sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Split Commission","SPLIT-CAR","SPLIT-CS-008","Cardstream-CH: Split — on New Datman Checkout UI (v2) sale succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2326,8 +2326,8 @@ WHERE p.order_ref = '<order_ref>';
 
 -- 3. Verify split flag on payments
 SELECT split_payment_flag FROM payments WHERE order_ref = '<order_ref>';
--- Expected: split_payment_flag = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-001,Dashboard — Cardstream: successful saved card sale reflected correctly in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: split_payment_flag = 1","Automated","P2","Automated","US","Cardstream","CH_SC_TC_018_sale_with_two_dynamic_split.spec.js; CH_SC_TC_019_sale_with_one_dynamic_split.spec.js"
+"Cardstream-CH","Cardstream-CH - Dashboard Validation","DASH-CAR","DASH-CS-001","Dashboard — Cardstream: successful saved card sale reflected correctly in MMS (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2368,8 +2368,8 @@ FROM payments WHERE order_ref='<order_ref>';
 --   country_code          = 'US'
 --   currency_code         = 'USD'
 --   delete_status         = 0
---   withdrawn_status      = 0",Manual,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-002,Dashboard — Cardstream: 3DSv2 authenticated sale shows 3DS flag in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--   withdrawn_status      = 0","Manual","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Dashboard Validation","DASH-CAR","DASH-CS-002","Dashboard — Cardstream: 3DSv2 authenticated sale shows 3DS flag in MMS (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2414,8 +2414,8 @@ FROM payments WHERE order_ref='<order_ref>';
 
 -- Verify customers threeds_version
 SELECT threeds_version FROM customers WHERE id='<merchant_id>';
--- Expected: '2'",Manual,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-003,Dashboard — Cardstream: declined sale shows correct failed status in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: '2'","Manual","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Dashboard Validation","DASH-CAR","DASH-CS-003","Dashboard — Cardstream: declined sale shows correct failed status in MMS (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2441,8 +2441,8 @@ Card: triggers gateway decline","1. Process declined saved-card sale.
 SELECT id, order_ref, transaction_status_id, reason,
        payment_provider_id, transaction_method_id, gross
 FROM payments WHERE order_ref='<order_ref>';
--- Expected: transaction_status_id ≠ 1, reason = decline message",Manual,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Dashboard Validation,DASH-CAR,DASH-CS-004,Dashboard — Cardstream: split commission entry visible in MMS transaction detail (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: transaction_status_id ≠ 1, reason = decline message","Manual","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Dashboard Validation","DASH-CAR","DASH-CS-004","Dashboard — Cardstream: split commission entry visible in MMS transaction detail (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2471,8 +2471,8 @@ SELECT p.order_ref, p.gross, p.split_payment_flag,
 FROM payments p
 JOIN payments_split_commission psc ON psc.payment_id = p.id
 WHERE p.order_ref='<order_ref>';
--- Expected: commission_amount=2.50, split_payment_flag=1",Manual,P2,Can't-be-automated
-Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-001,Dashboard — Checkout.com: successful saved card sale reflected correctly in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: commission_amount=2.50, split_payment_flag=1","Manual","P2","Can't-be-automated","US","Cardstream","NA"
+"Cardstream-CH","Checkout.com - Dashboard Validation","DASH-CAR","DASH-CO-001","Dashboard — Checkout.com: successful saved card sale reflected correctly in MMS","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2511,8 +2511,8 @@ FROM payments WHERE order_ref='<order_ref>';
 --   country_code          = 'US'
 --   currency_code         = 'USD'
 --   delete_status         = 0
---   withdrawn_status      = 0",Manual,P2,Can't-be-automated
-Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-002,Dashboard — Checkout.com: 3DSv2 authenticated sale shows 3DS flag in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--   withdrawn_status      = 0","Manual","P2","Can't-be-automated","US","Checkout.com","NA"
+"Cardstream-CH","Checkout.com - Dashboard Validation","DASH-CAR","DASH-CO-002","Dashboard — Checkout.com: 3DSv2 authenticated sale shows 3DS flag in MMS","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2552,8 +2552,8 @@ FROM payments WHERE order_ref='<order_ref>';
 --   country_code          = 'US'
 --   currency_code         = 'USD'
 --   delete_status         = 0
---   withdrawn_status      = 0",Manual,P2,Can't-be-automated
-Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-003,Dashboard — Checkout.com: declined sale shows correct failed status in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--   withdrawn_status      = 0","Manual","P2","Can't-be-automated","US","Checkout.com","NA"
+"Cardstream-CH","Checkout.com - Dashboard Validation","DASH-CAR","DASH-CO-003","Dashboard — Checkout.com: declined sale shows correct failed status in MMS","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2578,8 +2578,8 @@ Card: triggers Checkout.com decline","1. Process declined sale via Checkout.com.
 SELECT id, order_ref, transaction_status_id, reason,
        payment_provider_id, transaction_method_id, gross
 FROM payments WHERE order_ref='<order_ref>';
--- Expected: payment_provider_id=2, transaction_status_id ≠ 1",Manual,P2,Can't-be-automated
-Cardstream-CH,Checkout.com - Dashboard Validation,DASH-CAR,DASH-CO-004,Dashboard — Cardstream vs Checkout.com: provider fields differ correctly in MMS,"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: payment_provider_id=2, transaction_status_id ≠ 1","Manual","P2","Can't-be-automated","US","Checkout.com","NA"
+"Cardstream-CH","Checkout.com - Dashboard Validation","DASH-CAR","DASH-CO-004","Dashboard — Cardstream vs Checkout.com: provider fields differ correctly in MMS","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2610,8 +2610,8 @@ FROM payments WHERE order_ref='<cs_order_ref>';
 SELECT order_ref, payment_provider_id, transaction_status_id,
        transaction_method_id, gross, last_4_digits
 FROM payments WHERE order_ref='<co_order_ref>';
--- Expected: payment_provider_id = 2",Manual,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-001,Cardstream-CH: Kount APPROVE — sale proceeds normally (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: payment_provider_id = 2","Manual","P2","Can't-be-automated","US","Cardstream; Checkout.com","NA"
+"Cardstream-CH","Cardstream-CH - Kount Validation","KOUNT-CAR","KOUNT-001","Cardstream-CH: Kount APPROVE — sale proceeds normally (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2674,8 +2674,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-002,Cardstream-CH: Kount DECLINE — sale blocked pre-authorisation (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Kount Validation","KOUNT-CAR","KOUNT-002","Cardstream-CH: Kount DECLINE — sale blocked pre-authorisation (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2716,8 +2716,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-003,"Cardstream-CH: Kount REVIEW — sale proceeds, flagged for manual review (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Kount Validation","KOUNT-CAR","KOUNT-003","Cardstream-CH: Kount REVIEW — sale proceeds, flagged for manual review (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2780,8 +2780,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-004,Cardstream-CH: Kount score stored correctly for all three decision types (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Kount Validation","KOUNT-CAR","KOUNT-004","Cardstream-CH: Kount score stored correctly for all three decision types (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2815,8 +2815,8 @@ WHERE order_ref IN ('<approve_order_ref>', '<decline_order_ref>', '<review_order
 -- Expected:
 --   approve_order_ref  → transaction_status_id = 1
 --   decline_order_ref  → no payments record (blocked)
---   review_order_ref   → transaction_status_id = 1",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-005,Cardstream-CH: Kount DECLINE on New Datman Checkout UI (v2) — error shown on new UI (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--   review_order_ref   → transaction_status_id = 1","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Kount Validation","KOUNT-CAR","KOUNT-005","Cardstream-CH: Kount DECLINE on New Datman Checkout UI (v2) — error shown on new UI (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2859,8 +2859,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Kount Validation,KOUNT-CAR,KOUNT-006,Cardstream-CH: Kount disabled for merchant — no kount_response entry created (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Kount Validation","KOUNT-CAR","KOUNT-006","Cardstream-CH: Kount disabled for merchant — no kount_response entry created (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2912,8 +2912,8 @@ WHERE order_ref = '<order_ref>';
 --   TxAuthNo             = <auth_code returned by gateway>
 --   psp_reference        = <reference returned by Cardstream>
 --   day/week/month/year  = match transaction_time date parts
-",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-001,Cardstream-CH: Price uplift (fixed amount) — uplifted gross charged correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-001","Cardstream-CH: Price uplift (fixed amount) — uplifted gross charged correctly (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2952,8 +2952,8 @@ WHERE order_ref = '<order_ref>';
 -- Expected: gross = <base_amount + uplift_amount>
 --           payment_provider_id   = 3
 --           transaction_status_id = 1
---           transaction_method_id = 2",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-002,Cardstream-CH: Price uplift (percentage) — uplifted gross charged correctly (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--           transaction_method_id = 2","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-002","Cardstream-CH: Price uplift (percentage) — uplifted gross charged correctly (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -2992,8 +2992,8 @@ WHERE order_ref = '<order_ref>';
 -- Expected: gross = <base_amount + uplift_amount>
 --           payment_provider_id   = 3
 --           transaction_status_id = 1
---           transaction_method_id = 2",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-003,Cardstream-CH: price_uplift = NULL — base amount charged unchanged (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--           transaction_method_id = 2","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-003","Cardstream-CH: price_uplift = NULL — base amount charged unchanged (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -3020,8 +3020,8 @@ SELECT price_uplift, price_uplift_type FROM customers WHERE id='<merchant_id>';
 
 -- Confirm gross = base amount
 SELECT gross FROM payments WHERE order_ref='<order_ref>';
--- Expected: gross = <base_amount>",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-004,Cardstream-CH: Uplifted amount below max_transaction_limit — sale succeeds (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: gross = <base_amount>","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-004","Cardstream-CH: Uplifted amount below max_transaction_limit — sale succeeds (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -3058,8 +3058,8 @@ WHERE order_ref = '<order_ref>';
 -- Expected: gross = <base_amount + uplift_amount>
 --           payment_provider_id   = 3
 --           transaction_status_id = 1
---           transaction_method_id = 2",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-005,Cardstream-CH: Uplifted total exceeds max_transaction_limit — sale rejected (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+--           transaction_method_id = 2","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-005","Cardstream-CH: Uplifted total exceeds max_transaction_limit — sale rejected (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -3090,8 +3090,8 @@ SELECT COUNT(*) FROM payments WHERE order_ref = '<order_ref>';
 
 -- Verify NO webhook-log entry created
 SELECT COUNT(*) FROM webhook_log WHERE order_ref = '<order_ref>';
--- Expected: COUNT = 0",Automated,P1,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-006,Cardstream-CH: Price uplift visible on payment page — Old UI (v1) and New UI (v2) (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: COUNT = 0","Automated","P1","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-006","Cardstream-CH: Price uplift visible on payment page — Old UI (v1) and New UI (v2) (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -3117,8 +3117,8 @@ UI v1: datman_hosted_ui_version=1 | UI v2: datman_hosted_ui_version=2","1. Set v
 SELECT order_ref, gross, transaction_status_id
 FROM payments
 WHERE order_ref IN ('<v1_order_ref>', '<v2_order_ref>');
--- Expected: gross = uplifted amount for both",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-007,Cardstream-CH: Price uplift + split commission — both applied correctly in DB (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: gross = uplifted amount for both","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-007","Cardstream-CH: Price uplift + split commission — both applied correctly in DB (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -3164,8 +3164,8 @@ SELECT psc.commission_type_id, psc.commission_amount
 FROM payments_split_commission psc
 JOIN payments p ON p.id = psc.payment_id
 WHERE p.order_ref='<order_ref>';
--- Expected: commission_amount = 2.50",Automated,P2,Automated
-Cardstream-CH,Cardstream-CH - Price Uplift,UPLIFT-CAR,UPLIFT-008,Dashboard — Cardstream: uplifted gross shown correctly in MMS (USA),"- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
+-- Expected: commission_amount = 2.50","Automated","P2","Automated","US","Cardstream","NA"
+"Cardstream-CH","Cardstream-CH - Price Uplift","UPLIFT-CAR","UPLIFT-008","Dashboard — Cardstream: uplifted gross shown correctly in MMS (USA)","- Ensure the MID is pointed to Cardstream-CH (USA only; Australia is out of scope)
 - Test environment is accessible and stable
 - Valid test credentials are available
 - A valid master_token exists for the shopper in the master_token table
@@ -3201,4 +3201,4 @@ WHERE order_ref = '<order_ref>';
 -- Expected: gross = <base_amount + uplift_amount>
 --           payment_provider_id   = 3
 --           transaction_status_id = 1
---           transaction_method_id = 2",Manual,P2,Can't-be-automated
+--           transaction_method_id = 2","Manual","P2","Can't-be-automated","US","Cardstream","NA"

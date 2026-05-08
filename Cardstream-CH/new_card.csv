@@ -1,4 +1,4 @@
-Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status,Countries applicable,Partners applicable,Automation mapped TC
 Cardstream-CH New Card,New Card - Standard Sale,NC-SALE,NC-SALE-001,Cardstream-CH New Card Sale – End-to-End (Old UI | datman_hosted_ui_version = 1),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 1 (Old UI) in customers table
 - No token value is passed in the token field","Checkout payload: amount=5000 (USD cents), currency=USD, redirect_url=https://merchant.example/success
@@ -16,7 +16,7 @@ Country: USA","1. Launch the Cardstream-CH checkout with the configured USA MID.
 4. Shopper redirected to redirect_url without errors.
 5. Webhook log: https_status = 200, payload stored, encrypted_data populated.
 6. Gateway request/response log captured.
-7. Shopper table reflects newly created shopper profile.",new_card_sale;usa;old_ui,P1,Automated
+7. Shopper table reflects newly created shopper profile.",new_card_sale;usa;old_ui,P1,Automated,US,Cardstream,CH_NC_TC_001_us_sale_smoke_sanity.spec.js
 Cardstream-CH New Card,New Card - Standard Sale,NC-SALE,NC-SALE-002,Cardstream-CH New Card Sale – End-to-End (New UI | datman_hosted_ui_version = 2),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout) in customers table
 - No token value is passed in the token field","Checkout payload: amount=5000 (USD cents), currency=USD, redirect_url=https://merchant.example/success
@@ -35,7 +35,7 @@ Country: USA","1. Launch the Cardstream-CH checkout with the configured USA MID.
 4. Payment table: payment_provider_id = 3 (Cardstream-CH), currency = USD, country = USA, gross = payload amount.
 5. Shopper redirected to redirect_url without errors.
 6. Webhook log: https_status = 200, payload stored, encrypted_data populated.
-7. Gateway request/response log captured.",new_card_sale;usa;new_ui;datman_checkout,P1,Automated
+7. Gateway request/response log captured.",new_card_sale;usa;new_ui;datman_checkout,P1,Automated,US,Cardstream,CH_NC_TC_001_us_sale_smoke_sanity.spec.js
 Cardstream-CH New Card,New Card - Standard Sale,NC-SALE,NC-SALE-003,Cardstream-CH New Card Sale – UI Version Toggle Validation (Old UI → New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version toggled between 1 and 2 in customers table","Merchant: USA Cardstream-CH merchant
 Card: Visa 4929421234600821, expiry=03/2030, cvv=356
@@ -48,7 +48,7 @@ Amount: $50.00 USD","1. Set datman_hosted_ui_version = 1 for the merchant in cus
 2. datman_hosted_ui_version = 2 → New UI (Datman Checkout) renders with correct card form elements.
 3. Sale on New UI completes: transaction_status_id = 1, payment_provider_id = 3, currency = USD.
 4. Toggle back to Old UI → Old UI renders; no residual New UI elements.
-5. No DB or payment regression observed during toggle.",new_card_sale;usa;ui_toggle;datman_checkout,P1,Automated
+5. No DB or payment regression observed during toggle.",new_card_sale;usa;ui_toggle;datman_checkout,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Standard Sale,NC-SALE,NC-SALE-004,Cardstream-CH New Card Sale – Order Limit Validation (USA),"- MID is pointed to Cardstream-CH (USA)
 - Order limit is configured for the merchant
 - datman_hosted_ui_version = 2 (New UI)","Merchant: USA Cardstream-CH merchant with order limit configured
@@ -58,7 +58,7 @@ Scenario B: Amount exceeding order limit","1. Launch Cardstream-CH new card paym
 2. Scenario A: Process a payment within the configured order limit.
 3. Scenario B: Process a payment exceeding the configured order limit.
 4. Validate API/UI response and DB entries for both scenarios.","Scenario A: Payment processes successfully; transaction_status_id = 1; entries in payments table with correct amount and currency USD.
-Scenario B: Payment is rejected before gateway authorisation; appropriate error returned; no payments table entry created; no gateway request logged.",new_card_sale;usa;order_limit,P2,Automated
+Scenario B: Payment is rejected before gateway authorisation; appropriate error returned; no payments table entry created; no gateway request logged.",new_card_sale;usa;order_limit,P2,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Token Creation,NC-TOKEN,NC-TOKEN-001,Cardstream-CH New Card Sale – Token Creation & Validation (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - No existing token for the shopper_id
@@ -82,7 +82,7 @@ Country: USA","1. Launch Cardstream-CH New UI checkout with create_token=true in
    - is_billing_address: 1 (if billing data passed)
    - three_ds_status: 1
 3. Payment table linked to master_token via token_id.
-4. Token visible in merchant dashboard as active and available for future transactions.",new_card_tokenization;usa;new_ui,P1,Automated
+4. Token visible in merchant dashboard as active and available for future transactions.",new_card_tokenization;usa;new_ui,P1,Automated,US,Cardstream,CH_NC_TC_036_us_sale_master_token_validation.spec.js; CH_NC_TC_058_us_sale_master_token_validation_sanity.spec.js
 Cardstream-CH New Card,New Card - Token Creation,NC-TOKEN,NC-TOKEN-002,Cardstream-CH New Card Sale – Token Creation (Old UI | datman_hosted_ui_version = 1),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 1 (Old UI)
 - No existing token for the shopper_id","Checkout payload: amount=3000 (USD cents), currency=USD, create_token=true
@@ -94,7 +94,7 @@ Country: USA","1. Launch Cardstream-CH Old UI checkout with create_token=true.
 4. Validate token structure and link to payment table.","1. Payment completes; transaction_status_id = 1.
 2. master_token entry created for provider=cardstream.
 3. Token linked to payment table entry.
-4. Token active and usable for saved card transactions.",new_card_tokenization;usa;old_ui,P2,Automated
+4. Token active and usable for saved card transactions.",new_card_tokenization;usa;old_ui,P2,Automated,US,Cardstream,CH_NC_TC_036_us_sale_master_token_validation.spec.js; CH_NC_TC_058_us_sale_master_token_validation_sanity.spec.js
 Cardstream-CH New Card,New Card - Split Payments,NC-SPLIT,NC-SPLIT-001,Cardstream-CH New Card Sale – Split Commission (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Split payment configuration enabled for the merchant
@@ -114,7 +114,7 @@ Country: USA","1. Launch Cardstream-CH New UI checkout with split payment config
    Entry A: partner_merchant_id = MID_USA_001, commission_type_id = 2, calculated_amount = 10.50, currency = USD.
    Entry B: partner_merchant_id = MID_USA_002, commission_type_id = 1, calculated_amount = 5.00 (5% of 100), currency = USD.
 4. Total split ($15.50) deducted from merchant net settlement.
-5. Webhook logs reflect split notifications sent to partner merchants.",split_payment;usa;new_ui,P1,Automated
+5. Webhook logs reflect split notifications sent to partner merchants.",split_payment;usa;new_ui,P1,Automated,US,Cardstream,CH_NC_TC_002_us_sale_with_split.spec.js
 Cardstream-CH New Card,New Card - Split Payments,NC-SPLIT,NC-SPLIT-002,Cardstream-CH New Card Sale – Split Commission Verification for Different Values (USA),"- MID is pointed to Cardstream-CH (USA)
 - Split payment configuration enabled
 - Multiple type_id values (1–6, 100) to be tested","Repeat for split type_id = 1, 2, 3, 4, 5, 6, and 100
@@ -127,7 +127,7 @@ Amount: $50.00 USD","1. Process a new card sale with SplitFee using type_id = 1 
 2. payments_split_commission entries match expected commission_value and value_type for each type_id.
 3. type_id = 100: fee value returned as decimal in DB.
 4. Refunds process correctly; refund entries appear as negative values in payments table.
-5. No cross-contamination between split entries.",split_payment;usa;type_id_validation,P2,Automated
+5. No cross-contamination between split entries.",split_payment;usa;type_id_validation,P2,Automated,US,Cardstream,CH_NC_TC_002_us_sale_with_split.spec.js; CH_NC_TC_003_us_sale_with_split_refund.spec.js; CH_NC_TC_028_us_sale_with_split_types_combo_2.spec.js; CH_NC_TC_035_us_sale_with_all_split_sanity.spec.js; CH_NC_TC_057_us_sale_with_all_split.spec.js
 Cardstream-CH New Card,New Card - Split Payments,NC-SPLIT,NC-SPLIT-003,Cardstream-CH New Card – Split Commission - Global Split Type Sale Succeeds (USA),"- MID is pointed to Cardstream-CH (USA)
 - Global split type exists in split_commission_types (provider = NULL)","split_fee: [{type_id: <global_split_id>, value_type: ""amount"", value: 5.00}]
 Card: Visa 4929421234600821, expiry=03/2030, cvv=356
@@ -136,7 +136,7 @@ Amount: $75.00 USD","1. Process a New Card sale using a global split type_id (pr
 3. Query payments_split_commission table for the split entry.","1. Sale succeeds with transaction_status_id = 1.
 2. payments_split_commission entry created with global commission_type_id.
 3. commission_amount = 5.00, currency = USD.
-4. split_payment_flag = 1 in payments table.",split_payment;usa;global_split,P2,Automated
+4. split_payment_flag = 1 in payments table.",split_payment;usa;global_split,P2,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Split Payments,NC-SPLIT,NC-SPLIT-004,Cardstream-CH New Card – Split Commission - Invalid Split Type ID Rejected (USA),"- MID is pointed to Cardstream-CH (USA)
 - Invalid / non-existent split type_id used in payload","split_fee: [{type_id: 99999, value_type: ""amount"", value: 2.00}]
 Card: Visa 4929421234600821, expiry=03/2030, cvv=356
@@ -145,7 +145,7 @@ Amount: $30.00 USD","1. Process a New Card sale using a non-existent split type_
 3. Verify no payment or split commission record is created.","1. API responds with error: ""invalid type id"".
 2. transaction rejected before authorisation.
 3. No payments record created.
-4. No payments_split_commission record created.",split_payment;usa;negative;invalid_type_id,P2,Automated
+4. No payments_split_commission record created.",split_payment;usa;negative;invalid_type_id,P2,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Split Payments,NC-SPLIT,NC-SPLIT-005,Cardstream-CH New Card – Split Commission - Soft-Deleted Split Type Blocks Sale (USA),"- MID is pointed to Cardstream-CH (USA)
 - Soft-deleted split type exists: delete_status = 0 in split_commission_types","split_fee: [{type_id: <soft_deleted_split_id>, value_type: ""amount"", value: 2.50}]
 Precondition: Use DELETE API on an existing split type → verify delete_status = 0 in split_commission_types","1. Use DELETE API to soft-delete an existing split type (delete_status = 0).
@@ -156,7 +156,7 @@ Precondition: Use DELETE API on an existing split type → verify delete_status 
 2. split_commission_types shows delete_status = 0.
 3. Sale rejected; API returns error: ""invalid type id"".
 4. No payments record created.
-5. No payments_split_commission record created.",split_payment;usa;soft_delete;negative,P2,Automated
+5. No payments_split_commission record created.",split_payment;usa;soft_delete;negative,P2,Automated,US,Cardstream,CH_NC_TC_111_sale_with_one_dynamic_split_with_delete_status_zero.spec.js
 Cardstream-CH New Card,New Card - Split Payments,NC-SPLIT,NC-SPLIT-006,Cardstream-CH New Card – Split Commission - Updated Split Type Used in Sale Succeeds (USA),"- MID is pointed to Cardstream-CH (USA)
 - An existing split type is updated via API","split_fee: [{type_id: <updated_split_id>, value_type: ""amount"", value: 3.00}]
 Precondition: Use Update API to modify an existing split type → verify updated values in split_commission_types","1. Use Update API to modify an existing split type (e.g. update name or value).
@@ -167,7 +167,7 @@ Precondition: Use Update API to modify an existing split type → verify updated
 2. split_commission_types reflects updated values.
 3. Sale completes with transaction_status_id = 1.
 4. payments_split_commission entry contains updated commission_type_id; commission_amount = 3.00, currency = USD.
-5. split_payment_flag = 1 in payments table.",split_payment;usa;updated_split_type,P2,Automated
+5. split_payment_flag = 1 in payments table.",split_payment;usa;updated_split_type,P2,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Card Scheme Validation,NC-SCHEME,NC-SCHEME-001,Cardstream-CH New Card – Scheme Name Verification Using Different Cards (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Multiple card types available for testing","Cards to test:
@@ -181,7 +181,7 @@ Country: USA, Amount: $20.00","1. Launch Cardstream-CH New UI for a USA merchant
 5. For each: verify the card scheme logo displayed in the UI matches the card brand.","1. For each card type: payment completes with transaction_status_id = 1.
 2. master_token table: scheme_name = ""Visa"" / ""Mastercard"" / ""American Express"" per card used.
 3. UI displays the correct card scheme logo after card number entry.
-4. payments table: last_4_digit matches card used; payment_provider_id = 3.",card_scheme;usa;new_ui,P2,Automated
+4. payments table: last_4_digit matches card used; payment_provider_id = 3.",card_scheme;usa;new_ui,P2,Automated,US,Cardstream,CH_NC_TC_036_us_sale_master_token_validation.spec.js; CH_NC_TC_058_us_sale_master_token_validation_sanity.spec.js
 Cardstream-CH New Card,New Card - Card Scheme Validation,NC-SCHEME,NC-SCHEME-002,Cardstream-CH New Card – Scheme Name Decoding in Cross Browsers and Logo Verification (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Multiple browsers available: Chrome, Firefox, Safari, Edge","Card: Visa 4929421234600821, expiry=03/2030, cvv=356
@@ -193,7 +193,7 @@ Browsers: Chrome, Firefox, Safari, Edge","1. Launch Cardstream-CH New UI in Chro
 5. For each browser, complete the payment and validate DB entries.","1. Card scheme logo renders correctly in all tested browsers.
 2. No rendering issues or missing logos across Chrome, Firefox, Safari, Edge.
 3. Payment completes successfully in each browser; transaction_status_id = 1.
-4. scheme_name decoded correctly in DB for all browser sessions.",card_scheme;usa;new_ui;cross_browser,P2,Manual
+4. scheme_name decoded correctly in DB for all browser sessions.",card_scheme;usa;new_ui;cross_browser,P2,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Card Scheme Validation,NC-SCHEME,NC-SCHEME-003,Cardstream-CH New Card – Logo on Saved Card Sale and Decoding (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - A saved card token exists for the shopper","Shopper with saved Mastercard token (last_4 = 4444)
@@ -203,7 +203,7 @@ Country: USA, Amount: $30.00","1. Launch Cardstream-CH New UI for a returning sh
 4. Validate scheme_name in DB and scheme logo displayed on confirmation.","1. Saved card tile displays the correct Mastercard logo.
 2. Sale completes with transaction_status_id = 1.
 3. scheme_name = ""Mastercard"" in master_token and payments table.
-4. No logo mismatch or decoding errors.",card_scheme;usa;new_ui;saved_card,P2,Automated
+4. No logo mismatch or decoding errors.",card_scheme;usa;new_ui;saved_card,P2,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-001,Cardstream-CH – datman_hosted_ui_version = 2 Renders New UI (Datman Checkout) for USA Merchant,"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 set in customers table","Merchant: USA Cardstream-CH merchant
 DB: customers.datman_hosted_ui_version = 2","1. Set datman_hosted_ui_version = 2 in the customers table for the USA merchant.
@@ -214,7 +214,7 @@ DB: customers.datman_hosted_ui_version = 2","1. Set datman_hosted_ui_version = 2
 2. Card form shows expiry and CVV hints as specified.
 3. CVV is masked by default; toggle works correctly.
 4. No Old UI elements visible.
-5. No console errors.",datman_checkout;new_ui;usa;ui_validation,P1,Automated
+5. No console errors.",datman_checkout;new_ui;usa;ui_validation,P1,Automated,US,Cardstream,CH_NC_TC_001_us_sale_smoke_sanity.spec.js; CH_NC_TC_016_us_sale_o2m_sanity.spec.js
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-002,Cardstream-CH – datman_hosted_ui_version = 1 Renders Old UI for USA Merchant,"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 1 set in customers table","Merchant: USA Cardstream-CH merchant
 DB: customers.datman_hosted_ui_version = 1","1. Set datman_hosted_ui_version = 1 in the customers table for the USA merchant.
@@ -223,7 +223,7 @@ DB: customers.datman_hosted_ui_version = 1","1. Set datman_hosted_ui_version = 1
 4. Confirm no New UI / Datman Checkout elements are rendered.","1. Old UI renders successfully.
 2. New UI (Datman Checkout) card-form hints not present.
 3. Payment can be completed normally through Old UI.
-4. No console errors.",datman_checkout;old_ui;usa;ui_validation,P1,Automated
+4. No console errors.",datman_checkout;old_ui;usa;ui_validation,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-003,Cardstream-CH – datman_hosted_ui_version = NULL Falls Back to Old UI (Default Behaviour),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version is NULL in customers table","Merchant: USA Cardstream-CH merchant
 DB: customers.datman_hosted_ui_version = NULL","1. Set datman_hosted_ui_version = NULL in the customers table for the USA merchant.
@@ -232,7 +232,7 @@ DB: customers.datman_hosted_ui_version = NULL","1. Set datman_hosted_ui_version 
 4. Complete a payment and verify DB entries.","1. Old UI renders as the default fallback when datman_hosted_ui_version is NULL.
 2. No New UI elements present.
 3. Payment completes with transaction_status_id = 1.
-4. No errors in application logs.",datman_checkout;null_toggle;usa;fallback,P1,Automated
+4. No errors in application logs.",datman_checkout;null_toggle;usa;fallback,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-004,Cardstream-CH New UI – Complete New Card Sale with 3DS via Datman Checkout (USA),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - 3DS-enrolled card used","Card: Visa 4929421234600821 (3DS enrolled), expiry=03/2030, cvv=356
@@ -244,7 +244,7 @@ Amount: $50.00 USD, Country: USA","1. Launch Cardstream-CH New UI (Datman Checko
 3. Payment approved: transaction_status_id = 1, transaction_mode_id = 2 (3DS).
 4. Pay button transitions to success state.
 5. Shopper redirected to redirect_url.
-6. Webhook log: https_status = 200.",datman_checkout;new_ui;usa;3ds,P1,Automated
+6. Webhook log: https_status = 200.",datman_checkout;new_ui;usa;3ds,P1,Automated,US,Cardstream,CH_NC_TC_022_us_sale_o2m_3ds.spec.js
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-005,Cardstream-CH New UI – Non-3DS New Card Sale via Datman Checkout (USA),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Non-3DS card used or 3DS not triggered","Card: Visa 4929421234600821, expiry=03/2030, cvv=356
@@ -254,7 +254,7 @@ Config: 3DS not triggered for this transaction","1. Launch Cardstream-CH New UI 
 3. Validate payment outcome and DB entries.","1. Payment approved without 3DS challenge: transaction_status_id = 1, transaction_mode_id = 1 (non-3DS).
 2. Pay button transitions to success state.
 3. Shopper redirected to redirect_url.
-4. Webhook delivered with https_status = 200.",datman_checkout;new_ui;usa;non_3ds,P1,Automated
+4. Webhook delivered with https_status = 200.",datman_checkout;new_ui;usa;non_3ds,P1,Automated,US,Cardstream,CH_NC_TC_001_us_sale_smoke_sanity.spec.js; CH_NC_TC_015_us_sale_non_o2m_threeds_pref.spec.js
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-006,Cardstream-CH New UI – Card Decline Handling and Retry via Datman Checkout (USA),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Decline card available","Card (decline): 4000000000000002, expiry=03/2030, cvv=356
@@ -267,7 +267,7 @@ Amount: $20.00 USD","1. Launch Cardstream-CH New UI (Datman Checkout).
 2. Retry option is available without requiring a full page reload.
 3. Success card on retry: payment approved, transaction_status_id = 1.
 4. Only the successful transaction appears in payments table.
-5. No confusing duplicate UI states.",datman_checkout;new_ui;usa;decline;retry,P1,Automated
+5. No confusing duplicate UI states.",datman_checkout;new_ui;usa;decline;retry,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-007,Cardstream-CH New UI – Split Payment via Datman Checkout (USA),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Split fee configured in payload","Payload: amount=10000 (USD cents), SplitFee=[{type_id: 2, value: 8.00, value_type: ""amount"", partner_merchant_id: ""MID_USA_001""}]
@@ -276,7 +276,7 @@ Amount: $100.00 USD","1. Launch Cardstream-CH New UI (Datman Checkout) with Spli
 2. Complete new card sale.
 3. Query payments and payments_split_commission tables.","1. Sale completes: transaction_status_id = 1, split_payment_flag = 1.
 2. payments_split_commission: commission_amount = 8.00, currency = USD, partner_merchant_id = MID_USA_001.
-3. Net merchant settlement reduced by split amount.",datman_checkout;new_ui;usa;split_payment,P1,Automated
+3. Net merchant settlement reduced by split amount.",datman_checkout;new_ui;usa;split_payment,P1,Automated,US,Cardstream,CH_NC_TC_002_us_sale_with_split.spec.js
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-008,Cardstream-CH New UI – Token Creation via Datman Checkout (USA),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - create_token = true in payload","Payload: create_token=true, amount=5000, currency=USD
@@ -285,7 +285,7 @@ Card: Mastercard 5555555555554444, expiry=05/2030, cvv=123","1. Launch Cardstrea
 2. Complete new card sale.
 3. Query master_token table for the shopper.","1. Payment completes: transaction_status_id = 1.
 2. master_token entry created: provider = ""cardstream"", last_4_digit = ""4444"", delete_status = 0.
-3. Token active and linked to payment table entry.",datman_checkout;new_ui;usa;tokenization,P1,Automated
+3. Token active and linked to payment table entry.",datman_checkout;new_ui;usa;tokenization,P1,Automated,US,Cardstream,CH_NC_TC_036_us_sale_master_token_validation.spec.js; CH_NC_TC_058_us_sale_master_token_validation_sanity.spec.js
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-009,Cardstream-CH New UI – Webhook Delivery After New Card Sale (USA),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Webhook URL configured for merchant","Payload: amount=5000, currency=USD, webhook_url=https://merchant.example/webhook
@@ -295,7 +295,7 @@ Card: Visa 4929421234600821, expiry=03/2030, cvv=356","1. Launch Cardstream-CH N
 2. Webhook delivered: https_status = 200, payload stored in webhook_log.
 3. encrypted_data populated in webhook_log.
 4. webhook_url matches merchant configuration.
-5. No card number present in the webhook payload.",datman_checkout;new_ui;usa;webhook,P1,Automated
+5. No card number present in the webhook payload.",datman_checkout;new_ui;usa;webhook,P1,Automated,US,Cardstream,CH_NC_TC_001_us_sale_smoke_sanity.spec.js
 Cardstream-CH New Card,New Card - Datman Checkout (New UI),NC-DCUI,NC-DCUI-010,Cardstream-CH – Old UI Not Affected by New UI (Datman Checkout) Deployment (Regression),"- MID is pointed to Cardstream-CH (USA)
 - Separate merchants: one with datman_hosted_ui_version = 1, one with = 2","Merchant A: datman_hosted_ui_version = 1 (Old UI)
 Merchant B: datman_hosted_ui_version = 2 (New UI)
@@ -306,7 +306,7 @@ Amount: $20.00 USD each","1. Complete a new card sale on Merchant A (Old UI) and
 4. Compare DB entries for both merchants.","1. Merchant A (Old UI): payment completes normally, transaction_status_id = 1, Old UI renders.
 2. Merchant B (New UI): payment completes normally, transaction_status_id = 1, Datman Checkout renders.
 3. No cross-contamination between UI versions.
-4. Old UI payment flow unchanged; no New UI elements injected.",datman_checkout;regression;old_ui;new_ui;usa,P1,Automated
+4. Old UI payment flow unchanged; no New UI elements injected.",datman_checkout;regression;old_ui;new_ui;usa,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Cross Browser & Cross Device,NC-BROWSER,NC-BROWSER-001,Cardstream-CH New Card Sale – Mobile Web Browser (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Mobile device / mobile browser","Card: Visa 4929421234600821, expiry=03/2030, cvv=356
@@ -317,7 +317,7 @@ Devices: iOS Safari, Android Chrome","1. Open the Cardstream-CH New UI payment p
 4. Validate DB entries for both transactions.","1. Datman Checkout UI renders correctly on mobile (no overlapping elements, correct input types).
 2. Payment completes on iOS Safari: transaction_status_id = 1.
 3. Payment completes on Android Chrome: transaction_status_id = 1.
-4. Redirect works correctly on mobile browsers.",cross_browser;mobile;usa;new_ui,P2,Manual
+4. Redirect works correctly on mobile browsers.",cross_browser;mobile;usa;new_ui,P2,Cant be automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Cross Browser & Cross Device,NC-BROWSER,NC-BROWSER-002,Cardstream-CH New Card Sale – Cross Browser Coverage (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - Desktop browsers: Chrome, Firefox, Safari, Edge","Card: Visa 4929421234600821, expiry=03/2030, cvv=356
@@ -329,7 +329,7 @@ Browsers: Chrome, Firefox, Safari, Edge","1. Open the Cardstream-CH New UI payme
 5. Validate DB entries for each browser session.","1. Datman Checkout UI renders without layout issues in all tested browsers.
 2. Payment completes in each browser: transaction_status_id = 1.
 3. No console errors in any browser.
-4. CVV toggle, expiry hints, and card logo work consistently across all browsers.",cross_browser;desktop;usa;new_ui,P2,Manual
+4. CVV toggle, expiry hints, and card logo work consistently across all browsers.",cross_browser;desktop;usa;new_ui,P2,Cant be automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Metadata Validation,NC-META,NC-META-001,Cardstream-CH New Card Sale – Validation of OMT Reference in Metadata (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI)
 - OMT reference passed in payload metadata","Payload: amount=5000, currency=USD, metadata={omt_reference: ""OMT-USA-REF-001""}
@@ -339,7 +339,7 @@ Card: Visa 4929421234600821, expiry=03/2030, cvv=356","1. Launch Cardstream-CH N
 4. Retrieve payment record and confirm OMT reference is accessible.","1. Payment completes: transaction_status_id = 1.
 2. OMT reference stored correctly in payment metadata / gateway request log.
 3. OMT reference retrievable from API/dashboard for reconciliation.
-4. No data loss or truncation of the reference.",metadata;omt_reference;usa;new_ui,P2,Manual
+4. No data loss or truncation of the reference.",metadata;omt_reference;usa;new_ui,P2,Cant be automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - White Label,NC-WL,NC-WL-001,Cardstream-CH New Card – white_label_enabled = 1 Does NOT Apply White Label Branding (Out of Scope for Cardstream-CH),"- Merchant on Cardstream-CH (USA) with white_label_enabled = 1 in customers table
 - white_label_reseller_config has an entry for this merchant's customer_type
 - Note: White label branding applies ONLY to datman_checkout (Adyen New UI) — NOT Cardstream-CH","Merchant: Cardstream-CH USA merchant with white_label_enabled = 1
@@ -354,7 +354,7 @@ Amount: $50.00 USD","1. Set white_label_enabled = 1 for a Cardstream-CH (USA) me
 3. Sale completes successfully without any impact: transaction_status_id = 1, payment_provider = cardstream.
 4. Redirect goes to default URL — not to partner domain_base_url.
 5. No console errors.
-6. DB: no white_label fields affected for this provider.",white_label;negative;regression;usa;cardstream_ch,P2,Automated
+6. DB: no white_label fields affected for this provider.",white_label;negative;regression;usa;cardstream_ch,P2,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Standard Sale,NC-SALE,NC-SALE-005,Cardstream-CH New Card Sale – Invalid Card Details → Hard Decline (USA),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - Invalid / non-existent card number used","Card (invalid Luhn): 4111111111111112, expiry=03/2030, cvv=356
@@ -372,7 +372,7 @@ Amount: $20.00 USD, Currency: USD, Country: USA","1. Launch Cardstream-CH New UI
 2. Expired card: gateway declines; transaction_status_id = 2 (declined) or no record created; clear expiry error shown in UI.
 3. Unsupported BIN: gateway rejects; no payments record created; user-facing error message displayed.
 4. In all scenarios: no sensitive card data appears in error messages or logs.
-5. Retry option available without full page reload.",negative;invalid_card;decline;usa;new_ui,P1,Automated
+5. Retry option available without full page reload.",negative;invalid_card;decline;usa;new_ui,P1,Automated,US,Cardstream,CH_NC_TC_017_us_sale_invalid_cvv.spec.js
 Cardstream-CH New Card,New Card - AVS Validation,NC-AVS,NC-AVS-001,Cardstream-CH New Card Sale – Full AVS Match → Approve (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - AVS validation enabled for the merchant
@@ -388,7 +388,7 @@ Note: house number + ZIP must match card-issuer record exactly","1. Launch Cards
 2. Gateway AVS response code = ""Y"" (full match — address and ZIP both match).
 3. Payments table: gross = $30.00, currency = USD, payment_provider_id = 3.
 4. Webhook delivered: https_status = 200.
-5. AVS result visible in gateway request/response log.",avs;full_match;approve;usa;new_ui,P1,Automated
+5. AVS result visible in gateway request/response log.",avs;full_match;approve;usa;new_ui,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - AVS Validation,NC-AVS,NC-AVS-002,Cardstream-CH New Card Sale – AVS ZIP Mismatch → Decline / Review (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - AVS validation enabled for the merchant
@@ -403,7 +403,7 @@ Amount: $30.00 USD","1. Launch Cardstream-CH New UI (Datman Checkout) for a USA 
 3. If declined: transaction_status_id = 2; no settlement; user-facing decline message shown.
 4. If flagged for review: transaction held; merchant notified for manual review.
 5. Gateway request log captures the AVS mismatch response code.
-6. No sensitive address data exposed in error output.",avs;zip_mismatch;decline;review;usa;new_ui,P1,Automated
+6. No sensitive address data exposed in error output.",avs;zip_mismatch;decline;review;usa;new_ui,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - CVV Validation,NC-CVV,NC-CVV-001,Cardstream-CH New Card Sale – Correct CVV Submitted → Approve (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - CVV check enabled for the merchant","Card: Visa 4929421234600821, expiry=03/2030, cvv=356 (correct)
@@ -416,7 +416,7 @@ Amount: $25.00 USD, Country: USA","1. Launch Cardstream-CH New UI (Datman Checko
 2. Gateway CVV response code = ""M"" (CVV match).
 3. CVV field in UI: masked by default, revealed correctly via eye toggle.
 4. Payments table: gross = $25.00, currency = USD, payment_provider_id = 3.
-5. CVV value NOT present anywhere in logs, DB, or webhook payload.",cvv;correct;approve;usa;new_ui,P1,Automated
+5. CVV value NOT present anywhere in logs, DB, or webhook payload.",cvv;correct;approve;usa;new_ui,P1,Automated,US,Cardstream,CH_NC_TC_001_us_sale_smoke_sanity.spec.js
 Cardstream-CH New Card,New Card - CVV Validation,NC-CVV,NC-CVV-002,Cardstream-CH New Card Sale – Incorrect CVV Submitted → Decline (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - CVV check enabled for the merchant","Card: Visa 4929421234600821, expiry=03/2030, cvv=000 (incorrect CVV)
@@ -428,7 +428,7 @@ Amount: $25.00 USD, Country: USA","1. Launch Cardstream-CH New UI (Datman Checko
 2. Gateway CVV response code = ""N"" (CVV mismatch).
 3. UI displays a clear, user-friendly decline message (no raw gateway error codes exposed).
 4. No payments record in DB for the declined transaction.
-5. Retry option available so the shopper can re-enter correct card details.",cvv;incorrect;decline;negative;usa;new_ui,P1,Automated
+5. Retry option available so the shopper can re-enter correct card details.",cvv;incorrect;decline;negative;usa;new_ui,P1,Automated,US,Cardstream,CH_NC_TC_017_us_sale_invalid_cvv.spec.js
 Cardstream-CH New Card,New Card - 3DS Flow,NC-3DS,NC-3DS-001,Cardstream-CH New Card Sale – Soft Decline → 3DS Retry → Success After Auth (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - Card initially processed as non-3DS; issuer returns soft decline requesting 3DS step-up
@@ -446,7 +446,7 @@ Amount: $50.00 USD, Country: USA","1. Launch Cardstream-CH New UI (Datman Checko
 4. After successful 3DS authentication: payment approved, transaction_status_id = 1.
 5. Payments table: transaction_mode_id = 2 (3DS applied), payment_provider_id = 3, currency = USD.
 6. Both the initial soft decline and the final approval are captured in gateway request log.
-7. Webhook delivered: https_status = 200 with final approved status.",3ds;soft_decline;retry;success_after_auth;usa;new_ui,P1,Automated
+7. Webhook delivered: https_status = 200 with final approved status.",3ds;soft_decline;retry;success_after_auth;usa;new_ui,P1,Automated,US,Cardstream,CH_NC_TC_022_us_sale_o2m_3ds.spec.js; CH_NC_TC_015_us_sale_non_o2m_threeds_pref.spec.js
 Cardstream-CH New Card,New Card - PreAuth & Capture,NC-PREAUTH,NC-PREAUTH-001,Cardstream-CH New Card Sale – Auth Then Capture (PreAuth Flow) (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - PreAuth / delayed capture is enabled for the merchant
@@ -462,7 +462,7 @@ Amount: $100.00 USD, Country: USA","1. Launch Cardstream-CH New UI (Datman Check
 3. Manual capture API call succeeds: transaction_status_id updates to 1 (captured/settled).
 4. Webhook delivered on capture: https_status = 200.
 5. Gateway request log contains both the authorisation and capture requests.
-6. Card statement shows amount held during pre-auth and charged after capture.",preauth;auth_capture;usa;new_ui,P1,Automated
+6. Card statement shows amount held during pre-auth and charged after capture.",preauth;auth_capture;usa;new_ui,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Fraud & Velocity,NC-FRAUD,NC-FRAUD-001,Cardstream-CH New Card Sale – High Velocity Attempts → Decline / Flag (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - Velocity / fraud rules configured for the merchant (e.g. max N transactions per shopper per hour)","Shopper: shopper_id=NC_USA_FRAUD_001, email=fraud001@example.com
@@ -479,7 +479,7 @@ Country: USA","1. Launch Cardstream-CH New UI (Datman Checkout) for a USA mercha
 3. Declined transactions: transaction_status_id = 2; user-facing decline message shown.
 4. Fraud / velocity flag visible in merchant dashboard or fraud log.
 5. No sensitive card data exposed in fraud/velocity error messages.
-6. Subsequent legitimate transactions from the shopper can be re-enabled after review.",fraud;velocity;high_velocity;decline;flag;usa;new_ui,P1,Automated
+6. Subsequent legitimate transactions from the shopper can be re-enabled after review.",fraud;velocity;high_velocity;decline;flag;usa;new_ui,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Error Handling,NC-ERR,NC-ERR-001,Cardstream-CH New Card Sale – Do Not Honor (Response Code 05) → Decline (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - Card that triggers issuer response code 05 (Do Not Honor) used","Card: Decline card mapped to Cardstream-CH response code 05 (Do Not Honor)
@@ -495,7 +495,7 @@ Note: use Cardstream-CH test card designated to return response code 05","1. Lau
 3. UI displays a user-friendly generic decline message — raw error code 05 NOT shown to shopper.
 4. Gateway request log contains the full response including response code 05.
 5. Retry option available in the Datman Checkout UI for the shopper to try a different card.
-6. Webhook (if delivered): reflects declined status.",error_handling;do_not_honor;response_code_05;decline;usa;new_ui,P1,Automated
+6. Webhook (if delivered): reflects declined status.",error_handling;do_not_honor;response_code_05;decline;usa;new_ui,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Checkout Flow,NC-CANCEL,NC-CANCEL-001,Cardstream-CH New Card Sale – User Cancels Payment → Cancelled + cancel_url Redirect (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - cancel_url configured in payload
@@ -513,7 +513,7 @@ Scenario B: Cancel during 3DS challenge","1. Launch Cardstream-CH New UI (Datman
 3. In both scenarios: transaction_status reflects cancelled / not initiated.
 4. No partial authorisation ring-fenced on the card.
 5. Webhook NOT triggered (no payment initiated).
-6. cancel_url redirect contains appropriate status indicator for merchant-side handling.",checkout_flow;cancel;cancelled;cancel_url;usa;new_ui,P1,Automated
+6. cancel_url redirect contains appropriate status indicator for merchant-side handling.",checkout_flow;cancel;cancelled;cancel_url;usa;new_ui,P1,Automated,US,Cardstream,NA
 Cardstream-CH New Card,New Card - Edge Cases,NC-EDGE,NC-EDGE-001,Cardstream-CH New Card Sale – Delayed Gateway Response (>30s) Handled via Webhook (USA | New UI),"- MID is pointed to Cardstream-CH (USA)
 - datman_hosted_ui_version = 2 (New UI / Datman Checkout)
 - Gateway response is deliberately delayed beyond 30 seconds (simulated timeout / network latency)
@@ -531,4 +531,4 @@ Country: USA","1. Launch Cardstream-CH New UI (Datman Checkout) for a USA mercha
 3. Webhook is triggered once the gateway responds: https_status = 200, final transaction status (approved or declined) reflected in payload.
 4. Payments table updated to final transaction_status_id after webhook delivery.
 5. Gateway request log captures the delayed response timestamp and final outcome.
-6. No duplicate payment records created as a result of the delay or retry.",edge_case;delayed_response;timeout;webhook;pending;usa;new_ui,P1,Automated
+6. No duplicate payment records created as a result of the delay or retry.",edge_case;delayed_response;timeout;webhook;pending;usa;new_ui,P1,Automated,US,Cardstream,NA

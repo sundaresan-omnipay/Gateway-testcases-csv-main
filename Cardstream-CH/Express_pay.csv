@@ -1,4 +1,4 @@
-Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status
+Module,Submodule,Parent ID,Test Case #,Scenario,Precondition,Test Data,Test steps,Expected Result,Labels,Priority,Automation Status,Countries applicable,Partners applicable,Automation mapped TC
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,AP-T277,CARDSTREAM-CH - Collection Express pay - Empty/Invalid AVS - US,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - AVS validation rules are configured for the merchant
@@ -73,7 +73,7 @@ is processed without any issue","The request should be processed without any iss
 and entry should be added in the database
 The transaction should be processed without any issue as the postcode 
 validation is not required for the country US
-The transaction should be processed without any issue",Automated,P2,Automated
+The transaction should be processed without any issue",Automated,P2,Automated,US,NA,CH_EC_TC_016_avs_scenarios.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,AP-T1346,CARDSTREAM-CH : Express Pay Sale -  Validation of OMT reference in metadata,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Test environment is accessible and stable
@@ -93,7 +93,7 @@ requirements in order
 5) Sending value = to
 6) Address = Right address linked with Card used
 Verify the values in the payments table
-Verify the OMT reference in metadata in AWS logs ","The payment should be processed without any issue
+Verify the OMT reference in metadata in AWS logs","The payment should be processed without any issue
 The entry should be updated successfully.
 a) Transaction-status-id as 1
 b) Payment-provider-id as 3
@@ -101,47 +101,7 @@ c) Transaction-mode-id as1
 d) Transaction-method-id as 4
 
 
-OMT Reference should be shown  in metadata in AWS logs ",Can't-be-automated,P2,Can't-be-automated
-Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,AP-T1529,CARDSTREAM-CH - Verifying the response based on CVV checks on merchant level (E2E) (cloned),- Ensure the MID is pointed to Cardstream-CH,"Payment method: Express Pay (Collection)
-Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
-Amount: 10.00 GBP
-Merchant: <merchant_id> (Cardstream-CH merchant)
-Merchant ID: <merchant_id>
-Shopper ID: <shopper_id>
-Webhook URL: <webhook_listener_url>
-Redirect URL: <redirect_url>","Datman Merchant
- 
-Pick a merchant which is pointing to ""CARDSTREAM""  provider and enable the 
-cvv_check column to 0 
-Try to initiate a Express-pay sale by passing the below and verify the API 
-response.
-a) Invalid CVV
-b) Empty CVV 
-c) Remove the CVV attribute
-d) Valid CVV
-Verify the same entries in 
-a) DB 
-b) Dashboard 
-Verify the same in Cloud-watch
-Try to initiate a below sale by passing invalid CVV 
-a) New card 
-b) Saved card 
-c) G-pay 
-d) apple-pay 
-e) WAR 3DS 
-Now , Enable the toggle to 1 and verify all the above scenarios and verify 
-the response
-Pass the empty values in cvv_checks column and verify the default value 
-which is getting updated ","User should able to disable the cvv_check 
-User should able to see the api response is getting success for all the 
-cvv's as we have disabled the CVV checks.
-User should able to see the txn status as success
-User should able to see the response as per the cvv checks and no 
-exceptional errors should be there.
-User should able to see the sale is getting declined as the toggle is only 
-for EP and WAR.
-User should able to see the response according to the existing checks.
-User should able to see the default value as 1.",invalid,P2,Manual
+OMT Reference should be shown  in metadata in AWS logs",Can't-be-automated,P2,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,PS-CSCH-EP-001,Cardstream-CH Express Pay - Split Commission - Global Split Type Sale Succeeds,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
@@ -165,7 +125,7 @@ Note: Global split types (IDs 1-8, 11, 100) can be used across all providers. Ne
 2. payments_split_commission table contains entry with commission_type_id matching the split used ✓
 3. commission_amount = 2.50 as per payload ✓
 4. split_payment_flag=1 in payments table ✓
-5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓",Automated,P2,Automated
+5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓",Automated,P2,Automated,US,NA,CH_EC_TC_031_us_sale_with_split_type1.spec.js; CH_EC_TC_032_us_sale_with_split_type2.spec.js; CH_EC_TC_033_us_sale_with_split_type3.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,PS-CSCH-EP-002,Cardstream-CH Express Pay - Split Commission - Invalid Split Type ID Rejected,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
@@ -188,7 +148,7 @@ Note: Only valid global split type IDs (ex: 1-8, 11, 100) or newly created split
 2. API responds with error: 'invalid type id' ✓
 3. No payments_split_commission record created ✓
 4. No payment record created ✓
-5. Only valid split type IDs from split_commission_types table are accepted ✓",Automated,P2,Automated
+5. Only valid split type IDs from split_commission_types table are accepted ✓",Automated,P2,Automated,US,NA,CH_EC_TC_055_edining_invalid_sale_with_one_dynamic-split.spec.js; CH_EC_TC_056_fastfood_invalid_sale_with_one_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,PS-CSCH-EP-003,Cardstream-CH Express Pay - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
@@ -213,7 +173,7 @@ Precondition: Use DELETE API on an existing split type → verify delete_status=
 3. Sale using soft-deleted split type is rejected ✓
 4. API responds with error: 'invalid type id' ✓
 5. No payments_split_commission record created ✓
-6. No payment record created ✓",Automated,P2,Automated
+6. No payment record created ✓",Automated,P2,Automated,US,NA,CH_EC_TC_057_sale_with_one_dynamic_split_delete_status_zero.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,PS-CSCH-EP-004,Cardstream-CH Express Pay - Split Commission - Updated Split Type via API Used in Sale Succeeds,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Split commission configuration is active for the merchant
@@ -239,7 +199,7 @@ Precondition: Use Update API to modify an existing split type → verify updated
 3. Sale with updated split type succeeds with transaction_status_id=1 ✓
 4. payments_split_commission table contains entry with updated commission_type_id ✓
 5. commission_amount = 3.00 as per payload ✓
-6. split_payment_flag=1 in payments table ✓",Automated,P2,Automated
+6. split_payment_flag=1 in payments table ✓",Automated,P2,Automated,US,NA,CH_EC_TC_053_us_sale_with_two_dynamic_split.spec.js; CH_EC_TC_054_us_sale_with_one_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC001,CARDSTREAM-CH - Express pay Sale - Expired Token Handling - System expired token,"- Merchant pointed to Cardstream-CH
 
 - Customer has token that expired in system
@@ -300,7 +260,7 @@ Response:
 express_checkout_cardstream_ch;
 expired_token;
 negative_test;
-",P1,Prod monitoring
+",P1,Prod monitoring,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC002,CARDSTREAM-CH - Express pay Sale - Inactive Token Handling - Deactivated token,"- Merchant pointed to Cardstream-CH
 
 - Customer has token that was deactivated
@@ -365,7 +325,7 @@ Response:
 express_checkout_cardstream_ch;
 inactive_token;
 negative_test;
-",P1,Prod monitoring
+",P1,Prod monitoring,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC003,CARDSTREAM-CH - Express pay Sale - Master token selection - UK with Checkout token (no Cardstream-CH/Cardstream),"- Merchant in UK (country_id: 1)
 
 - NO Cardstream-CH or Cardstream tokens available
@@ -406,7 +366,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC003,CARDSTREAM-CH
 4. Token selection cascades correctly to Checkout provider","express_checkout_token_priority;
 express_checkout_checkout;
 uk_checkout_fallback;
-",P2,Pending
+",P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC004,CARDSTREAM-CH - Express pay Sale - Master token selection - US with Cardstream-CH master_token,"- Merchant in US (country_id: 7)
 
 - Valid Cardstream-CH master_token available
@@ -442,7 +402,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC004,CARDSTREAM-CH
 3. Cardstream-CH US dashboard shows transaction","express_checkout_token_priority;
 express_checkout_cardstream_ch;
 us_cardstream_ch_token;
-",P1,Pending
+",P1,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC005,CARDSTREAM-CH - Express pay Sale - Master token selection - US with Cardstream-CH token (no Cardstream-CH),"- Merchant in US (country_id: 7)
 
 - NO Cardstream-CH master_token available
@@ -481,7 +441,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC005,CARDSTREAM-CH
 3. Cardstream-CH dashboard shows US transaction","express_checkout_token_priority;
 express_checkout_cardstream_ch;
 us_cardstream_fallback;
-",P2,Pending
+",P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC006,CARDSTREAM-CH - Express pay Sale - Master token selection - US with Checkout token (no Cardstream-CH/Cardstream-CH),"- Merchant in US (country_id: 7)
 
 - NO Cardstream-CH or Cardstream-CH tokens
@@ -520,13 +480,13 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC006,CARDSTREAM-CH
 3. Checkout dashboard shows US transaction","express_checkout_token_priority;
 express_checkout_checkout;
 us_checkout_fallback;
-",P2,Pending
+",P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC017,CARDSTREAM-CH - Express Pay sale - Different provider Master_token,"Merchant pointed to Cardstream-CH Customer do not have Cardstream-CH master_token, use either, CS-CH or Checkout token                                     Process a Express pay sale& Verify the Payment","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 FH Key, Valid Payload",1. Hit express pay API with Non-Cardstream-CH master_token for an Austrailan Merchant and validate the URL in the response,"1. User would be seeing a new card page URL coming in the respose as AU only has Cardstream-CH. Use a Non-Amex card and complete the transaction                              2. Verify if the hosted form has the month column with data as(Front of card, written in MM/YY) & Security code has infromation as (Back of card, 3 digits). check if the white labeling information is not ruled out and is coming as expected
-CVV is hidden by default and only becomes visible after the eye icon is toggled.  3. Process the sale and complete the transaction.",Express-Card form UI,P3,Pending
+CVV is hidden by default and only becomes visible after the eye icon is toggled.  3. Process the sale and complete the transaction.",Express-Card form UI,P3,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC018,CARDSTREAM-CH - Express Pay sale - Different provider Master_token,"Merchant pointed to Cardstream-CH Customer do not have Cardstream-CH master_token, use either, CS-CH or Checkout token                                     Process a Express pay sale& Verify the Payment","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 FH Key, Valid Payload",1. Hit express pay API with Non-Cardstream-CH master_token for an Austrailan Merchant and validate the URL in the response,"1. User would be seeing a new card page URL coming in the respose as AU only has Cardstream-CH. Use a Amex card to complete the transaction                                2. Verify if the hosted form has the month column with data as(Front of card, written in MM/YY) & Security code has infromation as (Front of card, 4 digits). check if the white labeling information is not ruled out and is coming as expected
-CVV is hidden by default and only becomes visible after the eye icon is toggled.  3. Process the sale and complete the transaction.",Express-Card form UI,P3,Pending
+CVV is hidden by default and only becomes visible after the eye icon is toggled.  3. Process the sale and complete the transaction.",Express-Card form UI,P3,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC019,CARDSTREAM-CH - Saved Card - New UI Validation (Foodhub),"- Merchant should be pointed to Cardstream-CH
 
 - A valid token (preferably Cardstream-CH master_token or if Token precedency is being used - Valid other PSP token should be available for the customer id used)
@@ -612,7 +572,7 @@ Payment table entry:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",saved_card_flow_New_UI,P2,Pending
+-> transaction_method_id: 4 (Express Pay)",saved_card_flow_New_UI,P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC020,CARDSTREAM-CH - Express pay Sale - Express Pay 3DS New UI Validation (Foodhub),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 Merchant should be cardstream-ch
@@ -687,7 +647,7 @@ webhook_hmac;
 foodhub;
 express_pay_3ds;
 order_id_match;
-express_pay_cardstream_ch;",P0,Pending
+express_pay_cardstream_ch;",P0,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC021,CARDSTREAM-CH - Express pay Sale - AMEX Express Pay 3DS New UI Validation (Foodhub),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 Merchant should be cardstream-ch
@@ -762,7 +722,7 @@ webhook_hmac;
 foodhub;
 express_pay_3ds;
 order_id_match;
-express_pay_cardstream_ch;",P0,Pending
+express_pay_cardstream_ch;",P0,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC022,CARDSTREAM-CH - Express pay Sale - 3ds Collection sale with address values (Foodhub),"Merchant pointed to Cardstream-CH
 
 Valid Cardstream-CH master_token available for customer_id
@@ -829,7 +789,7 @@ Valid Express Pay token exists requiring 3DS
 -> transaction_method_id: 4 (Express Pay)","express_checkout_collection;
 express_checkout_cardstream_ch;
 collection_with_address;
-",P2,Pending
+",P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC023,CARDSTREAM-CH - Express pay Sale - AMEX - 3ds Collection sale with address values (Foodhub),"Merchant pointed to Cardstream-CH
 
 Valid Amex card Cardstream-CH master_token available for customer_id
@@ -896,7 +856,7 @@ Valid Express Pay token exists requiring 3DS
 -> transaction_method_id: 4 (Express Pay)","express_checkout_collection;
 express_checkout_cardstream_ch;
 collection_with_address;
-",P2,Pending
+",P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC024,CARDSTREAM-CH - Saved Card - New UI Validation Failed sale and retry (Foodhub),"- Merchant should be pointed to Cardstream-CH
 
 - A valid token (preferably Cardstream-CH master_token or if Token precedency is being used - Valid other PSP token should be available for the customer id used)
@@ -993,7 +953,7 @@ Payment table entry:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",saved_card_flow_New_UI,P2,Pending
+-> transaction_method_id: 4 (Express Pay)",saved_card_flow_New_UI,P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC025,"CARDSTREAM-CH - Saved Card - New UI Validation (Foodhub)
 
 Cross Browser & Cross device Validation 
@@ -1095,7 +1055,7 @@ Payment table entry:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",saved_card_flow_New_UI,P2,Pending
+-> transaction_method_id: 4 (Express Pay)",saved_card_flow_New_UI,P2,Cant be automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC026,CARDSTREAM-CH - Express pay Sale - Kount validation - Success with Kount enabled,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1155,7 +1115,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC026,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 kount_enabled;
 risk_validation;
-",P1,Out of scope
+",P1,Out of scope,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC027,CARDSTREAM-CH - Express pay Sale - Kount validation - Decline with Kount rules,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1219,7 +1179,7 @@ kount_enabled;
 kount_decline;
 risk_validation;
 negative_test;
-",P1,Out of scope
+",P1,Out of scope,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC028,CARDSTREAM-CH - Express pay Sale - Kount validation - Review status,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1282,7 +1242,7 @@ express_checkout_cardstream_ch;
 kount_enabled;
 kount_review;
 risk_validation;
-",P2,Out of scope
+",P2,Out of scope,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC029,CARDSTREAM-CH - Express pay Sale - Kount validation - Disabled toggle,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1335,7 +1295,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC029,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_kount;
 express_checkout_cardstream_ch;
 kount_disabled;
-",P2,Out of scope
+",P2,Out of scope,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC030,CARDSTREAM-CH - Express pay Sale - Reversal - Void Before Settlement,"- Merchant pointed to Cardstream-CH
 - Express pay sale completed (status=1)","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 Completed sale: amount=20.00 GBP, transaction_status_id=1, xref=[unique_xref]","1. Verify Express pay sale with status=1.
@@ -1346,7 +1306,7 @@ Completed sale: amount=20.00 GBP, transaction_status_id=1, xref=[unique_xref]","
 6. Check audit_log.","1. Reversal API success.
 2. Void status recorded.
 3. Webhook: CANCELLATION event.
-4. Customer not charged.",express_pay_reversal,P1,Automated
+4. Customer not charged.",express_pay_reversal,P1,Automated,US,NA,CH_EC_TC_019_sale_refund_card_smoke_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC031,CARDSTREAM-CH - Express pay Sale - Reversal After Token Creation - Token Status Validation,"- Merchant pointed to Cardstream-CH
 - Express pay CIT sale with token creation completed (status=1)","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 Completed sale: amount=20.00 GBP, status=1, MIT token created","1. Verify Express pay sale with status=1 and MIT token created.
@@ -1355,7 +1315,7 @@ Completed sale: amount=20.00 GBP, status=1, MIT token created","1. Verify Expres
 4. Verify MIT token remains active (reversal does not deactivate token).
 5. Check audit_log.","1. Reversal success.
 2. Void status recorded.
-3. MIT token: still active and usable for future transactions.",express_pay_reversal,P1,Automated
+3. MIT token: still active and usable for future transactions.",express_pay_reversal,P1,Automated,US,NA,CH_EC_TC_019_sale_refund_card_smoke_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC032,CARDSTREAM-CH - Express pay Sale - Full Refund After Settlement,"- Merchant pointed to Cardstream-CH
 - Express pay sale settled (status=1)
 - captured_amount=25.00 GBP","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
@@ -1367,7 +1327,7 @@ Settled sale: amount=25.00 GBP, status=1; Full refund: 25.00 GBP","1. Verify Exp
 6. Check audit_log.","1. Refund API success.
 2. Refunded_amount: 25.00.
 3. Webhook: REFUND event.
-4. Audit_log: Refund recorded.",express_pay_refund,P0,Automated
+4. Audit_log: Refund recorded.",express_pay_refund,P0,Automated,US,NA,CH_EC_TC_019_sale_refund_card_smoke_sanity.spec.js; CH_EC_TC_027_us_sale_refund_o2m.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC033,CARDSTREAM-CH - Express pay Sale - Refund After 3DS Sale with Split Types,"- Merchant pointed to Cardstream-CH
 - Express pay 3DS sale with split types completed (status=1)","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 Sale: amount=30.00 GBP, status=1, split_type=1+2; Full refund: 30.00 GBP","1. Verify 3DS Express pay sale with split types and status=1.
@@ -1378,7 +1338,7 @@ Sale: amount=30.00 GBP, status=1, split_type=1+2; Full refund: 30.00 GBP","1. Ve
 6. Check webhook: REFUND event.","1. Refund API success.
 2. All split fees reversed.
 3. Settlements reversed for all parties.
-4. Webhook: REFUND event.",express_pay_refund,P1,Automated
+4. Webhook: REFUND event.",express_pay_refund,P1,Automated,US,NA,CH_EC_TC_029_us_sale_with_split_type2_refund_to_card.spec.js; CH_EC_TC_030_us_sale_with_split_type1_refund_to_card.spec.js; CH_EC_TC_038_us_sale_3ds_full_refund.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC034,CARDSTREAM-CH - MIT Transaction - Full Refund After MIT Sale,"- Merchant pointed to Cardstream-CH
 - MIT sale completed using stored token (status=1)","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 MIT sale: amount=20.00 GBP, status=1; Full refund: 20.00 GBP","1. Verify MIT sale with status=1.
@@ -1389,7 +1349,7 @@ MIT sale: amount=20.00 GBP, status=1; Full refund: 20.00 GBP","1. Verify MIT sal
 6. Check webhook: REFUND event.","1. Refund API success.
 2. Refunded_amount: 20.00.
 3. MIT token: still active.
-4. Webhook: REFUND event.",mit_refund,P1,Automated
+4. Webhook: REFUND event.",mit_refund,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC035,CARDSTREAM-CH - Pay By Link - Full Refund After Successful Payment,"- Merchant pointed to Cardstream-CH
 - PBL payment completed (status=1)","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 PBL sale: amount=30.00 GBP, status=1; Full refund: 30.00 GBP","1. Verify PBL payment with status=1.
@@ -1400,7 +1360,7 @@ PBL sale: amount=30.00 GBP, status=1; Full refund: 30.00 GBP","1. Verify PBL pay
 6. Check audit_log.","1. Refund API success.
 2. Refunded_amount: 30.00.
 3. Webhook: REFUND event.
-4. Audit_log: Refund recorded.",pbl_refund,P1,Automated
+4. Audit_log: Refund recorded.",pbl_refund,P1,Automated,US,NA,CH_EC_TC_043_us_sale_pay_by_link_3ds_full_refund_to_wallet_sanity.spec.js; CH_EC_TC_044_us_sale_pay_by_link_3ds_full_refund_to_card.spec.js; CH_EC_TC_049_us_sale_pay_by_link_non_3ds_full_refund_to_wallet.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC036,CARDSTREAM-CH - Pay By Link - Reversal Before Settlement,"- Merchant pointed to Cardstream-CH
 - PBL payment completed (status=1)","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 PBL sale: amount=30.00 GBP, status=1","1. Verify PBL payment with status=1.
@@ -1409,7 +1369,7 @@ PBL sale: amount=30.00 GBP, status=1","1. Verify PBL payment with status=1.
 4. Check payment table for void status.
 5. Verify webhook: CANCELLATION event.","1. Reversal API success.
 2. Void status recorded.
-3. Webhook: CANCELLATION event.",pbl_reversal,P1,Automated
+3. Webhook: CANCELLATION event.",pbl_reversal,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC037,CARDSTREAM-CH - Pay By Link - Partial Refund After Sale,"- Merchant pointed to Cardstream-CH
 - PBL payment completed (status=1)
 - captured_amount=50.00 GBP","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
@@ -1418,7 +1378,7 @@ PBL sale: amount=50.00 GBP, status=1; Partial refund: 20.00 GBP","1. Verify PBL 
 3. Verify partial refund success.
 4. Verify partial_refunded_amount=20.00 and remaining=30.00.","1. Partial refund success.
 2. partial_refunded_amount: 20.00.
-3. Remaining refundable: 30.00.",pbl_refund,P1,Automated
+3. Remaining refundable: 30.00.",pbl_refund,P1,Automated,US,NA,CH_EC_TC_026_us_sale_o2m_partial_refund_sanity.spec.js; CH_EC_TC_028_us_sale_refund_specific_amount.spec.js; CH_EC_TC_045_us_sale_pay_by_link_3ds_partial_refund_to_card.spec.js; CH_EC_TC_046_us_sale_pay_by_link_3ds_partial_refund_to_wallet.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC038,CARDSTREAM-CH - Express pay Sale - Reseller Commission (Type 100) with Refund,"- Merchant pointed to Cardstream-CH
 - External reseller (type_id=100) commission configured
 - Express pay sale with reseller split completed (status=1)","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
@@ -1428,7 +1388,7 @@ Sale: amount=30.00 GBP, split type 100 = 1.50 GBP reseller; Full refund: 30.00 G
 4. Verify reseller commission reversed in split_fees.
 5. Verify all settlements reversed including reseller share.","1. Refund success.
 2. Reseller commission (1.50) reversed.
-3. All settlements reversed.",express_pay_reseller_refund,P1,Automated
+3. All settlements reversed.",express_pay_reseller_refund,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC039,"CARDSTREAM-CH - Express pay Sale - Wallet+X - Partial Wallet, Partial Token","- Merchant pointed to Cardstream-CH
 - Customer has partial wallet balance
 - Valid Express pay token available","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
@@ -1440,7 +1400,7 @@ Total: 30.00 GBP; Wallet: 10.00 GBP; Token: 20.00 GBP","1. Initiate Express pay 
 6. Check payment table for both transactions.","1. Wallet leg: 10.00 GBP debited.
 2. Token leg: 20.00 GBP captured.
 3. Total: 30.00 GBP.
-4. Both transactions status=1.",express_pay_wallet_x,P1,Pending
+4. Both transactions status=1.",express_pay_wallet_x,P1,Automated,US,NA,CH_EC_TC_018_sale_refund_wallet_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC040,CARDSTREAM-CH - Express pay Sale - Wallet+X - Refund Both Legs,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Wallet+X Express pay payment completed
@@ -1452,34 +1412,34 @@ Wallet+X sale: total=30.00 GBP; Full refund: 30.00 GBP","1. Verify Wallet+X Expr
 5. Verify token refund processed.","1. Refund success.
 2. Wallet refund: 10.00 GBP restored.
 3. Token/card refund: 20.00 GBP.
-4. Total refunded: 30.00 GBP.",express_pay_wallet_x,P1,Pending
+4. Total refunded: 30.00 GBP.",express_pay_wallet_x,P1,Automated,US,NA,CH_EC_TC_018_sale_refund_wallet_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC041,CARDSTREAM-CH - Express pay Sale - Invalid Payload - Missing token in Payload,- Merchant pointed to Cardstream-CH,"Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 Payload: amount=20.00 GBP, currency=GBP, customer_id=valid (token_id missing)","1. Submit Express pay payload with valid customer_id but no token_id.
 2. Verify API returns token required error.
 3. Confirm no payment record created.","1. API error:
    - error_code: MISSING_REQUIRED_FIELD or TOKEN_NOT_FOUND
    - error_message: token_id is required
-2. No payment record created.",express_pay_invalid_payload,P1,Automated
+2. No payment record created.",express_pay_invalid_payload,P1,Automated,US,NA,CH_EC_TC_009_merchantTokenId_scenarios.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC042,CARDSTREAM-CH - Express pay Sale - Invalid Payload - Malformed JSON Body,- Merchant pointed to Cardstream-CH,"Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 Malformed JSON payload: {amount: 20.00, currency: GBP (missing closing brace)","1. Submit malformed JSON body in Express pay API request.
 2. Verify API returns 400 Bad Request.
 3. Confirm no payment record created.","1. HTTP 400 Bad Request.
 2. error_message: Invalid JSON or malformed request body.
-3. No payment record created.",express_pay_invalid_payload,P1,Automated
+3. No payment record created.",express_pay_invalid_payload,P1,Automated,US,NA,CH_EC_TC_006_orderid_scenarios.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC043,CARDSTREAM-CH - Express pay Sale - Invalid Payload - Negative Amount,- Merchant pointed to Cardstream-CH,"Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 Payload: amount=-10.00, currency=GBP, token_id=valid","1. Submit Express pay payload with negative amount.
 2. Verify API returns amount validation error.
 3. Confirm no payment record created.","1. API error:
    - error_code: INVALID_AMOUNT
    - error_message: Amount must be positive
-2. No payment record created.",express_pay_invalid_payload,P1,Automated
+2. No payment record created.",express_pay_invalid_payload,P1,Automated,US,NA,CH_EC_TC_005_negative_amount.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC044,CARDSTREAM-CH - Express pay Sale - Invalid Payload - Invalid Split Type,- Merchant pointed to Cardstream-CH,"Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
 Payload: amount=20.00, split=[{type_id: 999, value: 5.00}] (invalid split type)","1. Submit Express pay payload with unsupported split type_id=999.
 2. Verify API returns split validation error.
 3. Confirm no payment processed.","1. API error:
    - error_code: INVALID_SPLIT_TYPE
    - error_message: Split type 999 is not supported
-2. No payment record created.",express_pay_invalid_payload,P1,Automated
+2. No payment record created.",express_pay_invalid_payload,P1,Automated,US,NA,CH_EC_TC_055_edining_invalid_sale_with_one_dynamic-split.spec.js; CH_EC_TC_056_fastfood_invalid_sale_with_one_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC102,CARDSTREAM-CH - Express pay Sale - Device info passed in payload,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1530,7 +1490,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC102,CARDSTREAM-CH
 4. Device information properly transmitted to Cardstream-CH","express_checkout_device_info;
 express_checkout_cardstream_ch;
 device_validation;
-",P2,Cant be automated
+",P2,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC103,CARDSTREAM-CH - Express pay Sale - Browser info passed in payload,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1583,7 +1543,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC103,CARDSTREAM-CH
 
 4. Browser info enhances 3DS authentication accuracy","express_checkout_browser_info;
 express_checkout_cardstream_ch;
-3ds_enhancement;",P2,Cant be automated
+3ds_enhancement;",P2,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC104,CARDSTREAM-CH - Express pay Sale - Device and Browser info combined,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1631,7 +1591,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC104,CARDSTREAM-CH
 4. Enhanced fraud detection with full device/browser context","express_checkout_device_info;
 express_checkout_browser_info;
 express_checkout_cardstream_ch;
-",P2,Cant be automated
+",P2,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC105,CARDSTREAM-CH - Express pay Sale - Email validation - Customer receipt,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1680,7 +1640,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC105,CARDSTREAM-CH
 4. Cardstream-CH dashboard shows email address correctly","express_checkout_email;
 express_checkout_cardstream_ch;
 customer_communication;
-",P2,Cant be automated
+",P2,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC106,CARDSTREAM-CH - Express pay Sale - Settlement & Reconciliation Report - Dashboard vs Report accuracy,"- Merchant pointed to Cardstream-CH
 
 - Multiple successful Express pay transactions completed
@@ -1741,7 +1701,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC106,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 reconciliation;
 reporting;
-",P1,Cant be automated
+",P1,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC107,CARDSTREAM-CH - Express pay Sale - Webhook Retry Logic - 404 Not Found with 15 retries,"- Merchant pointed to Cardstream-CH
 
 - Webhook configured
@@ -1815,7 +1775,7 @@ express_checkout_cardstream_ch;
 retry_logic;
 error_handling;
 negative_test;
-",P1,Cant be automated
+",P1,Automated,US,NA,CH_EC_TC_023_invalid_webhook_url.spec.js; CH_EC_TC_034_us_sale_split_type1_invalid_webhook_url.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC109,CARDSTREAM-CH - Express pay Sale - Cross-browser & Cross-device Compatibility - Multiple scenarios,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -1926,7 +1886,7 @@ express_checkout_cardstream_ch;
 cross_browser;
 cross_device;
 compatibility_matrix;
-",P1,Cant be automated
+",P1,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC112,CARDSTREAM-CH - Express pay Sale - End-to-End (UI + Dashboard + Payload + Token + Fund Transfer),"- Merchant should be pointed to Cardstream-CH
 
 - A valid token (preferably Cardstream-CH master_token or if Token precedency is being used - Valid other PSP token should be available for the customer id used)
@@ -2002,7 +1962,7 @@ c) Splits involved
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
 -> transaction_method_id: 4 (Express Pay)","express_checkout_non_3ds;
-express_checkout_cardstream_ch;",P1,Automated
+express_checkout_cardstream_ch;",P1,Automated,US,NA,CH_EC_TC_025_us_sale_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC113,CARDSTREAM-CH - Express pay Sale - Split validations - Type 1 (Food/Goods),"- Merchant should be pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available for the customer_id
@@ -2055,7 +2015,7 @@ c) Split amount distribution
 -> transaction_method_id: 4 (Express Pay)","express_checkout_splits;
 express_checkout_cardstream_ch;
 split_type_food_goods;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_031_us_sale_with_split_type1.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC114,CARDSTREAM-CH - Express pay Sale - Split validations - Type 2 (Marketplace Fee),"- Merchant should be pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available for the customer_id
@@ -2093,7 +2053,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC114,CARDSTREAM-CH
 3. Cardstream-CH dashboard shows Marketplace Fee split correctly allocated","express_checkout_splits;
 express_checkout_cardstream_ch;
 split_type_marketplace;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_032_us_sale_with_split_type2.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC115,CARDSTREAM-CH - Express pay Sale - Split validations - Type 3 & 4 (Delivery Fee + Delivery Tip),"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2134,7 +2094,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC115,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 split_type_delivery;
 multiple_splits;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_033_us_sale_with_split_type3.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC116,CARDSTREAM-CH - Express pay Sale - Split validations - Type 5 & 6 (Restaurant Tip + Service Charge),"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2172,7 +2132,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC116,CARDSTREAM-CH
 3. Cardstream-CH dashboard reflects Restaurant Tip and Service Charge splits correctly","express_checkout_splits;
 express_checkout_cardstream_ch;
 split_type_tip_service;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC117,CARDSTREAM-CH - Express pay Sale - Collection sale with address values,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available for customer_id
@@ -2218,7 +2178,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC117,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_collection;
 express_checkout_cardstream_ch;
 collection_with_address;
-",P2,Automated
+",P2,Automated,US,NA,CH_EC_TC_021_collection_sale.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC118,CARDSTREAM-CH - Express pay Sale - Collection sale without address values,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2264,7 +2224,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC118,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_collection;
 express_checkout_cardstream_ch;
 collection_without_address;
-",P2,Automated
+",P2,Automated,US,NA,CH_EC_TC_021_collection_sale.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC119,CARDSTREAM-CH - Express pay Sale - 3DS authentication flow,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token requiring 3DS authentication
@@ -2316,7 +2276,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC119,CARDSTREAM-CH
 -> payment_provider_id: 3 (Cardstream-CH)
 -> transaction_method_id: 4 (Express Pay)","express_checkout_3ds;
 express_checkout_cardstream_ch;
-3ds_authentication;",P1,Automated
+3ds_authentication;",P1,Automated,US,NA,CH_EC_TC_038_us_sale_3ds_full_refund.spec.js; CH_EC_TC_039_us_sale_3ds_partial_refund_sanity.spec.js; CH_EC_TC_040_us_sale_3ds_collection_full_refund.spec.js; CH_EC_TC_041_us_sale_3ds_collection_partial_refund.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC120,CARDSTREAM-CH - Express pay Sale - Non-3DS flow,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token (non-3DS card)
@@ -2358,7 +2318,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC120,CARDSTREAM-CH
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
 -> transaction_method_id: 4 (Express Pay)","express_checkout_non_3ds;
-express_checkout_cardstream_ch;",P1,Automated
+express_checkout_cardstream_ch;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC121,CARDSTREAM-CH - Express pay Sale - Master token selection - UK with Cardstream-CH master_token,"- Merchant in UK (country_id: 1)
 
 - Valid Cardstream-CH master_token available for customer_id
@@ -2396,7 +2356,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC121,CARDSTREAM-CH
 4. Token selection logs show Cardstream-CH selected based on priority","express_checkout_token_priority;
 express_checkout_cardstream_ch;
 uk_cardstream_ch_token;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_025_us_sale_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC122,CARDSTREAM-CH - Express pay Sale - Invalid CVV with CVV check enabled,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2440,7 +2400,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC122,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 cvv_validation_enabled;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_002_cvv_scenarios.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC123,CARDSTREAM-CH - Express pay Sale - Invalid CVV with CVV check disabled,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2483,7 +2443,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC123,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_cvv;
 express_checkout_cardstream_ch;
 cvv_validation_disabled;
-",P2,Automated
+",P2,Automated,US,NA,CH_EC_TC_003_invalid_cvv.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC124,CARDSTREAM-CH - Express pay Sale - Valid CVV with CVV check enabled,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2526,7 +2486,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC124,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_cvv;
 express_checkout_cardstream_ch;
 cvv_validation_enabled;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_002_cvv_scenarios.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC125,CARDSTREAM-CH - Express pay Sale - Force 3DS traffic rate enabled,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2566,7 +2526,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC125,CARDSTREAM-CH
 
 3. Multiple test runs should show approximately X% of transactions forced to 3DS based on configured rate","express_checkout_3ds;
 express_checkout_cardstream_ch;
-force_3ds_rate;",P2,Automated
+force_3ds_rate;",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC126,CARDSTREAM-CH - Express pay Sale - 3DS uplift/attempted authentication traffic rate,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2609,7 +2569,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC126,CARDSTREAM-CH
 4. Cardstream-CH dashboard shows risk-based 3DS uplift applied","express_checkout_3ds;
 express_checkout_cardstream_ch;
 3ds_uplift;
-cardstream_ch_intelligence;",P2,Automated
+cardstream_ch_intelligence;",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC127,CARDSTREAM-CH - Express pay Sale - Browser info from mobile app enabled,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -2652,7 +2612,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC127,CARDSTREAM-CH
 
 3. Cardstream-CH uses browser info for enhanced 3DS risk assessment","express_checkout_3ds;
 express_checkout_cardstream_ch;
-mobile_browser_info;",P2,Automated
+mobile_browser_info;",P2,Automated,US,NA,CH_EC_TC_042_us_sale_mobile_source.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC128,CARDSTREAM-CH - Express pay Sale - Complete refund for successful transaction,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Original Express pay sale transaction successful
@@ -2703,7 +2663,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC128,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_refund;
 express_checkout_cardstream_ch;
 complete_refund;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_019_sale_refund_card_smoke_sanity.spec.js; CH_EC_TC_043_us_sale_pay_by_link_3ds_full_refund_to_wallet_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC129,CARDSTREAM-CH - Express pay Sale - Partial refund for successful transaction,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Original Express pay sale successful
@@ -2756,7 +2716,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC129,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_refund;
 express_checkout_cardstream_ch;
 partial_refund;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_026_us_sale_o2m_partial_refund_sanity.spec.js; CH_EC_TC_028_us_sale_refund_specific_amount.spec.js; CH_EC_TC_039_us_sale_3ds_partial_refund_sanity.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC130,CARDSTREAM-CH - Express pay Sale - Multiple partial refunds,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Original Express pay sale successful
@@ -2810,7 +2770,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC130,CARDSTREAM-CH
 4. Customer receives total £55.00 across two refunds","express_checkout_refund;
 express_checkout_cardstream_ch;
 multiple_partial_refunds;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC131,CARDSTREAM-CH - Express pay Sale - 3DS failure UI validation - Go back button,"- Merchant pointed to Cardstream-CH
 
 - 3DS authentication required
@@ -2865,7 +2825,7 @@ ui_validation;
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
 -> transaction_method_id: 4 (Express Pay)","express_checkout_cardstream_ch
-go_back_button",P1,Automated
+go_back_button",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC132,CARDSTREAM-CH - Express pay Sale - 3DS failure UI validation - No retry options,"- Merchant pointed to Cardstream-CH
 
 - 3DS authentication required
@@ -2903,7 +2863,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC132,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 3ds_failure_ui;
 ui_validation;
-negative_test;",P1,Automated
+negative_test;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC133,CARDSTREAM-CH - Express pay Sale - Retry successful payment - Duplicate check,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Express pay sale already successful
@@ -2957,7 +2917,7 @@ Response body:
 3. Duplicate detection prevents double charging customer","express_checkout_retry;
 express_checkout_cardstream_ch;
 duplicate_prevention;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC134,CARDSTREAM-CH - Express pay Sale - Retry failed payment - New attempt allowed,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Express pay sale previously FAILED
@@ -3004,7 +2964,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC134,CARDSTREAM-CH
 4. Retry allowed for failed transactions, duplicate check only prevents retry of SUCCESSFUL payments","express_checkout_retry;
 express_checkout_cardstream_ch;
 retry_after_failure;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC135,CARDSTREAM-CH - Express pay Sale - VISA card token,"- Merchant pointed to Cardstream-CH
 
 - Valid VISA card token saved for customer_id
@@ -3051,7 +3011,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC135,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_test_cards;
 express_checkout_cardstream_ch;
 card_type_visa;
-",P1,Pending
+",P1,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC136,CARDSTREAM-CH - Express pay Sale - Mastercard token,"- Merchant pointed to Cardstream-CH
 
 - Valid Mastercard token saved for customer_id
@@ -3098,7 +3058,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC136,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_test_cards;
 express_checkout_cardstream_ch;
 card_type_mastercard;
-",P1,Pending
+",P1,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC137,CARDSTREAM-CH - Express pay Sale - American Express (AMEX) card token,"- Merchant pointed to Cardstream-CH
 
 - Valid AMEX card token saved for customer_id
@@ -3147,7 +3107,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC137,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_test_cards;
 express_checkout_cardstream_ch;
 card_type_amex;
-",P1,Pending
+",P1,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC138,CARDSTREAM-CH - Express pay Sale - Maestro card token,"- Merchant pointed to Cardstream-CH
 
 - Valid Maestro card token saved for customer_id
@@ -3194,7 +3154,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC138,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_test_cards;
 express_checkout_cardstream_ch;
 card_type_maestro;
-",P2,Pending
+",P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC139,CARDSTREAM-CH - Express pay Sale - Discover card token,"- Merchant pointed to Cardstream-CH
 
 - Valid Discover card token saved for customer_id
@@ -3241,7 +3201,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC139,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_test_cards;
 express_checkout_cardstream_ch;
 card_type_discover;
-",P2,Pending
+",P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC140,CARDSTREAM-CH - Express pay Sale - Source as mobile_app - No GPay/APay buttons,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -3291,7 +3251,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC140,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 source_mobile_app;
 ui_validation;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_042_us_sale_mobile_source.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC141,CARDSTREAM-CH - Express pay Sale - Source as mobile_app - Transaction processing,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -3338,7 +3298,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC141,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_mobile_app;
 express_checkout_cardstream_ch;
 source_mobile_app;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_042_us_sale_mobile_source.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC142,CARDSTREAM-CH - Express pay Sale - Payload validation - Special characters in firstname,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -3382,7 +3342,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC142,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 special_characters;
 negative_test;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC143,CARDSTREAM-CH - Express pay Sale - Payload validation - Emojis in lastname,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -3426,7 +3386,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC143,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 emoji_validation;
 negative_test;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC144,CARDSTREAM-CH - Express pay Sale - Payload validation - Invalid email format,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -3468,7 +3428,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC144,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 email_validation;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_017_invalid_mail.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC145,CARDSTREAM-CH - Express pay Sale - Payload validation - Special characters in multiple fields,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -3518,7 +3478,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC145,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 security_validation;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC146,CARDSTREAM-CH - Express pay Sale - Invalid API key - Empty key,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Merchant configuration exists
@@ -3566,7 +3526,7 @@ Response:
 express_checkout_cardstream_ch;
 invalid_api_key;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC147,CARDSTREAM-CH - Express pay Sale - Invalid API key - Wrong key,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Merchant configuration exists
@@ -3614,7 +3574,7 @@ Response:
 express_checkout_cardstream_ch;
 invalid_api_key;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC148,CARDSTREAM-CH - Express pay Sale - Invalid API key - Null value,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Merchant configuration exists
@@ -3662,7 +3622,7 @@ Response:
 express_checkout_cardstream_ch;
 invalid_api_key;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC149,CARDSTREAM-CH - Express pay Sale - Race condition - Rapid duplicate requests,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -3712,7 +3672,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC149,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 duplicate_prevention;
 performance;
-",P1,Pending
+",P1,Automated,US,NA,CH_EC_TC_001_us_o2m_sale_refund_race_condition.spec.js; CH_EC_TC_036_us_race_condition_sale.spec.js; CH_EC_TC_037_us_race_condition_sale_refund.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC150,CARDSTREAM-CH - Express pay Sale - Load testing - Concurrent transactions (100 users),"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_tokens available
@@ -3770,7 +3730,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC150,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 performance;
 concurrent_transactions;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC151,CARDSTREAM-CH - Express pay Sale - Performance testing - Sustained load (500 transactions),"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_tokens available
@@ -3826,7 +3786,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC151,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 performance;
 sustained_load;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC152,CARDSTREAM-CH - Express pay Sale - Shopper statement - UK merchant (Foodhub),"- Merchant in UK region
 
 - Merchant pointed to Cardstream-CH
@@ -3879,7 +3839,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC152,CARDSTREAM-CH
 4. Customer bank statement will show Foodhub","express_checkout_shopper_statement;
 express_checkout_cardstream_ch;
 region_uk;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC153,CARDSTREAM-CH - Express pay Sale - Shopper statement - US merchant (Merchant name),"- Merchant in US region
 
 - Merchant pointed to Cardstream-CH
@@ -3932,7 +3892,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC153,CARDSTREAM-CH
 4. Customer bank statement shows actual merchant name","express_checkout_shopper_statement;
 express_checkout_cardstream_ch;
 region_us;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC154,CARDSTREAM-CH - Express pay Sale - API Retry Logic - Retry after temporary failure,"- Merchant pointed to Cardstream-CH
 
 - Transaction temporary failure scenario
@@ -3985,7 +3945,7 @@ HTTP Status: 503 Service Unavailable or 504 Gateway Timeout
 5. If all retries fail: return final error to user with appropriate message","express_checkout_retry;
 express_checkout_cardstream_ch;
 temporary_failure;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC155,CARDSTREAM-CH - Express pay Sale - API Retry Logic - No retry for permanent failures,"- Merchant pointed to Cardstream-CH
 
 - Permanent failure scenario (invalid data, authentication failure)
@@ -4046,7 +4006,7 @@ Response:
 express_checkout_cardstream_ch;
 permanent_failure;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC156,CARDSTREAM-CH - Express pay Sale - Cross-region Token Usage - UK token in AU transaction,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Merchant in  ()
@@ -4111,7 +4071,7 @@ Response:
 express_checkout_cardstream_ch;
 cross_region_token;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC157,CARDSTREAM-CH - Express pay Sale - Cross-region Token Usage - US token in UK transaction,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Merchant in UK (country_id: 1)
@@ -4170,7 +4130,7 @@ Response:
 express_checkout_cardstream_ch;
 cross_region_token;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC158,CARDSTREAM-CH - Express pay Sale - Token Not Found - Invalid merchantTokenId,"- Merchant pointed to Cardstream-CH
 
 - Invalid/non-existent token ID
@@ -4231,7 +4191,7 @@ Response:
 express_checkout_cardstream_ch;
 invalid_token;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_009_merchantTokenId_scenarios.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC159,CARDSTREAM-CH - Express pay Sale - 3DS Limit for Merchant and Country - Within limit with all required fields,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token requiring 3DS
@@ -4299,7 +4259,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC159,CARDSTREAM-CH
 -> payment_provider_id: 3 (Cardstream-CH)
 -> transaction_method_id: 4 (Express Pay)","express_checkout_3ds;
 express_checkout_cardstream_ch;
-3ds_limit;",P1,Automated
+3ds_limit;",P1,Automated,US,NA,CH_EC_TC_038_us_sale_3ds_full_refund.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC160,CARDSTREAM-CH - Express pay Sale - 3DS Limit - Exceeds limit with all required fields,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token
@@ -4370,7 +4330,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC160,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_3ds;
 express_checkout_cardstream_ch;
 3ds_limit;
-high_value;",P1,Automated
+high_value;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC161,CARDSTREAM-CH - Express pay Sale - 3DS Limit - Exceeds limit without required fields,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token
@@ -4450,7 +4410,7 @@ Response:
 express_checkout_cardstream_ch;
 3ds_limit;
 validation_error;
-negative_test;",P1,Automated
+negative_test;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC162,CARDSTREAM-CH - Express pay Sale - Express Pay Limit - Amount exceeds limit,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -4513,7 +4473,7 @@ Response:
 express_checkout_cardstream_ch;
 amount_validation;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_004_invalid_amount.spec.js; CH_EC_TC_022_collection_sale_exceed_limit.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC163,CARDSTREAM-CH - Express pay Sale - Express Pay Limit - Amount within limit,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -4574,7 +4534,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC163,CARDSTREAM-CH
 -> transaction_method_id: 4 (Express Pay)","express_checkout_limit;
 express_checkout_cardstream_ch;
 amount_validation;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_004_invalid_amount.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC164,CARDSTREAM-CH - Express pay Sale - Split Type 7 - Price Uplift Split with Fee Calculations,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -4782,7 +4742,7 @@ Total: £76 + £10 + £5 + £9 = £100 ✓
 express_checkout_cardstream_ch;
 split_type_price_uplift;
 fee_calculation;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_054_us_sale_with_one_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC165,CARDSTREAM-CH - Express pay Sale - Split Type 11 - n Datman Commission with Fee Calculations,"- Merchant in  ()
 
 - Merchant pointed to Cardstream-CH
@@ -4975,7 +4935,7 @@ Cardstream-CH receives split allocation:
 express_checkout_cardstream_ch;
 split_type_11_aus_commission;
 
-datman_commission;",P1,Automated
+datman_commission;",P1,Automated,US,NA,CH_EC_TC_054_us_sale_with_one_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC166,CARDSTREAM-CH - Express pay Sale - Split Type 100 - External Reseller Commission (O2M/BigTable) with Detailed Calculations,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -5288,7 +5248,7 @@ express_checkout_cardstream_ch;
 split_type_100_reseller_commission;
 external_reseller;
 o2m_bigtable;
-commission_calculation;",P1,Automated
+commission_calculation;",P1,Automated,US,NA,CH_EC_TC_054_us_sale_with_one_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC167,CARDSTREAM-CH - Express pay Sale - Multiple Split Types - Type 7 + 11 + 100 Combined,"- Merchant in  pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token for UK/US
@@ -5351,7 +5311,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC167,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 multiple_split_types;
 
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_053_us_sale_with_two_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC168,CARDSTREAM-CH - Express pay Sale - Cross-browser Compatibility - Chrome Desktop,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token available
@@ -5419,7 +5379,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC168,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 chrome_desktop;
 cross_browser;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC169,CARDSTREAM-CH - Express pay Sale - 3DS Authentication with Split Transactions (Type 1 + Type 2),"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token requiring 3DS
@@ -5487,7 +5447,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC169,CARDSTREAM-CH
 8. All splits allocated correctly post-authentication","express_checkout_3ds;
 express_checkout_splits;
 express_checkout_cardstream_ch;
-3ds_with_splits;",P1,Automated
+3ds_with_splits;",P1,Automated,US,NA,CH_EC_TC_038_us_sale_3ds_full_refund.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC170,CARDSTREAM-CH - Express pay Sale - Refund with Multiple Split Types (Type 1 + Type 7 + Type 11),"- Merchant in 
 
 - Merchant pointed to Cardstream-CH
@@ -5556,7 +5516,7 @@ express_checkout_splits;
 express_checkout_cardstream_ch;
 split_type_aus_commission;
 refund_with_splits;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_029_us_sale_with_split_type2_refund_to_card.spec.js; CH_EC_TC_030_us_sale_with_split_type1_refund_to_card.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC171,CARDSTREAM-CH - Express pay Sale - Invalid Split Type Error Handling,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token
@@ -5622,7 +5582,7 @@ Response:
 express_checkout_cardstream_ch;
 split_validation;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_055_edining_invalid_sale_with_one_dynamic-split.spec.js; CH_EC_TC_056_fastfood_invalid_sale_with_one_dynamic_split.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC172,CARDSTREAM-CH - Express pay Sale - Negative Split Amount Error,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token
@@ -5675,7 +5635,7 @@ Response:
 5. Clear error message returned to user","express_checkout_splits;
 split_validation;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC173,CARDSTREAM-CH - Express pay Sale - Split Amount Exceeds Transaction Total,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token
@@ -5738,7 +5698,7 @@ Response:
 5. Clear error message with amounts shown","express_checkout_splits;
 split_validation;
 negative_test;
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC174,CARDSTREAM-CH - Express pay Sale - Zero Amount Split Validation,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token
@@ -5798,7 +5758,7 @@ Response:
 5. User must provide positive split amounts only","express_checkout_splits;
 split_validation;
 negative_test;
-",P2,Automated
+",P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC175,CARDSTREAM-CH - Express pay Sale - Maximum Splits Limit Test,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token
@@ -5863,7 +5823,7 @@ Response:
 split_validation;
 limit_test;
 negative_test;
-",P2,Cant be automated
+",P2,Cant be automated,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC176,CARDSTREAM-CH - Express pay Sale - Multicurrency with AUS Datman Commission (Type 11),"- Merchant in 
 
 - Merchant pointed to Cardstream-CH
@@ -5938,7 +5898,7 @@ Entry 2 - Datman AUS Commission:
 express_checkout_multicurrency;
 split_type_aus_commission;
 
-",P1,Automated
+",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC177,CARDSTREAM-CH - Express pay Sale - Concurrent Split Transactions Same Merchant,"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_tokens
@@ -6018,7 +5978,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC177,CARDSTREAM-CH
 express_checkout_cardstream_ch;
 concurrent_transactions;
 performance;
-",P2,Automated
+",P2,Automated,US,NA,CH_EC_TC_036_us_race_condition_sale.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC179,CARDSTREAM-CH - Express pay Sale - Partial Refund with Split Allocation,"- Merchant pointed to Cardstream-CH
 
 - Successful transaction with splits
@@ -6095,7 +6055,7 @@ Customer refunded: £50 ✓
 express_checkout_splits;
 partial_refund;
 split_allocation;
-",P1,Automated
+",P1,Automated,US,NA,CH_EC_TC_029_us_sale_with_split_type2_refund_to_card.spec.js; CH_EC_TC_030_us_sale_with_split_type1_refund_to_card.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC180,CARDSTREAM-CH - Express pay Sale - 3DS with Price Uplift Split (Type 7),"- Merchant pointed to Cardstream-CH
 
 - Valid Cardstream-CH master_token requiring 3DS
@@ -6172,7 +6132,7 @@ Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC180,CARDSTREAM-CH
 8. webhook_log: payment_success after 3DS completion","express_checkout_3ds;
 express_checkout_splits;
 split_type_price_uplift;
-3ds_with_splits;",P1,Automated
+3ds_with_splits;",P1,Automated,US,NA,CH_EC_TC_038_us_sale_3ds_full_refund.spec.js; CH_EC_TC_047_us_sale_pay_by_link_3ds_split_full_refund_to_wallet.spec.js; CH_EC_TC_048_us_sale_pay_by_link_3ds_split_full_refund_to_card.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC181,CARDSTREAM-CH - Express pay Sale - CIT/MIT Payment - Express Pay Sale WITH CREATE_MIT_TOKEN and MIT Transaction with Refund,"- Merchant in US (country_id: 7) pointed to Cardstream-CH
 - Express pay enabled
 - CIT/MIT functionality enabled
@@ -6308,7 +6268,7 @@ with_cvv;
 full_refund;
 recurring_payment;
 region_us;
-currency_usd;",P1,Automated
+currency_usd;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC182,CARDSTREAM-CH - Express pay Sale - CIT/MIT Payment - Express Pay Sale WITHOUT CREATE_MIT_TOKEN but Token Used for MIT Transaction,"- Merchant in US (country_id: 7) pointed to Cardstream-CH
 - Express pay enabled
 - CIT/MIT functionality enabled
@@ -6403,7 +6363,7 @@ mit_transaction;
 mit_token;
 auto_tokenization;
 recurring_payment;
-region_us;",P1,Automated
+region_us;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC183,CARDSTREAM-CH - Express pay Sale - CIT/MIT Payment - Express Pay Sale WITH CREATE_MIT_TOKEN and MIT Transaction with Partial Refund,"- Merchant in US (country_id: 7) pointed to Cardstream-CH
 - Express pay enabled
 - CIT/MIT functionality enabled
@@ -6475,7 +6435,7 @@ express_pay_with_create_mit_token;
 mit_transaction;
 partial_refund;
 token_active;
-recurring_payment;",P1,Automated
+recurring_payment;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC184,CARDSTREAM-CH - Express pay Sale - CIT/MIT Payment - Express Pay Sale WITHOUT CREATE_MIT_TOKEN but Token Used for MIT with Full Refund,"- Merchant in US (country_id: 7) pointed to Cardstream-CH
 - Express pay enabled
 - CIT/MIT functionality enabled
@@ -6557,7 +6517,7 @@ mit_transaction;
 full_refund;
 auto_tokenization;
 token_active;
-recurring_payment;",P1,Automated
+recurring_payment;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC185,CARDSTREAM-CH - Express pay Sale - CIT/MIT Payment - Multiple MIT Transactions using Token from Express Pay (WITH CREATE_MIT_TOKEN),"- Merchant in US (country_id: 7) pointed to Cardstream-CH
 - Express pay enabled
 - CIT/MIT functionality enabled
@@ -6648,7 +6608,7 @@ mit_token_reuse;
 multiple_mit_transactions;
 token_active;
 recurring_billing;
-subscription_payments;",P1,Automated
+subscription_payments;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC187,CARDSTREAM-CH - Express pay Sale - CIT/MIT Payment - MIT Transaction Failure (Insufficient Funds) using Token from Express Pay,"- Merchant in US (country_id: 7) pointed to Cardstream-CH
 - Express pay enabled
 - CIT/MIT functionality enabled
@@ -6727,7 +6687,7 @@ mit_declined;
 insufficient_funds;
 token_active;
 error_handling;
-recurring_payment_failure;",P1,Automated
+recurring_payment_failure;",P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC189,CARDSTREAM-CH - Express Pay - Amex Card with Valid 4-digit CVV,"- Merchant in UK (country_id: 1)
 - Valid master_token for Amex card
 - Amex processing enabled","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
@@ -6772,7 +6732,7 @@ CloudWatch Logs:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",cvv;length;express_pay;amex;valid;positive_test,P1,Automated
+-> transaction_method_id: 4 (Express Pay)",cvv;length;express_pay;amex;valid;positive_test,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC190,CARDSTREAM-CH - Express Pay - Amex Card with Invalid 3-digit CVV,"- Merchant in UK (country_id: 1)
 - Valid master_token for Amex card
 - CVV validation enforced","Merchant token: Fetch master_token from master_token table (provider=cardstream-ch)
@@ -6810,7 +6770,7 @@ CloudWatch Logs:
 -> CVV provided: 3 digits
 -> CVV expected: 4 digits
 
-2. Invalid CVV error thrown ✓",cvv;length;express_pay;amex;invalid;negative_test,P1,Automated
+2. Invalid CVV error thrown ✓",cvv;length;express_pay;amex;invalid;negative_test,P1,Automated,US,NA,CH_EC_TC_003_invalid_cvv.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC191,CARDSTREAM-CH - Express Pay 3DS - Non-Amex with Invalid 4-digit CVV,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - 3DS enabled
@@ -6847,7 +6807,7 @@ CloudWatch:
 -> CVV validation failed
 -> 3DS not initiated
 
-2. CVV validation blocks 3DS flow ✓",cvv;length;express_pay;3ds;non_amex;invalid;negative_test,P1,Automated
+2. CVV validation blocks 3DS flow ✓",cvv;length;express_pay;3ds;non_amex;invalid;negative_test,P1,Automated,US,NA,CH_EC_TC_003_invalid_cvv.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC194,CARDSTREAM-CH - Pay By Link - Amex Card with Valid 4-digit CVV,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - PBL link generated
@@ -6883,7 +6843,7 @@ Validation:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",cvv;length;pbl;amex;valid;positive_test,P1,Automated
+-> transaction_method_id: 4 (Express Pay)",cvv;length;pbl;amex;valid;positive_test,P1,Automated,US,NA,CH_EC_TC_051_us_sale_pay_by_link_passing_cvv_full_refund_to_card.spec.js
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC195,CARDSTREAM-CH - MIT Transaction - Non-Amex with Invalid 4-digit CVV (if CVV required),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - MIT enabled
@@ -6920,7 +6880,7 @@ CloudWatch:
 
 Note: If MIT doesn't require CVV, this scenario may not apply
 
-2. Invalid CVV blocks MIT ✓",cvv;length;mit;non_amex;invalid;negative_test,P2,Automated
+2. Invalid CVV blocks MIT ✓",cvv;length;mit;non_amex;invalid;negative_test,P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC196,CARDSTREAM-CH - MIT Transaction - Amex with Valid 4-digit CVV,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - MIT enabled
@@ -6956,7 +6916,7 @@ Validation:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",cvv;length;mit;amex;valid;positive_test,P2,Pending
+-> transaction_method_id: 4 (Express Pay)",cvv;length;mit;amex;valid;positive_test,P2,Pending,US,NA,NA
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC197,CARDSTREAM-CH - Express Pay - CVV with Invalid Characters (Non-Numeric),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Express pay enabled
@@ -6995,7 +6955,7 @@ CloudWatch:
 -> Error: ""CVV format invalid""
 -> Value: ""12A"" (logged for debugging)
 
-2. Format validation enforced ✓",cvv;format;invalid_chars;express_pay;negative_test,P1,Automated
+2. Format validation enforced ✓",cvv;format;invalid_chars;express_pay;negative_test,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC198,CARDSTREAM-CH - Express Pay - Empty CVV Value (Required Field),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Express pay enabled
@@ -7036,7 +6996,7 @@ Database - payments table:
 CloudWatch:
 -> Error: ""CVV missing""
 
-2. Required field validation ✓",cvv;empty;required;express_pay;negative_test,P1,Automated
+2. Required field validation ✓",cvv;empty;required;express_pay;negative_test,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC199,CARDSTREAM-CH - Saved Card - Non-Amex with Invalid 4-digit CVV,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Saved card payment flow
@@ -7073,7 +7033,7 @@ CloudWatch:
 -> Error: ""CVV length mismatch""
 -> Token type: Non-Amex
 
-2. Customer shown error message ✓",cvv;length;saved_card;non_amex;invalid;negative_test,P1,Automated
+2. Customer shown error message ✓",cvv;length;saved_card;non_amex;invalid;negative_test,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC200,CARDSTREAM-CH - Saved Card - Amex with Valid 4-digit CVV,"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Saved Amex card available
@@ -7114,7 +7074,7 @@ Validation:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",cvv;length;saved_card;amex;valid;positive_test,P1,Automated
+-> transaction_method_id: 4 (Express Pay)",cvv;length;saved_card;amex;valid;positive_test,P1,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC201,CARDSTREAM-CH - Saved Card - CVV Too Short (2 digits),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Saved Non-Amex card
@@ -7143,7 +7103,7 @@ Validation:
 Database - payments table:
 -> No entry created
 
-2. CVV too short rejected ✓",cvv;length;saved_card;too_short;negative_test,P2,Automated
+2. CVV too short rejected ✓",cvv;length;saved_card;too_short;negative_test,P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC202,CARDSTREAM-CH - Express Pay - CVV Too Long (5 digits),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Express pay enabled
@@ -7178,7 +7138,7 @@ Database - payments table:
 CloudWatch:
 -> Error: ""CVV length exceeded""
 
-2. Too long CVV rejected ✓",cvv;length;too_long;format;negative_test,P2,Automated
+2. Too long CVV rejected ✓",cvv;length;too_long;format;negative_test,P2,Automated,US,NA,
 Cardstream-CH,Cardstream-CH - Express pay,EXP-PAY,CS-CSCH-EP-TC203,CARDSTREAM-CH - Express Pay - CVV with Leading Zeros (Valid Format),"- Ensure the MID is pointed to Cardstream-CH
 - A valid master_token exists for the shopper in the master_token table
 - Express pay enabled
@@ -7220,4 +7180,4 @@ Important:
 
 -> cs_mid: Verify cs_mid populated from Cardstream-CH response
 -> payment_provider_id: 3 (Cardstream-CH)
--> transaction_method_id: 4 (Express Pay)",cvv;format;leading_zero;valid;positive_test,P2,Automated
+-> transaction_method_id: 4 (Express Pay)",cvv;format;leading_zero;valid;positive_test,P2,Automated,US,NA,

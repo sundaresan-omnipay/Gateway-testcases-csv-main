@@ -32,7 +32,7 @@ Note: Global split types (IDs 1-8, 11, 100) can be used across all providers. Ne
 2. payments_split_commission table contains entry with commission_type_id matching the split used ✓
 3. commission_amount = 2.50 as per payload ✓
 4. split_payment_flag=1 in payments table ✓
-5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓",Automated,P2,,US,NA,"CH_Phone_pay_TC_025, CH_Phone_pay_TC_026"
+5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓",Automated,P2,Automated,US,NA,"CH_Phone_pay_TC_025, CH_Phone_pay_TC_026"
 Cardstream Moto Payments,Moto Payment - Split Payments,Split-Commission,PP-002,Cardstream-CH Phone Payment - Split Commission - Invalid Split Type ID Rejected,,"split_fee: [{type_id: 9999, value_type: 'amount', value: 2.50}]
 Note: Only valid global split type IDs (ex: 1-8, 11, 100) or newly created splits via API are accepted.","1. Process a Phone Payment sale with an invalid/non-existent split type_id (ex: type_id=9999) in the split_fee payload.
 2. Verify the transaction is rejected before authorization.
@@ -41,7 +41,7 @@ Note: Only valid global split type IDs (ex: 1-8, 11, 100) or newly created split
 2. API responds with error: 'invalid type id' ✓
 3. No payments_split_commission record created ✓
 4. No payment record created ✓
-5. Only valid split type IDs from split_commission_types table are accepted ✓",Automated,P2,,US,NA,"CH_Phone_pay_TC_027, CH_Phone_pay_TC_028"
+5. Only valid split type IDs from split_commission_types table are accepted ✓",Automated,P2,Automated,US,NA,"CH_Phone_pay_TC_027, CH_Phone_pay_TC_028"
 Cardstream Moto Payments,Moto Payment - Split Payments,Split-Commission,PP-003,Cardstream-CH Phone Payment - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale,,"split_fee: [{type_id: <soft_deleted_split_id>, value_type: 'amount', value: 2.50}]
 Precondition: Use DELETE API on an existing split type → verify delete_status=0 in split_commission_types table","1. Use the DELETE API to soft-delete an existing split type (sets delete_status=0 in split_commission_types table).
 2. Verify the split_commission_types table shows delete_status=0 for the deleted split type.
@@ -52,7 +52,7 @@ Precondition: Use DELETE API on an existing split type → verify delete_status=
 3. Sale using soft-deleted split type is rejected ✓
 4. API responds with error: 'invalid type id' ✓
 5. No payments_split_commission record created ✓
-6. No payment record created ✓",Automated,P2,,US,NA,CH_Phone_pay_TC_029
+6. No payment record created ✓",Automated,P2,Automated,US,NA,CH_Phone_pay_TC_029
 Cardstream Moto Payments,Moto Payment - Split Payments,Split-Commission,PP-004,Cardstream-CH Phone Payment - Split Commission - Updated Split Type via API Used in Sale Succeeds,,"split_fee: [{type_id: <updated_split_id>, value_type: 'amount', value: 3.00}]
 Precondition: Use Update API to modify an existing split type → verify updated values in split_commission_types table","1. Use the Update API to modify an existing split type (ex: update name or value).
 2. Verify the split_commission_types table reflects the updated values.
@@ -135,7 +135,7 @@ CVV is hidden by default and only becomes visible after the eye icon is toggled.
 moto_standard;
 region_us;
 currency_gbp;
-non_3ds;""",P1,,US,NA,CH_phone_pay_TC_001
+non_3ds;""",P1,Automated,US,NA,CH_phone_pay_TC_001
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-002,Moto payment - Sale with Full Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment should be enabled for the merchant - Store should be created and available for the merchant in Cardstream
@@ -212,7 +212,7 @@ CVV is hidden by default and only becomes visible after the eye icon is toggled 
 moto_full_refund;
 region_us;
 currency_gbp;
-non_3ds;""",P1,,US,NA,CH_phone_pay_TC_017
+non_3ds;""",P1,Automated,US,NA,CH_phone_pay_TC_017
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-003,Moto payment - Sale with Back URL functionality - Valid back url given in payload should land in that page,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment should be enabled for the merchant
@@ -275,7 +275,7 @@ CVV is hidden by default and only becomes visible after the eye icon is toggled
 moto_navigation;
 region_us;
 currency_gbp;
-url_validation;""",P2,,US,NA,CH_phone_pay_TC_004
+url_validation;""",P2,Automated,US,NA,CH_phone_pay_TC_004
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-004,Moto payment - Sale with Partial Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled for the merchant
@@ -343,7 +343,7 @@ Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-004,M
 moto_refund;
 region_us;
 currency_gbp;
-multiple_refunds;""",P1,,US,NA,CH_phone_pay_TC_018
+multiple_refunds;""",P1,Automated,US,NA,CH_phone_pay_TC_018
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-004,Moto payment - Sale with Partial Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled for the merchant   
@@ -413,7 +413,7 @@ Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-004,M
 moto_refund;
 region_us;
 currency_gbp;
-multiple_refunds;""",P1,,US,NA,CH_phone_pay_TC_018
+multiple_refunds;""",P1,Automated,US,NA,CH_phone_pay_TC_018
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-005,"Moto payment - Different Valid Test Cards Sale (Visa Electron, MasterCard Corporate, Mastercard, VISA Debit, Maestro, VISA Classic, Mastercard Prepaid)","""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -511,7 +511,7 @@ card_schemes;
 visa;
 mastercard;
 maestro;
-region_us;""",P1,,US,NA,CH_phone_pay_TC_024
+region_us;""",P1,Automated,US,NA,CH_phone_pay_TC_024
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-005,"Moto payment - Different Valid Test Cards Sale (Visa Electron, MasterCard Corporate, Mastercard, VISA Debit, Maestro, VISA Classic, Mastercard Prepaid)","""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -601,7 +601,7 @@ card_schemes;
 visa;
 mastercard;
 maestro;
-region_us;""",P1,,US,NA,CH_phone_pay_TC_024
+region_us;""",P1,Automated,US,NA,CH_phone_pay_TC_024
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-006,Moto payment - AMEX Card Sale,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -695,7 +695,7 @@ CVV is hidden by default and only becomes visible after the eye icon is toggled 
 amex_card;
 region_us;
 currency_gbp;
-premium_card;""",P1,,US,NA,CH_phone_pay_TC_024
+premium_card;""",P1,Automated,US,NA,CH_phone_pay_TC_024
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-007,Moto payment - Failed Sale - Google pay and Apple pay button should not be available on the failed page,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -785,7 +785,7 @@ Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-007,M
 11. UI/UX: Clean error page without payment method options""","""moto_failed;
 declined_transaction;
 no_digital_wallets;
-ui_validation;""",P2,,US,NA,CH_phone_pay_TC_006
+ui_validation;""",P2,Automated,US,NA,CH_phone_pay_TC_006
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-008,Moto payment - Sale with Long Redirect URL - Payment should not be failed,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -873,7 +873,7 @@ https://example.com/success?param1=value1&param2=value2...&session_token=abcdefg
 12. Merchant session tracking intact""","""moto_long_url;
 url_validation;
 edge_case;
-region_us;""",P2,,US,NA,"CH_phone_pay_TC_011, CH_phone_pay_TC_013"
+region_us;""",P2,Automated,US,NA,"CH_phone_pay_TC_011, CH_phone_pay_TC_013"
 Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-009,Moto payment - Sale with Long Cancel URL - Payment should not be failed,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -951,7 +951,7 @@ Cardstream Moto Payments,Moto Payment - Basic Operations,CS-MP-01,CS-MP-01-009,M
 12. System robust for edge case URLs""","""moto_long_cancel_url;
 url_validation;
 edge_case;
-cancel_flow;""",P2,,US,NA,"CH_phone_pay_TC_010, CH_phone_pay_TC_012"
+cancel_flow;""",P2,Automated,US,NA,"CH_phone_pay_TC_010, CH_phone_pay_TC_012"
 Cardstream Moto Payments,Moto Payment - O2M & External Reseller,CS-MP-02,CS-MP-02-001,Moto payment - O2M Sale with Partial Refund to Card - External Reseller Commission (Type 100),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -1569,7 +1569,7 @@ Refund Entry 2 - Split Merchant B:
 split_type_1;
 full_refund;
 two_way_split;
-marketplace;""",P1,,US,NA,CH_Phone_pay_TC_026
+marketplace;""",P1,Automated,US,NA,CH_Phone_pay_TC_026
 Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-002,Moto payment - Sale with Split Payment (No Refund),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -1645,7 +1645,7 @@ Total: $100.00 ✓
 split_type_1;
 no_refund;
 success_only;
-marketplace;""",P1,,US,NA,CH_Phone_pay_TC_026
+marketplace;""",P1,Automated,US,NA,CH_Phone_pay_TC_026
 Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-003,Moto payment - Sale with Split Payment and Partial Refund to Card,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -1727,7 +1727,7 @@ Refund Entry 2 - Split Merchant:
    Remaining: $60.00 ✓""","""moto_split_payment;
 split_type_1;
 partial_refund;
-proportional_refund;""",P1,,US,NA,CH_Phone_pay_TC_026
+proportional_refund;""",P1,Automated,US,NA,CH_Phone_pay_TC_026
 Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-004,Moto payment - Sale with Split and Price Uplift,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -1893,7 +1893,7 @@ Total: $100.00 ✓
 split_payment;
 split_type_1;
 split_type_7;
-four_way_split;""",P1,,US,NA,CH_Phone_pay_TC_025
+four_way_split;""",P1,Automated,US,NA,CH_Phone_pay_TC_025
 Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-005,"Moto payment - Sale with Split, Price Uplift and Full Refund to Card","""- Same as TC015
 
 - Full refund functionality enabled""","""- Same as TC015
@@ -1966,7 +1966,7 @@ Refund Entry 3 - Split Merchant 2 (Price Uplift):
 full_refund;
 split_payment;
 split_type_7;
-four_way_refund;""",P1,,US,NA,CH_Phone_pay_TC_025
+four_way_refund;""",P1,Automated,US,NA,CH_Phone_pay_TC_025
 Cardstream Moto Payments,Moto Payment - Split Payments,CS-MP-03,CS-MP-03-006,"Moto payment - Sale with Split, Price Uplift and Partial Refund to Card","""- Same as TC015
 
 - Partial refund functionality enabled""","""- Same as TC015
@@ -2046,7 +2046,7 @@ Refund Entry 3 - Split Merchant 2 (Uplift):
 partial_refund;
 split_payment;
 proportional_refund;
-split_type_7;""",P1,,US,NA,CH_Phone_pay_TC_025
+split_type_7;""",P1,Automated,US,NA,CH_Phone_pay_TC_025
 Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-001,Moto payment - Sale with Card Encryption using Visa Card - No sensitive card data in UI or Network Tab,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -2160,7 +2160,7 @@ card_encryption;
 visa_card;
 security_validation;
 pci_compliance;
-no_sensitive_data;""",P1,,US,NA,CH_phone_pay_TC_022
+no_sensitive_data;""",P1,Automated,US,NA,CH_phone_pay_TC_022
 Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-002,Moto payment - Sale with Card Encryption using Mastercard - No sensitive card data in UI or Network Tab,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -2275,7 +2275,7 @@ card_encryption;
 mastercard;
 security_validation;
 pci_compliance;
-no_sensitive_data;""",P1,,US,NA,CH_phone_pay_TC_024
+no_sensitive_data;""",P1,Automated,US,NA,CH_phone_pay_TC_024
 Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-005,Moto payment - Failed Sale with Card Encryption Enabled,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -2373,7 +2373,7 @@ card_encryption;
 declined_transaction;
 security_validation;
 error_handling;
-pci_compliance;""",P1,,US,NA,CH_phone_pay_TC_023
+pci_compliance;""",P1,Automated,US,NA,CH_phone_pay_TC_023
 Cardstream Moto Payments,Moto Payment - Security & Encryption,CS-MP-05,CS-MP-05-006,Moto payment - Sale Not Saving Card - Master Token Validation (Card Not Tokenised),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -2555,7 +2555,7 @@ Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-002,
 utf8_encoding;
 input_validation;
 security_validation;
-international_names;""",P2,,US,NA,CH_phone_pay_TC_021
+international_names;""",P2,Automated,US,NA,CH_phone_pay_TC_021
 Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-003,Moto payment - P1 Value Transaction - Above Standard Limit,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -2967,7 +2967,7 @@ Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-007,
 cvv_validation;
 declined_transaction;
 security_validation;
-fraud_prevention;""",P2,,US,NA,"CH_phone_pay_TC_009, CH_phone_pay_TC_015"
+fraud_prevention;""",P2,Automated,US,NA,"CH_phone_pay_TC_009, CH_phone_pay_TC_015"
 Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-009,Moto payment - Sale with AVS (Address Verification Service) - Success,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3151,7 +3151,7 @@ avs_failure;
 avs_mismatch;
 fraud_detection;
 high_risk;
-region_us;""",P1,,US,NA,"CH_phone_pay_TC_002, CH_phone_pay_TC_003, CH_phone_pay_TC_014, CH_phone_pay_TC_016, CH_phone_pay_TC_019, CH_phone_pay_TC_020"
+region_us;""",P1,Automated,US,NA,"CH_phone_pay_TC_002, CH_phone_pay_TC_003, CH_phone_pay_TC_014, CH_phone_pay_TC_016, CH_phone_pay_TC_019, CH_phone_pay_TC_020"
 Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-011,Moto payment - Void/Cancel Transaction before Settlement,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3247,7 +3247,7 @@ moto_cancel;
 before_settlement;
 authorization_reversal;
 no_charge;
-region_us;""",P1,,US,NA,"CH_phone_pay_TC_005, CH_phone_pay_TC_010"
+region_us;""",P1,Automated,US,NA,"CH_phone_pay_TC_005, CH_phone_pay_TC_010"
 Cardstream Moto Payments,Moto Payment - Advanced Features,CS-MP-07,CS-MP-07-013,Moto payment - Duplicate Transaction Prevention,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3369,7 +3369,7 @@ Cardstream Moto Payments,Moto Payment - Refund After Cycle,CS-MP-REFUND-CYCLE,CS
 6. Check audit_log.","1. Refund API success.
 2. Refunded_amount: 20.00.
 3. Webhook: REFUND event.
-4. Audit_log: Refund event recorded.",moto_refund,P0,,US,NA,CH_phone_pay_TC_017
+4. Audit_log: Refund event recorded.",moto_refund,P0,Automated,US,NA,CH_phone_pay_TC_017
 Cardstream Moto Payments,Moto Payment - Refund After Cycle,CS-MP-REFUND-CYCLE,CS-MP-REFUND-CYCLE-002,Moto MIT Sale Partial Refund,"- Merchant in US pointed to Cardstream
 - MIT sale completed (status=1)
 - captured_amount=50.00 USD","MIT sale: amount=50.00 USD, transaction_status_id=1; Partial refund: 20.00 USD","1. Verify MIT sale with status=1 and captured_amount=50.00.
@@ -3379,7 +3379,7 @@ Cardstream Moto Payments,Moto Payment - Refund After Cycle,CS-MP-REFUND-CYCLE,CS
 5. Confirm MIT token status unaffected by partial refund.","1. Partial refund success.
 2. partial_refunded_amount: 20.00.
 3. Remaining refundable: 30.00.
-4. MIT token: still active and usable.",moto_refund,P1,,US,NA,CH_phone_pay_TC_018
+4. MIT token: still active and usable.",moto_refund,P1,Automated,US,NA,CH_phone_pay_TC_018
 Cardstream Moto Payments,Moto Payment - Invalid Payload,CS-MP-INVALID,CS-MP-INVALID-001,Moto Payment with Missing Card Number,- Merchant in US pointed to Cardstream,"Payload: amount=20.00 USD, currency=USD, cvv=123 (card number missing)","1. Submit Moto payment payload without card number field.
 2. Verify API returns validation error.
 3. Confirm no payment record created.","1. API error:
@@ -3476,7 +3476,7 @@ cit_transaction;
 mit_token;
 shopperInteraction_moto;
 region_us;
-currency_usd;""",P1,,US,NA,CH_phone_pay_TC_001
+currency_usd;""",P1,Automated,US,NA,CH_phone_pay_TC_001
 Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-002,Moto CIT Sale – Token Creation & Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3558,7 +3558,7 @@ mit_token_creation;
 token_validation;
 shopperInteraction_moto;
 region_us;
-currency_usd;""",P1,,US,NA,CH_phone_pay_TC_022
+currency_usd;""",P1,Automated,US,NA,CH_phone_pay_TC_022
 Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-003,Moto CIT Sale – Webhook End-to-End Processing with shopperInteraction Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3639,7 +3639,7 @@ webhook_validation;
 shopperInteraction_moto;
 mit_token;
 region_us;
-currency_usd;""",P1,,US,NA,CH_phone_pay_TC_001
+currency_usd;""",P1,Automated,US,NA,CH_phone_pay_TC_001
 Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-004,Moto CIT Sale – Split Payment Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3741,7 +3741,7 @@ shopperInteraction_moto;
 mit_token;
 commission_validation;
 region_us;
-currency_usd;""",P2,,US,NA,"CH_Phone_pay_TC_025, CH_Phone_pay_TC_026"
+currency_usd;""",P2,Automated,US,NA,"CH_Phone_pay_TC_025, CH_Phone_pay_TC_026"
 Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-005,Moto CIT Sale – CVV Validation Scenarios,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3813,7 +3813,7 @@ shopperInteraction_moto;
 mit_token;
 decline_scenarios;
 region_us;
-currency_usd;""",P1,,US,NA,"CH_phone_pay_TC_009, CH_phone_pay_TC_015"
+currency_usd;""",P1,Automated,US,NA,"CH_phone_pay_TC_009, CH_phone_pay_TC_015"
 Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-006,Moto CIT Sale – Different Card Types Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3876,7 +3876,7 @@ mit_token;
 visa;
 mastercard;
 region_us;
-currency_usd;""",P2,,US,NA,CH_phone_pay_TC_024
+currency_usd;""",P2,Automated,US,NA,CH_phone_pay_TC_024
 Cardstream Moto Payments,Moto CIT Sale,CS-MOTO-CIT,CS-MOTO-CIT-007,Moto CIT Sale – Full and Partial Refund Validation,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -3960,7 +3960,7 @@ partial_refund;
 shopperInteraction_moto;
 mit_token;
 region_us;
-currency_usd;""",P1,,US,NA,"CH_phone_pay_TC_017, CH_phone_pay_TC_018"
+currency_usd;""",P1,Automated,US,NA,"CH_phone_pay_TC_017, CH_phone_pay_TC_018"
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-001,CIT/MIT payment - End to End - CIT Sale with MIT Token Creation and MIT Sale with Refund (with CVV),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4148,7 +4148,7 @@ with_cvv;
 full_refund;
 recurring_payment;
 region_us;
-currency_usd;""",P1,,US,NA,CH_phone_pay_TC_001
+currency_usd;""",P1,Automated,US,NA,CH_phone_pay_TC_001
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-002,CIT/MIT payment - CIT Sale and MIT Sale with Refund (without CVV),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4243,7 +4243,7 @@ without_cvv;
 mit_token;
 full_refund;
 no_cvv_validation;
-region_us;""",P1,,US,NA,CH_phone_pay_TC_015
+region_us;""",P1,Automated,US,NA,CH_phone_pay_TC_015
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-003,CIT/MIT payment - CIT Sale and MIT Sale with Refund (with invalid CVV),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4336,7 +4336,7 @@ invalid_cvv;
 cvv_validation_failed;
 no_mit_token;
 declined_transaction;
-error_handling;""",P1,,US,NA,"CH_phone_pay_TC_009, CH_phone_pay_TC_015"
+error_handling;""",P1,Automated,US,NA,"CH_phone_pay_TC_009, CH_phone_pay_TC_015"
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-004,CIT/MIT payment - CIT Sale and MIT Sale with Refund (without CVV for 3DS card),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4547,7 +4547,7 @@ visa_card;
 with_cvv;
 mit_token;
 full_refund;
-card_scheme_validation;""",P1,,US,NA,CH_phone_pay_TC_024
+card_scheme_validation;""",P1,Automated,US,NA,CH_phone_pay_TC_024
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-006,CIT/MIT payment - CIT Sale and MIT Sale with Refund (with CVV for Corporate card),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4652,7 +4652,7 @@ mastercard;
 with_cvv;
 mit_token;
 full_refund;
-high_value;""",P1,,US,NA,CH_phone_pay_TC_024
+high_value;""",P1,Automated,US,NA,CH_phone_pay_TC_024
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-007,CIT/MIT payment - CIT Sale and MIT Sale with Refund and Payment Split (Type 1),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4785,7 +4785,7 @@ split_type_1;
 mit_with_splits;
 full_refund;
 two_way_split;
-marketplace;""",P1,,US,NA,"CH_Phone_pay_TC_025, CH_Phone_pay_TC_026"
+marketplace;""",P1,Automated,US,NA,"CH_Phone_pay_TC_025, CH_Phone_pay_TC_026"
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-008,CIT/MIT payment - CIT Sale with CVV Collection (CVV Verification Focus),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4887,7 +4887,7 @@ cvv_collection;
 cvv_verification;
 security_validation;
 pci_compliance;
-mit_token_creation;""",P1,,US,NA,CH_phone_pay_TC_022
+mit_token_creation;""",P1,Automated,US,NA,CH_phone_pay_TC_022
 Cardstream Moto Payments,CIT/MIT Payment - Basic Flow,CS-CIT-MIT,CS-CIT-MIT-009,CIT/MIT payment - CIT Sale and MIT Sale with Partial Refund,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -4970,7 +4970,7 @@ PHASE 3 - PARTIAL REFUND ($40.00):
 mit_transaction;
 partial_refund;
 token_active;
-recurring_payment;""",P1,,US,NA,CH_phone_pay_TC_018
+recurring_payment;""",P1,Automated,US,NA,CH_phone_pay_TC_018
 Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-010,CIT/MIT payment - CIT Sale without MIT Key (Negative Test),"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled
@@ -5357,7 +5357,7 @@ no_cvv;
 declined_transaction;
 no_token_creation;
 error_handling;
-negative_test;""",P2,,US,NA,CH_phone_pay_TC_023
+negative_test;""",P2,Automated,US,NA,CH_phone_pay_TC_023
 Cardstream Moto Payments,CIT/MIT Payment - Negative Scenarios,CS-CIT-MIT,CS-CIT-MIT-016,CIT/MIT payment - CIT/MIT Sale with Invalid API Key,"""- Merchant in US (country_id: 7) pointed to Cardstream (payment_provider_id: 3)
 
 - Moto payment enabled

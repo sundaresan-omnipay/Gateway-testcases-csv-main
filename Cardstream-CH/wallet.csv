@@ -84,7 +84,7 @@ success, status code should be updated as 200.
 Wallet payment should be successful in response we should get outcome as 
 success, status code should be updated as 200.
 
-OMT Reference should be shown  in metadata in AWS logs",wallet_api;wallet_recharge;wallet_payment;cardstream_ch;region_ch;,P1,Can't be automated,US,NO,
+OMT Reference should be shown  in metadata in AWS logs",wallet_api;wallet_recharge;wallet_payment;cardstream_ch;region_ch;,P1,Can't be automated,US,NA,NA
 WALLET,cardstream_ch_wallet,AP-T1439,AP-T1439,W2C - Process wallet to card for multiple partial refunds - Cardstream-CH,"- Merchant in US configured
 - Cardstream-CH payment gateway enabled
 - Customer has wallet balance available",nan,"Cardstream-CH Sale - New card/Saved card/Express 
@@ -129,7 +129,7 @@ partial refund to card entries
 3. transaction_type_id column value should be updated as 9 for all the 
 partial w2c entries
 
-Wallet_balance should be updated post W2C API is hit.",wallet_api;wallet_to_card;cardstream_ch;refund;region_ch;,P1,Automated,US,NO,
+Wallet_balance should be updated post W2C API is hit.",wallet_api;wallet_to_card;cardstream_ch;refund;region_ch;,P1,Automated,US,NA,"CH_WA_TC_001, CH_WA_TC_012, CH_WA_TC_013, CH_WA_TC_014, CH_WA_TC_015"
 WALLET,cardstream_ch_wallet,PS-CSCH-WP,PS-CSCH-WP-001,Cardstream-CH Wallet - Split Commission - Global Split Type Sale Succeeds,"- Merchant in US configured
 - Cardstream-CH payment gateway enabled
 - Customer has wallet balance available","split_fee: [{type_id: ex 3, value_type: 'amount', value: 2.50}]
@@ -141,7 +141,7 @@ Note: Global split types (IDs 1-8, 11, 100) can be used across all providers. Ne
 2. payments_split_commission table contains entry with commission_type_id matching the split used ✓
 3. commission_amount = 2.50 as per payload ✓
 4. split_payment_flag=1 in payments table ✓
-5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓",wallet_api;split_commission;cardstream_ch;region_ch;,P1,Automated,US,NO,
+5. All global split types are usable across all providers (Cardstream, Checkout.com, Spreedly, Adyen) ✓",wallet_api;split_commission;cardstream_ch;region_ch;,P1,Automated,US,NA,"CH_WA_TC_030, CH_WA_TC_031"
 WALLET,cardstream_ch_wallet,PS-CSCH-WP,PS-CSCH-WP-002,Cardstream-CH Wallet - Split Commission - Invalid Split Type ID Rejected,"- Merchant in US configured
 - Cardstream-CH payment gateway enabled
 - Customer has wallet balance available","split_fee: [{type_id: 9999, value_type: 'amount', value: 2.50}]
@@ -152,7 +152,7 @@ Note: Only valid global split type IDs (ex: 1-8, 11, 100) or newly created split
 2. API responds with error: 'invalid type id' ✓
 3. No payments_split_commission record created ✓
 4. No payment record created ✓
-5. Only valid split type IDs from split_commission_types table are accepted ✓",wallet_api;split_commission;cardstream_ch;negative_test;region_ch;,P1,Automated,US,NO,
+5. Only valid split type IDs from split_commission_types table are accepted ✓",wallet_api;split_commission;cardstream_ch;negative_test;region_ch;,P1,Automated,US,NA,"CH_WA_TC_032, CH_WA_TC_051, CH_WA_TC_052"
 WALLET,cardstream_ch_wallet,PS-CSCH-WP,PS-CSCH-WP-003,Cardstream-CH Wallet - Split Commission - Soft-Deleted Split Type (delete_status=0) Blocks Sale,"- Merchant in US configured
 - Cardstream-CH payment gateway enabled
 - Customer has wallet balance available","split_fee: [{type_id: <soft_deleted_split_id>, value_type: 'amount', value: 2.50}]
@@ -165,7 +165,7 @@ Precondition: Use DELETE API on an existing split type → verify delete_status=
 3. Sale using soft-deleted split type is rejected ✓
 4. API responds with error: 'invalid type id' ✓
 5. No payments_split_commission record created ✓
-6. No payment record created ✓",wallet_api;split_commission;cardstream_ch;negative_test;region_ch;,P1,Automated,US,NO,
+6. No payment record created ✓",wallet_api;split_commission;cardstream_ch;negative_test;region_ch;,P1,Automated,US,NA,CH_WA_TC_053
 WALLET,cardstream_ch_wallet,PS-CSCH-WP,PS-CSCH-WP-004,Cardstream-CH Wallet - Split Commission - Updated Split Type via API Used in Sale Succeeds,"- Merchant in US configured
 - Cardstream-CH payment gateway enabled
 - Customer has wallet balance available","split_fee: [{type_id: <updated_split_id>, value_type: 'amount', value: 3.00}]
@@ -179,7 +179,7 @@ Precondition: Use Update API to modify an existing split type → verify updated
 3. Sale with updated split type succeeds with transaction_status_id=1 ✓
 4. payments_split_commission table contains entry with updated commission_type_id ✓
 5. commission_amount = 3.00 as per payload ✓
-6. split_payment_flag=1 in payments table ✓",wallet_api;split_commission;cardstream_ch;region_ch;,P1,Automated,US,NO,
+6. split_payment_flag=1 in payments table ✓",wallet_api;split_commission;cardstream_ch;region_ch;,P1,Automated,US,NA,"CH_WA_TC_049, CH_WA_TC_050"
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC001,Wallet Payment - End to End with Sufficient Balance,"""- Merchant in US (<country_id>) configured
 - Customer has wallet balance available
 - Wallet payment enabled
@@ -296,7 +296,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC001,Wallet Payment - End to End with Su
 -> History updated ✓
 -> Fund transfer executed ✓
 -> Merchant credited ✓
--> All systems synchronized ✓""",wallet_payment;end_to_end;sufficient_balance;wallet_debit;fund_transfer;datman_to_merchant;wallet_history;database_validation;payment_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+-> All systems synchronized ✓""",wallet_payment;end_to_end;sufficient_balance;wallet_debit;fund_transfer;datman_to_merchant;wallet_history;database_validation;payment_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,"CH_WA_TC_003, CH_WA_TC_037"
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC002,Wallet Payment - Insufficient Balance (Payment > Balance),"""- Merchant in UK configured
 - Customer has limited wallet balance
 - Wallet payment enabled
@@ -373,7 +373,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC002,Wallet Payment - Insufficient Balan
 11. Payment gateway:
 -> Payment attempt logged
 -> Failure reason recorded
--> Analytics: Insufficient balance event""",wallet_payment;insufficient_balance;payment_failed;balance_exceeded;insufficient_funds;error_handling;no_deduction;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+-> Analytics: Insufficient balance event""",wallet_payment;insufficient_balance;payment_failed;balance_exceeded;insufficient_funds;error_handling;no_deduction;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC003,Wallet Payment - Currency Validation - CH Region (CHF),"""- Merchant in US (<country_id>)
 - Customer has CHF wallet balance
 - Currency-specific wallet
@@ -451,7 +451,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC003,Wallet Payment - Currency Validatio
 10. Important: Cross-currency NOT allowed:
 -> Cannot use CHF wallet for CHF payment ✗
 -> Cannot use CHF wallet for CHF payment ✗
--> Only CHF wallet for UK payments ✓""",wallet_payment;currency_validation;region_ch;currency_chf;correct_currency;multi_currency;currency_specific;payment_success;cardstream_ch;,P1,Automated,US,NO,
+-> Only CHF wallet for UK payments ✓""",wallet_payment;currency_validation;region_ch;currency_chf;correct_currency;multi_currency;currency_specific;payment_success;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC004,Wallet Payment - Currency Validation - CH Region (CHF) - Cross-region check,"""- Merchant in US (<country_id>)
 - Customer has CHF wallet balance
 - May have CHF balance but cannot use
@@ -511,7 +511,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC004,Wallet Payment - Currency Validatio
 -> US payments: CHF only
 -> UK payments: CHF only
 -> AU payments: CHF only
--> No cross-currency allowed ✓""",wallet_payment;currency_validation;region_ch;currency_chf;cross_currency_prevention;multi_currency;payment_success;cardstream_ch;,P1,Automated,US,NO,
+-> No cross-currency allowed ✓""",wallet_payment;currency_validation;region_ch;currency_chf;cross_currency_prevention;multi_currency;payment_success;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC005,Wallet Payment - Currency Validation - CH Region (CHF) - Multi-currency,"""- Merchant in US (<country_id>)
 - Customer has CHF wallet balance
 - Multi-currency wallet
@@ -559,7 +559,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC005,Wallet Payment - Currency Validatio
 6. Region-currency matrix enforced:
 -> UK → CHF only ✓
 -> US → CHF only ✓
--> AU → CHF only ✓""",wallet_payment;currency_validation;region_ch;currency_chf;multi_currency;payment_success;cardstream_ch;,P1,Automated,US,NO,
+-> AU → CHF only ✓""",wallet_payment;currency_validation;region_ch;currency_chf;multi_currency;payment_success;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC006,"Wallet Payment - Cross-Region Balance Prevention (CHF wallet, wrong region)","""- Customer in US region
 - Has CHF wallet balance
 - NO CHF wallet balance
@@ -639,7 +639,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC006,"Wallet Payment - Cross-Region Bala
 
 10. No payment processed ✓
 
-11. No fund transfer ✓""",wallet_payment;cross_currency;wrong_currency;insufficient_balance;currency_mismatch;region_validation;payment_failed;negative_test;cardstream_ch;,P1,Automated,US,NO,
+11. No fund transfer ✓""",wallet_payment;cross_currency;wrong_currency;insufficient_balance;currency_mismatch;region_validation;payment_failed;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC007,Wallet Payment - No Wallet Balance (Zero Balance),"""- Different customer (new shopper_id)
 - NO wallet balance
 - Wallet feature enabled
@@ -707,7 +707,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC007,Wallet Payment - No Wallet Balance 
 
 10. No fund transfer ✓
 
-11. Wallet remains at CHF 0.00 ✓""",wallet_payment;zero_balance;no_balance;insufficient_funds;new_customer;different_shopper;payment_failed;negative_test;region_ch;cardstream_ch;,P1,Automated,US,NO,
+11. Wallet remains at CHF 0.00 ✓""",wallet_payment;zero_balance;no_balance;insufficient_funds;new_customer;different_shopper;payment_failed;negative_test;region_ch;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_024
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC008,Wallet Refund - Complete Refund (100%),"""- Original payment processed via wallet
 - Payment successful and settled
 - Refund requested for full amount
@@ -829,7 +829,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC008,Wallet Refund - Complete Refund (10
 -> Customer wallet credited ✓
 -> Merchant account debited ✓
 -> Datman pool balanced ✓
--> All systems updated ✓""",wallet_refund;complete_refund;full_refund;wallet_credit;fund_transfer_reversal;merchant_to_datman;refund_success;cardstream_ch_dashboard;database_validation;region_ch;currency_chf;,P1,Automated,US,NO,
+-> All systems updated ✓""",wallet_refund;complete_refund;full_refund;wallet_credit;fund_transfer_reversal;merchant_to_datman;refund_success;cardstream_ch_dashboard;database_validation;region_ch;currency_chf;,P1,Automated,US,NA,CH_WA_TC_038
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC009,Wallet Refund - Partial Refund (50%),"""- Original payment processed via wallet
 - Payment successful and settled
 - Partial refund requested
@@ -907,7 +907,7 @@ WALLET,wallet_payment,WP-01TC,CSH-WP-01TC009,Wallet Refund - Partial Refund (50%
 10. Wallet history:
 -> Payment: -CHF 80.00
 -> Partial refund: +CHF 40.00 ✓
--> Balance: CHF 60.00 ✓""",wallet_refund;partial_refund;wallet_credit;fund_transfer_reversal;partial_settlement;database_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+-> Balance: CHF 60.00 ✓""",wallet_refund;partial_refund;wallet_credit;fund_transfer_reversal;partial_settlement;database_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_017
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC010,Wallet Refund - Multiple Partial Refunds (3 refunds),"""- Original payment processed via wallet
 - Payment successful
 - Multiple partial refunds requested
@@ -1049,7 +1049,7 @@ Total reversed: CHF 75.00 ✓
 -> 3 refunds records ✓
 -> 3 fund_transfer_transactions ✓
 -> All linked correctly ✓
--> All amounts match ✓""",wallet_refund;multiple_partial_refunds;multiple_refunds;wallet_credit;fund_transfer_reversal;cumulative_refund;database_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+-> All amounts match ✓""",wallet_refund;multiple_partial_refunds;multiple_refunds;wallet_credit;fund_transfer_reversal;cumulative_refund;database_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,"CH_WA_TC_039, CH_WA_TC_040"
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC013,Wallet APIs - Race condition - Concurrent wallet balance updates,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Multiple concurrent requests sent simultaneously
@@ -1097,7 +1097,7 @@ Clear error message for failed request
 Database transactions atomic
 Row-level locking enforced
 No race condition issues
-Balance always consistent",wallet_api;race_condition;concurrent_updates;db_locking;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Balance always consistent",wallet_api;race_condition;concurrent_updates;db_locking;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_035
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC014,Wallet APIs - Payload validation - Special characters in shopper_id,"- Merchant in US (<country_id>) configured
 API endpoint requires shopper_id validation
 Special characters passed in payload
@@ -1145,7 +1145,7 @@ Database integrity maintained
     ""error"": ""Invalid shopper_id"",
     ""message"": ""shopper_id contains invalid characters"",
     ""code"": ""VALIDATION_ERROR""
-}",wallet_api;payload_validation;special_characters;security;xss_prevention;negative_test;cardstream_ch;,P1,Automated,US,NO,
+}",wallet_api;payload_validation;special_characters;security;xss_prevention;negative_test;cardstream_ch;,P1,Automated,US,NA,"CH_WA_TC_007, CH_WA_TC_011"
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC015,Wallet APIs - Payload validation - Empty values in required fields,"- Merchant in US (<country_id>) configured
 API endpoint requires mandatory fields
 Empty values passed in payload
@@ -1184,7 +1184,7 @@ NO incomplete records
 5. API Behavior:
 Fast validation failure
 Clear error messages
-All missing fields listed",wallet_api;payload_validation;empty_values;required_fields;negative_test;cardstream_ch;,P1,Automated,US,NO,
+All missing fields listed",wallet_api;payload_validation;empty_values;required_fields;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_011
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC016,Wallet APIs - Payload validation - Emojis in text fields,"- Merchant in US (<country_id>) configured
 API endpoint accepts text fields
 Emojis passed in payload
@@ -1222,7 +1222,7 @@ NO data corruption in either case
 3. Response Handling:
 Clear indication of emoji support status
 Proper error message if rejected
-Successful storage if accepted",wallet_api;payload_validation;emojis;unicode;character_encoding;cardstream_ch;,P1,Automated,US,NO,
+Successful storage if accepted",wallet_api;payload_validation;emojis;unicode;character_encoding;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_011
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC017,Wallet APIs - Payment with split commission - Split type 1 to 6,"- Merchant in US (<country_id>) configured
 Split commission enabled
 Payment amount split between parties
@@ -1267,7 +1267,7 @@ Fund transfer logs updated
 Sum of splits = Original amount
 NO rounding errors
 All splits processed
-Audit trail complete",wallet_api;payment;split_commission;split_types_1_to_6;fund_transfer;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Audit trail complete",wallet_api;payment;split_commission;split_types_1_to_6;fund_transfer;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,"CH_WA_TC_030, CH_WA_TC_031"
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC018,Wallet APIs - Payment with advanced split - Type 7 (Price uplift),"- Merchant in US (<country_id>) configured
 Price uplift split configured (Type 7)
 Payment includes price uplift component","- Refer Apidog for the Wallet API requests
@@ -1312,7 +1312,7 @@ Total transfer reconciles
 6. Validation:
 Total = Base + Uplift
 Uplift split applied correctly
-Audit trail complete",wallet_api;payment;price_uplift;split_type_7;advanced_split;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Audit trail complete",wallet_api;payment;price_uplift;split_type_7;advanced_split;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_030
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC019,Wallet APIs - Payment with advanced split - Type 11 (CH Datman commission),"- Merchant in US (<country_id>) configured
 CH Datman commission split configured (Type 11)
 Payment includes Datman commission for AU","- Refer Apidog for the Wallet API requests
@@ -1358,7 +1358,7 @@ Total reconciles: CHF100.00
 6. AU Specific:
 Country_id: 3 (AU)
 CHF currency handling
-AU commission rules applied",wallet_api;payment;datman_commission;split_type_11;aus;aud;advanced_split;cardstream_ch;,P1,Automated,US,NO,
+AU commission rules applied",wallet_api;payment;datman_commission;split_type_11;aus;aud;advanced_split;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_030
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC020,Wallet APIs - Payment with advanced split - Type 100 (External reseller commission),"- Merchant in US (<country_id>) configured
 External reseller commission split configured (Type 100)
 Payment includes reseller commission","- Refer Apidog for the Wallet API requests
@@ -1406,7 +1406,7 @@ Total reconciles: CHF 100.00
 6. External Party Handling:
 Reseller identified correctly
 Commission allocated to external account
-Audit trail maintained",wallet_api;payment;reseller_commission;split_type_100;external_party;advanced_split;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Audit trail maintained",wallet_api;payment;reseller_commission;split_type_100;external_party;advanced_split;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_030
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC021,Wallet APIs - Unsupported currency codes - EUR JPY validation,"- Merchant configured for CHF/CHF/CHF only
 EUR and JPY NOT supported
 Currency validation required
@@ -1451,7 +1451,7 @@ NO payment records
 Currency code validated early
 Clear error message
 Supported currencies listed
-Fast rejection",wallet_api;unsupported_currency;currency_validation;eur;jpy;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Fast rejection",wallet_api;unsupported_currency;currency_validation;eur;jpy;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_011
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC022,Wallet APIs - Concurrent DB updates - Database locking mechanisms,"- Merchant in US (<country_id>) configured
 Multiple concurrent database update requests
 Database locking testing
@@ -1499,7 +1499,7 @@ NO overlapping updates
 SELECT FOR UPDATE used
 Transaction isolation enforced
 Deadlock prevention
-Consistent state maintained",wallet_api;concurrent_updates;db_locking;isolation;race_condition_prevention;cardstream_ch;,P1,Can't be automated,US,NO,
+Consistent state maintained",wallet_api;concurrent_updates;db_locking;isolation;race_condition_prevention;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC023,Wallet APIs - Orphaned records - Payment processed but DB not updated,"- Merchant in US (<country_id>) configured
 Payment gateway processes successfully
 Database update fails
@@ -1556,7 +1556,7 @@ Reconciliation: Complete
 7. Monitoring:
 Alert sent for orphaned records
 Dashboard shows reconciliation status
-Automatic retry attempted",wallet_api;orphaned_records;db_failure;reconciliation;consistency;negative_test;cardstream_ch;,P1,Can't be automated,US,NO,
+Automatic retry attempted",wallet_api;orphaned_records;db_failure;reconciliation;consistency;negative_test;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC026,Wallet APIs - Cross-shopper access - Shopper A accessing Shopper B wallet ,"- Merchant in US (<country_id>) configured
 Two customers with separate wallets
 Cross-shopper security testing
@@ -1613,7 +1613,7 @@ NO cross-shopper operations
 Strict access control
 Authorization enforced
 Audit trail complete
-NO data leakage",wallet_api;security;cross_shopper_access;unauthorized_access;authorization;negative_test;cardstream_ch;,P1,Can't be automated,US,NO,
+NO data leakage",wallet_api;security;cross_shopper_access;unauthorized_access;authorization;negative_test;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC027,Wallet APIs - Rate limiting - Multiple rapid requests from same shopper_id,"- Merchant in US (<country_id>) configured
 Rate limiting enabled
 Multiple rapid requests from same user
@@ -1671,7 +1671,7 @@ Fair usage enforced: YES
 7. After Reset:
 Wait 30 seconds
 Rate limit reset
-New requests: SUCCESS",wallet_api;rate_limiting;throttling;ddos_prevention;http_429;cardstream_ch;,P1,Can't be automated,US,NO,
+New requests: SUCCESS",wallet_api;rate_limiting;throttling;ddos_prevention;http_429;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC028,Wallet APIs - Concurrent recharge and payment - Race condition on same wallet,"- Merchant in US (<country_id>) configured
 Customer initiates recharge and payment simultaneously
 Same wallet accessed concurrently
@@ -1724,7 +1724,7 @@ NO overlapping
 Balance always consistent
 NO race condition
 NO lost updates
-Locking enforced",wallet_api;concurrent_operations;recharge_payment;race_condition;db_locking;cardstream_ch;,P1,Automated,US,NO,
+Locking enforced",wallet_api;concurrent_operations;recharge_payment;race_condition;db_locking;cardstream_ch;,P1,Automated,US,NA,"CH_WA_TC_027, CH_WA_TC_028"
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC029,Wallet APIs - SQL injection attempts - Special characters in input,"- Merchant in US (<country_id>) configured
 Malicious SQL injection attempts
 Security testing
@@ -1785,7 +1785,7 @@ Alert: Generated
 7. CRITICAL - Prevention:
 NO SQL injection possible
 Database protected
-Security best practices enforced",wallet_api;security;sql_injection;input_sanitization;parameterized_queries;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Security best practices enforced",wallet_api;security;sql_injection;input_sanitization;parameterized_queries;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_011
 WALLET,wallet_payment,WP-01TC,CSH-WP-01TC030,Wallet APIs - XSS prevention - Special characters in name and address fields,"- Merchant in US (<country_id>) configured
 XSS attack attempts
 Security testing
@@ -1842,7 +1842,7 @@ Input validation: Enforced
 7. CRITICAL - Protection:
 NO XSS vulnerability
 Multi-layer defense
-Safe data storage and display",wallet_api;security;xss_prevention;input_sanitization;output_encoding;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Safe data storage and display",wallet_api;security;xss_prevention;input_sanitization;output_encoding;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_011
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC001,Wallet recharge - End to End - Verify the wallet recharge getting processed for the Cardstream-CH merchant - CH - 3DS Card,"""- Merchant in US (<country_id>) configured
 - Customer has wallet balance available
 - Wallet recharge enabled""","""- Refer Apidog for the Wallet recharge API request
@@ -1894,7 +1894,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC001,Wallet recharge - End to End - Ver
 -> Balance after: CHF 50.00
 -> Date/Time: [timestamp]
 -> Description: ""Payment for order #[order_id]""
--> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;3ds_card;cardstream_ch;,P1,Automated,US,NO,
+-> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;3ds_card;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_002
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC002,Wallet recharge - End to End - Verify the wallet recharge getting processed for the Cardstream-CH merchant - CH - Non-3DS Card,"""- Merchant in US (<country_id>) configured
 - Customer has wallet balance available
 - Wallet recharge enabled""","""- Refer Apidog for the Wallet recharge API request
@@ -1946,7 +1946,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC002,Wallet recharge - End to End - Ver
 -> Balance after: CHF 50.00
 -> Date/Time: [timestamp]
 -> Description: ""Payment for order #[order_id]""
--> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;non_3ds_card;cardstream_ch;,P1,Automated,US,NO,
+-> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;non_3ds_card;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_002
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC003,Wallet recharge - End to End - Verify the wallet recharge getting processed for the Cardstream-CH merchant - CH - 3DS Card,"""- Merchant in US (<country_id>) configured
 - Customer has wallet balance available
 - Wallet recharge enabled""","""- Refer Apidog for the Wallet recharge API request
@@ -1998,7 +1998,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC003,Wallet recharge - End to End - Ver
 -> Balance after: CHF 50.00
 -> Date/Time: [timestamp]
 -> Description: ""Payment for order #[order_id]""
--> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;3ds_card;cardstream_ch;,P1,Automated,US,NO,
+-> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;3ds_card;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_002
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC004,Wallet recharge - End to End - Verify the wallet recharge getting processed for the Cardstream-CH merchant - CH - Non-3DS Card,"""- Merchant in US (<country_id>) configured
 - Customer has wallet balance available
 - Wallet recharge enabled""","""- Refer Apidog for the Wallet recharge API request
@@ -2050,7 +2050,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC004,Wallet recharge - End to End - Ver
 -> Balance after: CHF 50.00
 -> Date/Time: [timestamp]
 -> Description: ""Payment for order #[order_id]""
--> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;non_3ds_card;cardstream_ch;,P1,Automated,US,NO,
+-> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;non_3ds_card;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_004
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC005,Wallet recharge - End to End - Verify the wallet recharge getting processed for the Cardstream-CH merchant - CH - 3DS Card,"""- Merchant in US (<country_id>) configured
 - Customer has wallet balance available
 - Wallet recharge enabled""","""- Refer Apidog for the Wallet recharge API request
@@ -2102,7 +2102,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC005,Wallet recharge - End to End - Ver
 -> Balance after: CHF50.00
 -> Date/Time: [timestamp]
 -> Description: ""Payment for order #[order_id]""
--> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;3ds_card;cardstream_ch;,P1,Automated,US,NO,
+-> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;3ds_card;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_004
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC006,Wallet recharge - End to End - Verify the wallet recharge getting processed for the Cardstream-CH merchant - CH - Non-3DS Card✅,"""- Merchant in US (<country_id>) configured
 - Customer has wallet balance available
 - Wallet recharge enabled""","""- Refer Apidog for the Wallet recharge API request
@@ -2154,7 +2154,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC006,Wallet recharge - End to End - Ver
 -> Balance after: CHF50.00
 -> Date/Time: [timestamp]
 -> Description: ""Payment for order #[order_id]""
--> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;non_3ds_card;cardstream_ch;,P1,Automated,US,NO,
+-> User can view in wallet dashboard ✓""",wallet_recharge;end_to_end;recharge_success;region_ch;currency_chf;non_3ds_card;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_004
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC007,Wallet recharge - Recharge declined from gateway - Verify balance and history not updated ,"""- Merchant in US (<country_id>) configured
 - Customer has wallet
 - Gateway declines the transaction""","""- Refer Apidog for the Wallet recharge API request
@@ -2194,7 +2194,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC007,Wallet recharge - Recharge decline
 6. Gateway Response:
 -> Status: Declined
 -> Reason: Insufficient funds / Card declined
--> User notified of failure""",wallet_recharge;gateway_declined;negative_test;balance_unchanged;cardstream_ch;,P1,Automated,US,NO,
+-> User notified of failure""",wallet_recharge;gateway_declined;negative_test;balance_unchanged;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_008
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC008,Wallet recharge - Using invalid token - Verify balance and history not updated,"""- Merchant in US (<country_id>) configured
 - Customer provides invalid token
 - Token validation fails""","""- Refer Apidog for the Wallet recharge API request
@@ -2233,7 +2233,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC008,Wallet recharge - Using invalid to
 6. Validation Error:
 -> Status: Invalid token
 -> Reason: Token not found or expired
--> Gateway not called ✓""",wallet_recharge;invalid_token;negative_test;validation_failed;cardstream_ch;,P1,Automated,US,NO,
+-> Gateway not called ✓""",wallet_recharge;invalid_token;negative_test;validation_failed;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_008
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC009,Wallet recharge - Token with wrong shopper reference - Verify recharge fails,"""- Merchant in US (<country_id>) configured
 - Token belongs to different shopper
 - Cross-customer security validation""","""- Refer Apidog for the Wallet recharge API request
@@ -2272,7 +2272,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC009,Wallet recharge - Token with wrong
 6. Security Validation:
 -> Status: Shopper mismatch
 -> Reason: Token belongs to different shopper
--> Cross-customer usage blocked ✓""",wallet_recharge;wrong_shopper_reference;security_validation;negative_test;cardstream_ch;,P1,Automated,US,NO,
+-> Cross-customer usage blocked ✓""",wallet_recharge;wrong_shopper_reference;security_validation;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_008
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC010,Wallet recharge - Using token from different shopper_id - Verify recharge fails,"""- Merchant in US (<country_id>) configured
 - Token associated with different shopper_id
 - Security check prevents cross-customer usage""","""- Refer Apidog for the Wallet recharge API request
@@ -2311,7 +2311,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC010,Wallet recharge - Using token from
 6. Security Validation:
 -> Status: Unauthorized token
 -> Reason: Token shopper_id mismatch
--> Security incident logged ✓""",wallet_recharge;different_shopper_id;security_check;negative_test;cardstream_ch;,P1,Automated,US,NO,
+-> Security incident logged ✓""",wallet_recharge;different_shopper_id;security_check;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_008
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC011,Wallet recharge - Invalid CVV - Verify recharge not processed,"""- Merchant in US (<country_id>) configured
 - Valid token but wrong CVV provided
 - CVV validation fails at gateway""","""- Refer Apidog for the Wallet recharge API request
@@ -2352,7 +2352,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC011,Wallet recharge - Invalid CVV - Ve
 6. Gateway Response:
 -> Status: CVV Declined
 -> Reason: Invalid CVV
--> Card not charged ✓""",wallet_recharge;invalid_cvv;cvv_declined;negative_test;cardstream_ch;,P1,Automated,US,NO,
+-> Card not charged ✓""",wallet_recharge;invalid_cvv;cvv_declined;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_011
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC012,Wallet recharge - ShopperReference uniqueness - Same shopper across different merchant accounts,"""- Same shopper using different merchants
 - Each merchant has unique shopperReference
 - Merchant isolation enforced""","""- Refer Apidog for the Wallet recharge API request
@@ -2393,7 +2393,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC012,Wallet recharge - ShopperReference
 6. Merchant Validation:
 -> Status: Cross-merchant token usage blocked
 -> Reason: shopperReference belongs to different merchant
--> Merchant isolation enforced ✓""",wallet_recharge;shopper_reference_uniqueness;cross_merchant;merchant_isolation;negative_test;cardstream_ch;,P1,Automated,US,NO,
+-> Merchant isolation enforced ✓""",wallet_recharge;shopper_reference_uniqueness;cross_merchant;merchant_isolation;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_002
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC013,Wallet recharge - Exceeds country transaction limit - Verify transaction not completed,"""- Merchant in US (<country_id>) configured
 - Recharge amount exceeds country limit
 - Transaction limit validation""","""- Refer Apidog for the Wallet recharge API request
@@ -2433,7 +2433,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC013,Wallet recharge - Exceeds country 
 -> Status: Country limit exceeded
 -> Country limit: CHF 1000
 -> Requested: CHF 1500
--> Transaction blocked ✓""",wallet_recharge;country_limit_exceeded;transaction_limit;negative_test;cardstream_ch;,P1,Automated,US,NO,
+-> Transaction blocked ✓""",wallet_recharge;country_limit_exceeded;transaction_limit;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_033
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC014,Wallet recharge - Exceeds merchant transaction limit - Verify transaction not completed,"""- Merchant in US (<country_id>) configured
 - Recharge amount exceeds merchant limit
 - Merchant-specific limit takes precedence""","""- Refer Apidog for the Wallet recharge API request
@@ -2476,7 +2476,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC014,Wallet recharge - Exceeds merchant
 -> Merchant limit: CHF 500 (applied)
 -> Country limit: CHF 1000
 -> Requested: CHF 700
--> Transaction blocked ✓""",wallet_recharge;merchant_limit_exceeded;transaction_limit;negative_test;cardstream_ch;,P1,Automated,US,NO,
+-> Transaction blocked ✓""",wallet_recharge;merchant_limit_exceeded;transaction_limit;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_033
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC016,Wallet recharge - Auto-recharge when balance insufficient - Split payment with 3DS,"""- Merchant in US (<country_id>) configured
 - Wallet balance insufficient for payment
 - Auto-recharge triggered with 3DS
@@ -2520,7 +2520,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC016,Wallet recharge - Auto-recharge wh
 -> Merchant receives: CHF 10.00 (from wallet) ✓
 
 6. 3DS Authentication:
--> 3DS completed for CHF 5.00 recharge ✓""",wallet_recharge;auto_recharge;split_payment;3ds;fund_transfer_validation;cardstream_ch;,P1,Automated,US,NO,
+-> 3DS completed for CHF 5.00 recharge ✓""",wallet_recharge;auto_recharge;split_payment;3ds;fund_transfer_validation;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_016
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC017,Wallet recharge - Balance sufficient - No recharge needed,"""- Merchant in US (<country_id>) configured
 - Wallet balance sufficient for payment
 - No auto-recharge triggered""","""- Refer Apidog for the Wallet recharge API request
@@ -2561,7 +2561,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC017,Wallet recharge - Balance sufficie
 
 6. Card NOT charged:
 -> No recharge needed ✓
--> Balance sufficient for payment""",wallet_payment;sufficient_balance;no_recharge;direct_payment;cardstream_ch;,P1,Automated,US,NO,
+-> Balance sufficient for payment""",wallet_payment;sufficient_balance;no_recharge;direct_payment;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC018,Wallet recharge - 3DS without optional URLs - Verify transaction handling,"""- Merchant in US (<country_id>) configured
 - 3DS recharge without optional URLs
 - System should handle missing URLs""","""- Refer Apidog for the Wallet recharge API request
@@ -2603,7 +2603,7 @@ Option B - Requires URLs:
 2. Validate system behavior:
 -> Confirm URL handling policy
 -> Verify consistent behavior
--> Check default URL functionality""",wallet_recharge;3ds;missing_urls;url_validation;cardstream_ch;,P1,Automated,US,NO,
+-> Check default URL functionality""",wallet_recharge;3ds;missing_urls;url_validation;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_002
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC019,Wallet recharge - User abandons 3DS page - Verify transaction not completed,"""- Merchant in US (<country_id>) configured
 - 3DS authentication presented
 - User abandons authentication""","""- Refer Apidog for the Wallet recharge API request
@@ -2645,7 +2645,7 @@ WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC019,Wallet recharge - User abandons 3D
 -> Status: Authentication cancelled
 -> Reason: User abandoned 3DS page
 -> Card NOT charged ✓
--> Transaction not completed""",wallet_recharge;3ds_abandoned;authentication_cancelled;user_cancelled;negative_test;cardstream_ch;,P1,Automated,US,NO,
+-> Transaction not completed""",wallet_recharge;3ds_abandoned;authentication_cancelled;user_cancelled;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_002
 WALLET,wallet_recharge,WR-01TC,CSH-WR-01TC020,Wallet APIs - Recharge with split commission - Type 1 to 6,"- Merchant in US (<country_id>) configured
 Split commission enabled for recharge
 Recharge amount split between parties
@@ -2689,7 +2689,7 @@ Balance reflects correct amount
 5. Validation:
 Sum of splits = Original recharge amount
 NO rounding errors
-All commission splits processed",wallet_api;recharge;split_commission;split_types_1_to_6;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+All commission splits processed",wallet_api;recharge;split_commission;split_types_1_to_6;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_030
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC001,Wallet Balance API - Get Balance CH (CHF),"- Shopper exists with CHF wallet
 - API key valid
 - Real-time balance retrieval","- Refer Apidog for Wallet Balance API request
@@ -2725,7 +2725,7 @@ Decimal places: 2 (correct for CHF)
 
 5. Performance:
 Response time: < 200ms
-No timeout errors",transaction_wallet_api;get_balance;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+No timeout errors",transaction_wallet_api;get_balance;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC002,Wallet Balance API - Get Balance CH (CHF),"- Shopper exists with CHF wallet
 - API key valid
 - Real-time balance retrieval","- Refer Apidog for Wallet Balance API request
@@ -2761,7 +2761,7 @@ Decimal places: 2 (correct for CHF)
 
 5. Performance:
 Response time: < 200ms
-No timeout errors",transaction_wallet_api;get_balance;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+No timeout errors",transaction_wallet_api;get_balance;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC003,Wallet Balance API - Get Balance CH (CHF),"- Shopper exists with CHF wallet
 - API key valid
 - Real-time balance retrieval","- Refer Apidog for Wallet Balance API request
@@ -2797,7 +2797,7 @@ Decimal places: 2 (correct for CHF)
 
 5. Performance:
 Response time: < 200ms
-No timeout errors",transaction_wallet_api;get_balance;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+No timeout errors",transaction_wallet_api;get_balance;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC004,Wallet Balance API - Multi-Currency Balance,"- Shopper has wallets in multiple currencies
 - API key valid
 - Multi-currency support enabled","- Refer Apidog for Wallet Balance API request
@@ -2830,7 +2830,7 @@ WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC004,Wallet Balance API - Multi-Curr
 All currencies returned: ✓
 Balances accurate: ✓
 Currency isolation: ✓
-No mixing of currencies",transaction_wallet_api;multi_currency;gbp;usd;aud;cardstream_ch;,P1,Automated,US,NO,
+No mixing of currencies",transaction_wallet_api;multi_currency;gbp;usd;aud;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_003
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC005,Wallet Balance API - Zero Balance,"- Shopper exists with zero balance wallet
 - API key valid
 - No transactions yet","- Refer Apidog for Wallet Balance API request
@@ -2861,7 +2861,7 @@ WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC005,Wallet Balance API - Zero Balan
 Balance: 0.00 ✓
 Format: Correct (2 decimal places)
 No errors: ✓
-Valid response structure",transaction_wallet_api;zero_balance;edge_case;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Valid response structure",transaction_wallet_api;zero_balance;edge_case;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,"CH_WA_TC_003, CH_WA_TC_024"
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC006,Wallet Balance API - Non-existent Shopper,"- shopper_id does not exist in system
 - API key valid
 - Error handling validation","- Refer Apidog for Wallet Balance API request
@@ -2889,7 +2889,7 @@ WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC006,Wallet Balance API - Non-existe
 Clear error message: ✓
 Appropriate status code: ✓
 No data leakage: ✓
-Security maintained",transaction_wallet_api;non_existent_shopper;error_handling;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Security maintained",transaction_wallet_api;non_existent_shopper;error_handling;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_009
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC007,Wallet Balance API - Invalid API Key,"- API key is invalid or incorrect
 - Shopper exists
 - Authentication validation","- Refer Apidog for Wallet Balance API request
@@ -2917,7 +2917,7 @@ WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC007,Wallet Balance API - Invalid AP
 No wallet data returned: ✓
 Clear error message: ✓
 Unauthorized access blocked: ✓
-Failed attempt logged",transaction_wallet_api;invalid_api_key;authentication;security;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Failed attempt logged",transaction_wallet_api;invalid_api_key;authentication;security;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_009
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC008,Wallet Balance API - Missing shopper_id Parameter,"- Required parameter shopper_id missing
 - API key valid
 - Validation testing","- Refer Apidog for Wallet Balance API request
@@ -2945,7 +2945,7 @@ WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC008,Wallet Balance API - Missing sh
 Early rejection: ✓
 Clear error message: ✓
 Required fields indicated: ✓
-No database query executed",transaction_wallet_api;missing_parameter;validation;negative_test;cardstream_ch;,P1,Automated,US,NO,
+No database query executed",transaction_wallet_api;missing_parameter;validation;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_009
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC009,Wallet Balance API - Invalid Currency Code,"- Unsupported currency requested
 - API key valid
 - Currency validation","- Refer Apidog for Wallet Balance API request
@@ -2974,7 +2974,7 @@ WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC009,Wallet Balance API - Invalid Cu
 Invalid currency rejected: ✓
 Supported currencies listed: ✓
 Clear error message: ✓
-Fast rejection",transaction_wallet_api;invalid_currency;currency_validation;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Fast rejection",transaction_wallet_api;invalid_currency;currency_validation;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_009
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC010,Wallet Balance API - Expired API Key ,"- API key has expired
 - Shopper exists
 - Authentication with expired credentials","- Refer Apidog for Wallet Balance API request
@@ -3002,7 +3002,7 @@ WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC010,Wallet Balance API - Expired AP
 No wallet data returned: ✓
 Clear expiry message: ✓
 Key renewal guidance: ✓
-Expired access blocked",transaction_wallet_api;expired_api_key;authentication;security;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Expired access blocked",transaction_wallet_api;expired_api_key;authentication;security;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_009
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC012,Wallet Balance API - Invalid shopper_id Format,"- shopper_id contains invalid characters
 - API key valid
 - Input validation testing","- Refer Apidog for Wallet Balance API request
@@ -3034,7 +3034,7 @@ Security incident logged
 
 5. Validation:
 Special characters rejected: ✓
-Clear format guidance: ✓",transaction_wallet_api;invalid_format;security;xss_prevention;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Clear format guidance: ✓",transaction_wallet_api;invalid_format;security;xss_prevention;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_009
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC013,Wallet Balance API - Real-time Balance After Transaction,"- Shopper has wallet balance
 - Transaction just completed
 - Real-time update validation","- Refer Apidog for Wallet Balance API request
@@ -3072,7 +3072,7 @@ Balance accurate: ✓
 5. Timestamp:
 last_updated: Current time ✓
 No cache staleness: ✓
-Real-time sync: ✓",transaction_wallet_api;real_time_update;transaction_sync;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Real-time sync: ✓",transaction_wallet_api;real_time_update;transaction_sync;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_004
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC014,Wallet Balance API - Concurrent Balance Requests,"- Multiple simultaneous balance requests
 - Same shopper_id
 - Concurrency testing","- Refer Apidog for Wallet Balance API request
@@ -3106,7 +3106,7 @@ No failed requests
 Database read locks: Working
 No deadlocks: ✓
 Consistent reads: ✓
-Scalability: Validated",transaction_wallet_api;concurrent_requests;performance;consistency;cardstream_ch;,P1,Automated,US,NO,
+Scalability: Validated",transaction_wallet_api;concurrent_requests;performance;consistency;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_035
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC016,Wallet APIs - Multi-currency wallet - Different currency balances,"- Merchant supports multiple countries
 Customer has wallets in multiple currencies
 Multi-currency enabled
@@ -3153,7 +3153,7 @@ CHF transactions: currency = 'CHF'
 5. Balance Integrity:
 Each currency maintains separate balance
 NO currency mixing
-NO automatic conversions",wallet_api;multi_currency;currency_isolation;gbp;usd;aud;cardstream_ch;,P1,Can't be automated,US,NO,
+NO automatic conversions",wallet_api;multi_currency;currency_isolation;gbp;usd;aud;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC017,Wallet APIs - Invalid or Empty API token - Authentication failure,"- Merchant in US (<country_id>) configured
 API requires authentication token
 Invalid or empty token passed
@@ -3195,7 +3195,7 @@ Security monitoring triggered
 5. Test with Empty Token:
 Same 401 Unauthorized response
 Clear error message
-NO default access granted",wallet_api;authentication;invalid_token;security;negative_test;cardstream_ch;,P1,Automated,US,NO,
+NO default access granted",wallet_api;authentication;invalid_token;security;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_009
 WALLET,transaction_wallet,WB-01TC,CSH-WB-01TC018,Wallet APIs - Response time - Latency check - Performance testing,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Performance testing
@@ -3238,7 +3238,7 @@ Database queries optimized
 5. SLA Compliance:
 Response times meet target
 API availability: 100%
-NO failed requests due to timeout",wallet_api;performance;response_time;latency;load_testing;cardstream_ch;,P1,Can't be automated,US,NO,
+NO failed requests due to timeout",wallet_api;performance;response_time;latency;load_testing;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC001,Wallet History API - Get Full Transaction History for CH Shopper (CHF),"""- Shopper exists with multiple transactions
 - Transactions include: recharge, payment, refund, wallet-to-card
 - Currency: CHF
@@ -3505,7 +3505,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC001,Wallet History API - Get Full Trans
     ✓ Balance progression clearly shown
     ✓ Recent transactions appear first
     ✓ Transaction details provide context
-    ✓ Links to related transactions (refund → payment)""",wallet_history_api;get_history;multi_transaction_types;recharge;payment;refund;wallet_to_card;gbp;uk;api_success;pagination;balance_tracking;database_validation;region_ch;currency_chf;transaction_sorting;cardstream_ch;,P1,Automated,US,NO,
+    ✓ Links to related transactions (refund → payment)""",wallet_history_api;get_history;multi_transaction_types;recharge;payment;refund;wallet_to_card;gbp;uk;api_success;pagination;balance_tracking;database_validation;region_ch;currency_chf;transaction_sorting;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_005
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC002,Wallet History API - Get History for CH Shopper (CHF),"""- Shopper exists with CHF transactions
 - Multiple transaction types
 - Currency: CHF
@@ -3659,7 +3659,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC002,Wallet History API - Get History fo
    -> CHF currency correct
    -> All transaction types shown
    -> Balance tracking accurate
-   -> Region-specific validation passed""",wallet_history_api;get_history;usd;us;api_success;region_ch;currency_chf;multi_transaction_types;balance_tracking;cardstream_ch;,P1,Automated,US,NO,
+   -> Region-specific validation passed""",wallet_history_api;get_history;usd;us;api_success;region_ch;currency_chf;multi_transaction_types;balance_tracking;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_005
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC003,Wallet History API - Get History for CH Shopper (CHF),"""- Shopper exists with CHF transactions
 - Australian region
 - Currency: CHF
@@ -3740,7 +3740,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC003,Wallet History API - Get History fo
    -> CHF transactions only
    -> AU merchant: ""Sydney Store Pty Ltd""
 
-6. Success ✓""",wallet_history_api;get_history;aud;au;api_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+6. Success ✓""",wallet_history_api;get_history;aud;au;api_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_005
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC004,Wallet History API - Multi-Currency Shopper (All Currencies),"""- Shopper has transactions in multiple currencies
 - CHF, CHF, and CHF transactions exist
 - Request without currency filter
@@ -3906,7 +3906,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC004,Wallet History API - Multi-Currency
    -> Clear view of each currency's activity
    -> No currency conversion needed
 
-8. Success - Multi-currency history retrieved ✓""",wallet_history_api;get_history;multi_currency;all_currencies;gbp;usd;aud;api_success;currency_grouping;cardstream_ch;,P1,Automated,US,NO,
+8. Success - Multi-currency history retrieved ✓""",wallet_history_api;get_history;multi_currency;all_currencies;gbp;usd;aud;api_success;currency_grouping;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_005
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC005,Wallet History API - Empty History (No Transactions),"""- Shopper exists but has never made any transactions
 - Zero balance in wallet
 - Empty transaction history
@@ -3991,7 +3991,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC005,Wallet History API - Empty History 
 8. Message to User:
    -> ""No transaction history available""
    -> ""Start by adding funds to your wallet""
-   -> Encourages first transaction""",wallet_history_api;empty_history;no_transactions;zero_balance;new_shopper;api_success;edge_case;cardstream_ch;,P1,Automated,US,NO,
+   -> Encourages first transaction""",wallet_history_api;empty_history;no_transactions;zero_balance;new_shopper;api_success;edge_case;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC006,Wallet History API - Page 1 of Multi-Page History,"""- Shopper has 50 total transactions
 - Page size: 20 transactions per page
 - Request page 1 (first page)
@@ -4153,7 +4153,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC006,Wallet History API - Page 1 of Mult
     -> Clear pagination indicators
     -> User knows: 50 total transactions, on page 1 of 3
     -> Can navigate forward
-    -> Intuitive pagination""",wallet_history_api;pagination;page_1;multi_page;first_page;has_next;api_success;transaction_sorting;cardstream_ch;,P1,Automated,US,NO,
+    -> Intuitive pagination""",wallet_history_api;pagination;page_1;multi_page;first_page;has_next;api_success;transaction_sorting;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_005
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC007,Wallet History API - Page 2 of Multi-Page History (Middle Page),"""- Request page 2 (middle page)
 - Should show transactions 21-40
 - Both previous and next pages available
@@ -4227,7 +4227,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC007,Wallet History API - Page 2 of Mult
    LIMIT 20 OFFSET 20 (skip first 20)
    Result: Rows 21-40 ✓
 
-7. Success ✓""",wallet_history_api;pagination;page_2;middle_page;has_next;has_previous;bidirectional_navigation;api_success;cardstream_ch;,P1,Automated,US,NO,
+7. Success ✓""",wallet_history_api;pagination;page_2;middle_page;has_next;has_previous;bidirectional_navigation;api_success;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_005
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC008,Wallet History API - Last Page (Page 3 - Partial Page),"""- Request final page
 - Partial page with 10 transactions
 - No next page available
@@ -4298,7 +4298,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC008,Wallet History API - Last Page (Pag
    -> Oldest transactions in wallet
    -> Historical data at end
 
-7. Partial Page Success ✓""",wallet_history_api;pagination;last_page;partial_page;no_next;has_previous;api_success;cardstream_ch;,P1,Automated,US,NO,
+7. Partial Page Success ✓""",wallet_history_api;pagination;last_page;partial_page;no_next;has_previous;api_success;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_005
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC009,Wallet History API - Invalid Page Number (Page 0),"""- Request with page = 0 (invalid)
 - Pages start from 1, not 0
 - Should return validation error
@@ -4372,7 +4372,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC009,Wallet History API - Invalid Page N
    -> Not 404 (shopper exists)
    -> Correct semantic HTTP status
 
-9. Error Handling Correct ✓""",wallet_history_api;invalid_page;page_zero;validation_error;negative_test;http_400;cardstream_ch;,P1,Automated,US,NO,
+9. Error Handling Correct ✓""",wallet_history_api;invalid_page;page_zero;validation_error;negative_test;http_400;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC011,Wallet History API - Extremely Large Page Number ,"""- Request page 999999 (way beyond available pages)
 - Total pages: 3
 - Should return empty page or error
@@ -4436,7 +4436,7 @@ Performance: ✓
 -> Early validation
 -> Efficient handling
 
-Edge Case Handled: ✓""",wallet_history_api;invalid_page;large_page_number;page_out_of_range;edge_case;negative_test;cardstream_ch;,P1,Automated,US,NO,
+Edge Case Handled: ✓""",wallet_history_api;invalid_page;large_page_number;page_out_of_range;edge_case;negative_test;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC012,Wallet History API - Large History Pagination (1000+ Transactions) - Performance Test,"""- Shopper with 1000+ transactions
 - Test pagination performance with large dataset
 - Verify response time acceptable
@@ -4616,7 +4616,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC012,Wallet History API - Large History 
     ✓ Database queries optimized
     ✓ Pagination accurate
     ✓ Concurrent requests handled
-    ✓ Scales to 1500+ transactions""",wallet_history_api;large_history;1000_plus_transactions;performance_test;pagination;database_optimization;load_test;concurrent_requests;api_success;cardstream_ch;,P1,Can't be automated,US,NO,
+    ✓ Scales to 1500+ transactions""",wallet_history_api;large_history;1000_plus_transactions;performance_test;pagination;database_optimization;load_test;concurrent_requests;api_success;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC014,Wallet History API - Missing Required Parameter (shopper_id) ,"""- Required parameter not provided in request
 - API should validate and reject
 - Return 400 Bad Request with clear error message""","""- Refer Git repository
@@ -4707,7 +4707,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC014,Wallet History API - Missing Requir
     ✓ Clear error message
     ✓ HTTP status correct
     ✓ No data processing attempted
-    ✓ Parameter validation working""",wallet_history_api;missing_parameter;validation_error;negative_test;http_400;shopper_id_required;cardstream_ch;,P1,Automated,US,NO,
+    ✓ Parameter validation working""",wallet_history_api;missing_parameter;validation_error;negative_test;http_400;shopper_id_required;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_history,WH-01TC,CSH-WH-01TC015,Wallet History API - Invalid API Key (Authentication Failure),"""- API key authentication required for all requests
 - Invalid or missing API key should be rejected
 - Return 401 Unauthorized
@@ -4813,7 +4813,7 @@ WALLET,wallet_history,WH-01TC,CSH-WH-01TC015,Wallet History API - Invalid API Ke
     ✓ HTTP 401 returned
     ✓ No data accessed
     ✓ Security layer functional
-    ✓ API protected""",wallet_history_api;invalid_api_key;authentication_failed;negative_test;http_401;security;api_security;cardstream_ch;,P1,Automated,US,NO,
+    ✓ API protected""",wallet_history_api;invalid_api_key;authentication_failed;negative_test;http_401;security;api_security;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC001,Wallet+X - End to End - Verify the wallet + X payment getting processed for the Cardstream-CH merchant - Wallet+New card sale,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Wallet+X key is passed in the sale payload - 
@@ -4855,7 +4855,7 @@ transaction_wallet table should have two entries - one with transaction_type_id 
 fund_transfer_transactions should have an entry for the wallet balance used
 cardstream_ch_fund_transfer_transactions table should have an entry for the wallet balance used
 
-4. Cardstream-CH dashboard should be updated for the wallet recharge amount and the fund transfer should be reflected in the balance account",wallet+x;end_to_end;wallet+new_card_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+4. Cardstream-CH dashboard should be updated for the wallet recharge amount and the fund transfer should be reflected in the balance account",wallet+x;end_to_end;wallet+new_card_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_016
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC002,Wallet+X - Verify the wallet + saved card payment getting processed for the Cardstream-CH merchant,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Customer has saved card token available
@@ -4907,7 +4907,7 @@ Card charged: CHF 40.00 (new recharge via saved card)
 Wallet used: CHF 60.00 (existing balance)
 Total sale: CHF 100.00
 Fund transfer to MERCHANT: CHF 60.00 ONLY (wallet portion)
-NO fund transfer for recharge portion (CHF 40.00)",wallet+x;wallet+saved_card;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+NO fund transfer for recharge portion (CHF 40.00)",wallet+x;wallet+saved_card;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_019
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC003,Wallet+X - Verify the wallet + Google Pay Web payment getting processed for the Cardstream-CH merchant ❌,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Google Pay Web is enabled
@@ -4961,7 +4961,7 @@ Google Pay charged: CHF 35.00 (new recharge)
 Wallet used: CHF 45.00 (existing balance)
 Total sale: CHF 80.00
 Fund transfer to MERCHANT: CHF 45.00 ONLY (wallet portion)
-NO fund transfer for recharge portion (CHF 35.00)",wallet+x;wallet+google_pay_web;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+NO fund transfer for recharge portion (CHF 35.00)",wallet+x;wallet+google_pay_web;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_016
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC004,Wallet+X - Verify the wallet + Google Pay TokenPay payment getting processed for the Cardstream-CH merchant❌,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Google Pay TokenPay is enabled
@@ -5017,7 +5017,7 @@ Google Pay TokenPay charged: CHF 50.00 (new recharge)
 Wallet used: CHF 70.00 (existing balance)
 Total sale: CHF 120.00
 Fund transfer to MERCHANT: CHF 70.00 ONLY (wallet portion)
-NO fund transfer for recharge portion (CHF 50.00)",wallet+x;wallet+google_pay_tokenpay;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+NO fund transfer for recharge portion (CHF 50.00)",wallet+x;wallet+google_pay_tokenpay;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_016
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC007,Wallet+X - Verify the wallet + New card through saved card flow payment getting processed,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Customer initiates new card flow through saved card option
@@ -5071,7 +5071,7 @@ New card charged: CHF 45.00 (recharge)
 Wallet used: CHF 50.00 (existing balance)
 Total sale: CHF 95.00
 Fund transfer to MERCHANT: CHF 50.00 ONLY (wallet portion)
-NO fund transfer for recharge portion (CHF 45.00)",wallet+x;wallet+new_card_through_saved;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+NO fund transfer for recharge portion (CHF 45.00)",wallet+x;wallet+new_card_through_saved;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_020
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC008,Wallet+X - Complete refund to CARD - Verify card refund and wallet refund processed correctly,"- Merchant in US (<country_id>) configured
 Customer completed Wallet+X sale
 Sale amount: CHF 100.00 (Wallet: CHF 60, Card: CHF 40)
@@ -5123,7 +5123,7 @@ Wallet portion NOT refunded through Cardstream-CH
 6. CRITICAL - Fund Transfer for Refund:
 Total refunded: CHF 100.00
 Card refund: CHF 40.00 (NO fund transfer)
-Wallet refund: CHF 60.00 (YES fund transfer from DATMAN to MERCHANT)",wallet+x;complete_refund_to_card;refund_split;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Wallet refund: CHF 60.00 (YES fund transfer from DATMAN to MERCHANT)",wallet+x;complete_refund_to_card;refund_split;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_018
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC009,Wallet+X - Complete refund to WALLET - Verify complete amount goes to wallet balance,"- Merchant in US (<country_id>) configured
 Customer completed Wallet+X sale
 Sale amount: CHF 100.00 (Wallet: CHF 60, Card: CHF 40)
@@ -5172,7 +5172,7 @@ All refunded to wallet
 
 6. CRITICAL - Fund Transfer for Complete Refund:
 Total refunded: CHF 100.00 to WALLET
-Fund transfer from DATMAN to MERCHANT: CHF 100.00",wallet+x;complete_refund_to_wallet;full_wallet_refund;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Fund transfer from DATMAN to MERCHANT: CHF 100.00",wallet+x;complete_refund_to_wallet;full_wallet_refund;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_017
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC010,Wallet+X - Partial refund to WALLET - Verify partial amount goes to wallet balance,"- Merchant in US (<country_id>) configured
 Customer completed Wallet+X sale
 Sale amount: CHF 100.00 (Wallet: CHF 60, Card: CHF 40)
@@ -5221,7 +5221,7 @@ Partial amount refunded to wallet only
 
 6. CRITICAL - Fund Transfer for Partial Refund:
 Partial refund: CHF 30.00 to WALLET
-Fund transfer from DATMAN to MERCHANT: CHF 30.00",wallet+x;partial_refund_to_wallet;partial_wallet_refund;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Fund transfer from DATMAN to MERCHANT: CHF 30.00",wallet+x;partial_refund_to_wallet;partial_wallet_refund;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_017
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC011,Wallet+X - 3DS authentication failure on card portion - Verify payment failure,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Customer uses 3DS card for remaining amount
@@ -5270,7 +5270,7 @@ NO wallet history entry for this failed transaction
 Card NOT charged
 Wallet NOT used
 NO fund transfer to merchant
-Transaction completely rolled back",wallet+x;3ds_failure;authentication_failed;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Transaction completely rolled back",wallet+x;3ds_failure;authentication_failed;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_023
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC012,Wallet+X - Changing payment method during process - Verify payment processed successfully ,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Customer changes payment method during checkout
@@ -5317,7 +5317,7 @@ Final method (Saved card): Processed successfully
 
 5. Wallet balance: CHF 0.00 (fully utilized)
 
-6. Fund transfer to MERCHANT: CHF 50.00 (wallet portion only)",wallet+x;payment_method_change;method_switch;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+6. Fund transfer to MERCHANT: CHF 50.00 (wallet portion only)",wallet+x;payment_method_change;method_switch;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_016
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC013,Wallet+X - Retrying success payment - Verify duplicate payment prevented ,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Payment already completed successfully
@@ -5364,7 +5364,7 @@ Original transaction ID provided
 6. CRITICAL - Duplicate Prevention:
 Same order cannot be paid twice
 Idempotency enforced
-Customer notified appropriately",wallet+x;retry_prevention;duplicate_payment;negative_test;idempotency;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Customer notified appropriately",wallet+x;retry_prevention;duplicate_payment;negative_test;idempotency;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_004
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC014,Wallet+X - Exact wallet balance match - Verify no additional payment needed,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Wallet balance exactly matches sale amount
@@ -5381,7 +5381,7 @@ Exact match: YES","1. Open the payment page for the customer id having wallet ba
 
 3. Verify NO additional payment method is required/shown
 
-4. Verify the payment page",1. Error page should be displayed in UI as the wallet balance is exactly same as the sale amount or the wallet balance is more than the sale amount,wallet+x;exact_balance_match;no_recharge;wallet_only_payment;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+4. Verify the payment page",1. Error page should be displayed in UI as the wallet balance is exactly same as the sale amount or the wallet balance is more than the sale amount,wallet+x;exact_balance_match;no_recharge;wallet_only_payment;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_025
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC015,Wallet+X - Card payment fails - Verify wallet balance not deducted❌ already done above,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Card payment for remaining amount fails
@@ -5431,7 +5431,7 @@ Option to retry with different card
 Card failure prevents entire transaction
 Wallet NOT debited on card failure
 Transaction rolled back completely
-NO partial processing",wallet+x;card_failure;wallet_preserved;atomic_transaction;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+NO partial processing",wallet+x;card_failure;wallet_preserved;atomic_transaction;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_023
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC016,Wallet+X - Zero wallet balance - Verify payment processed as regular payment,"- Merchant in US (<country_id>) configured
 Customer has ZERO wallet balance
 Payment should be processed as regular payment
@@ -5484,7 +5484,7 @@ Transfer based on merchant settlement rules
 6. CRITICAL - Regular Payment Flow:
 Zero balance = NO Wallet+X
 Processed as standard card payment
-NO wallet tables involved",wallet+x;zero_balance;regular_payment;no_wallet_flow;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+NO wallet tables involved",wallet+x;zero_balance;regular_payment;no_wallet_flow;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_024
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC017,Wallet+X - Sensitive data encryption - Verify encryption validation,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Sensitive data should be encrypted
@@ -5534,7 +5534,7 @@ Card data tokenized where applicable
 SSL/TLS encryption for transmission
 Database encryption for storage
 Token-based card references
-Audit trail maintained",wallet+x;encryption;pci_compliance;security;data_protection;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Audit trail maintained",wallet+x;encryption;pci_compliance;security;data_protection;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_016
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC018,Wallet+X - Very low wallet balance compared to sale amount - Verify payment completed,"- Merchant in US (<country_id>) configured
 Customer has very low wallet balance (CHF 0.50)
 Sale amount much higher (CHF 100.00)
@@ -5583,7 +5583,7 @@ NO minimum threshold issue
 6. CRITICAL - Low Balance Handling:
 System handles very small wallet amounts
 CHF 0.50 wallet + CHF 99.50 card = CHF 100.00 total
-Fund transfer: CHF 0.50 to MERCHANT correctly",wallet+x;low_balance;minimal_wallet_amount;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Fund transfer: CHF 0.50 to MERCHANT correctly",wallet+x;low_balance;minimal_wallet_amount;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_026
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC019,Wallet+X - Very high wallet balance compared to sale amount - Verify payment completed,"- Merchant in US (<country_id>) configured
 Customer has very high wallet balance (CHF 500.00)
 Sale amount much lower (CHF 75.00)
@@ -5636,7 +5636,7 @@ High balance: CHF 500.00
 Sale amount: CHF 75.00
 Deducted: CHF 75.00 ONLY
 Remaining: CHF 425.00 preserved
-Fund transfer to MERCHANT: CHF 75.00 only",wallet+x;high_balance;partial_deduction;sufficient_wallet;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Fund transfer to MERCHANT: CHF 75.00 only",wallet+x;high_balance;partial_deduction;sufficient_wallet;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_025
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC020,Wallet+X - Browser compatibility - Chrome Firefox Safari Edge,"- Merchant in US (<country_id>) configured
 Wallet+X payment flow
 Multiple browser testing
@@ -5696,7 +5696,7 @@ No browser-specific bugs
 All JS functions: Working
 API calls: Successful
 Event handlers: Working
-NO console errors",wallet+x;browser_compatibility;chrome;firefox;safari;edge;cross_browser;cardstream_ch;,P1,Can't be automated,US,NO,
+NO console errors",wallet+x;browser_compatibility;chrome;firefox;safari;edge;cross_browser;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC021,Wallet+X - End to End - Verify the wallet + Bank Transfer payment getting processed for the Cardstream-CH merchant,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 bank_transfer_enabled=1 in customers table for the merchant
@@ -5765,7 +5765,7 @@ Bank Transfer charged: CHF 40.00 (recharge via bank)
 Wallet used: CHF 60.00 (existing balance)
 Total sale: CHF 100.00
 Fund transfer to MERCHANT: CHF 60.00 ONLY (wallet portion)
-NO fund transfer for recharge portion (CHF 40.00)",wallet+x;wallet+pay_by_bank;end_to_end;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+NO fund transfer for recharge portion (CHF 40.00)",wallet+x;wallet+pay_by_bank;end_to_end;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_016
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC022,Wallet+X - Bank Transfer - Complete refund to CARD - Verify bank refund and wallet refund processed correctly,"- Merchant in US (<country_id>) configured
 Customer completed Wallet+Bank Transfer sale
 Sale amount: CHF 100.00 (Wallet: CHF 60, Bank Transfer: CHF 40)
@@ -5818,7 +5818,7 @@ Wallet portion NOT refunded through Cardstream-CH
 6. CRITICAL - Fund Transfer for Refund:
 Total refunded: CHF 100.00
 Bank account refund: CHF 40.00 (NO fund transfer)
-Wallet refund: CHF 60.00 (YES fund transfer from DATMAN to MERCHANT)",wallet+x;wallet+pay_by_bank;complete_refund_to_card;refund_split;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Wallet refund: CHF 60.00 (YES fund transfer from DATMAN to MERCHANT)",wallet+x;wallet+pay_by_bank;complete_refund_to_card;refund_split;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_018
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC023,Wallet+X - Bank Transfer - Complete refund to WALLET - Verify complete amount goes to wallet balance,"- Merchant in US (<country_id>) configured
 Customer completed Wallet+Bank Transfer sale
 Sale amount: CHF 100.00 (Wallet: CHF 60, Bank Transfer: CHF 40)
@@ -5865,7 +5865,7 @@ Bank Transfer portion: CHF 40.00 refund to originating bank account visible
 Total refunded: CHF 100.00
 Wallet credited: CHF 100.00
 Bank account refund via Cardstream-CH: CHF 40.00 (Bank Transfer portion reversed)
-Fund transfer adjusted accordingly",wallet+x;wallet+pay_by_bank;complete_refund_to_wallet;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Fund transfer adjusted accordingly",wallet+x;wallet+pay_by_bank;complete_refund_to_wallet;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_017
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC024,Wallet+X - Bank Transfer - Partial refund to WALLET - Verify partial amount goes to wallet balance,"- Merchant in US (<country_id>) configured
 Customer completed Wallet+Bank Transfer sale
 Sale amount: CHF 100.00 (Wallet: CHF 60, Bank Transfer: CHF 40)
@@ -5909,7 +5909,7 @@ No bank account refund triggered for this partial amount
 Partial refund: CHF 30.00 to wallet
 No Cardstream-CH refund triggered (within wallet portion)
 Wallet balance correctly updated
-Fund transfer adjusted for wallet refund portion",wallet+x;wallet+pay_by_bank;partial_refund_to_wallet;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Fund transfer adjusted for wallet refund portion",wallet+x;wallet+pay_by_bank;partial_refund_to_wallet;fund_transfer_validation;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_017
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC025,Wallet+X - Bank Transfer - Bank authentication failure - Verify wallet balance not deducted,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 bank_transfer_enabled=1 in customers table for the merchant
@@ -5967,7 +5967,7 @@ NO wallet history entry for this failed transaction
 Bank NOT charged (authentication failed)
 Wallet NOT used
 NO fund transfer to merchant
-Transaction completely rolled back",wallet+x;wallet+pay_by_bank;auth_failure;negative_test;wallet_not_deducted;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Transaction completely rolled back",wallet+x;wallet+pay_by_bank;auth_failure;negative_test;wallet_not_deducted;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_023
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC026,Wallet+X - Bank Transfer - Customer cancels at bank - Verify wallet balance not deducted,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 bank_transfer_enabled=1 in customers table for the merchant
@@ -6024,7 +6024,7 @@ NO wallet history entry for this cancelled transaction
 Bank NOT charged (customer cancelled)
 Wallet NOT used
 NO fund transfer to merchant
-Transaction completely rolled back",wallet+x;wallet+pay_by_bank;cancel_at_bank;negative_test;wallet_not_deducted;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Transaction completely rolled back",wallet+x;wallet+pay_by_bank;cancel_at_bank;negative_test;wallet_not_deducted;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_023
 WALLET,wallet_plus_x,WX-01TC,CSH-WX-01TC027,Wallet+X - Bank Transfer - Split payment - Verify splits calculated on total amount,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 bank_transfer_enabled=1 in customers table for the merchant
@@ -6090,7 +6090,7 @@ Wallet used: CHF 60.00 (existing balance)
 Total sale: CHF 150.00
 Fund transfer to MERCHANT: CHF 60.00 ONLY (wallet portion)
 Splits: calculated on CHF 150.00 total
-Net settlement = gross - fee - split amounts",wallet+x;wallet+pay_by_bank;split_payment;fund_transfer_validation;payments_split_commission;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+Net settlement = gross - fee - split amounts",wallet+x;wallet+pay_by_bank;split_payment;fund_transfer_validation;payments_split_commission;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_030
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC001,Wallet to card - End to End - Verify the wallet to card getting processed for the Cardstream-CH merchant,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Some wallet refund should be available
@@ -6118,7 +6118,7 @@ Token - Valid","Request should be processed successfully and success response sh
 Note - card_type logic:
 - If master_token_id present in payments table → fetch scheme_name from master_token table
 - If master_token_id not present → fetch from webhook_log table payload column
-- If not found in either → card_type not included in response",wallet_to_card;end_to_end;wallet_to_card_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+- If not found in either → card_type not included in response",wallet_to_card;end_to_end;wallet_to_card_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_021
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC002,Wallet to card - Multiple refunds for same sale - Verify wallet to card processed for all eligible refunds,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Multiple wallet refunds available for same sale
@@ -6155,7 +6155,7 @@ Total refunds: CHF 65.00 (within CHF 100.00 sale)","Request should be processed 
 Note - card_type logic:
 - If master_token_id present in payments table → fetch scheme_name from master_token table
 - If master_token_id not present → fetch from webhook_log table payload column
-- If not found in either → card_type not included in response",wallet_to_card;multiple_refunds;wallet_to_card_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+- If not found in either → card_type not included in response",wallet_to_card;multiple_refunds;wallet_to_card_success;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,"CH_WA_TC_012, CH_WA_TC_013"
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC003,Wallet to card - Refund older than 30 days - Verify wallet to card not processed,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Wallet refund available but older than 30 days
@@ -6183,7 +6183,7 @@ Refund date: More than 30 days ago (e.g., 45 days old)","Request should be rejec
 {
     ""outcome"": ""failed"",
     ""message"": ""Please note that withdrawals can only be made within 30 days from the date of the transaction.""
-}",wallet_to_card;30_day_limit;validation_failed;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Can't be automated,US,NO,
+}",wallet_to_card;30_day_limit;validation_failed;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC004,Wallet to card - Already processed transaction - Verify duplicate wallet to card prevented,"- Merchant in US (<country_id>) configured
 Customer has wallet balance available
 Wallet refund already processed to card
@@ -6211,7 +6211,7 @@ Previous wallet to card: Already completed","Request should be rejected with alr
 {
     ""outcome"": ""failed"",
     ""message"": ""Wallet to card has already been processed""
-}",wallet_to_card;already_processed;duplicate_prevention;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+}",wallet_to_card;already_processed;duplicate_prevention;negative_test;region_ch;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_021
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC005,Wallet to card - End to End - Verify the wallet to card getting processed for the Cardstream-CH merchant (CH),"- Merchant in US configured (Cardstream-CH gateway)
 Customer has wallet balance available
 Some wallet refund should be available
@@ -6239,7 +6239,7 @@ Token - Valid","Request should be processed successfully and success response sh
 Note - card_type logic:
 - If master_token_id present in payments table → fetch scheme_name from master_token table
 - If master_token_id not present → fetch from webhook_log table payload column
-- If not found in either → card_type not included in response",wallet_to_card;end_to_end;wallet_to_card_success;region_cha;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+- If not found in either → card_type not included in response",wallet_to_card;end_to_end;wallet_to_card_success;region_cha;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_022
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC006,Wallet to card - End to End - Verify the wallet to card getting processed for the Cardstream-CH merchant (CH),"- Merchant in US configured (Cardstream-CH gateway)
 Customer has wallet balance available
 Some wallet refund should be available
@@ -6267,7 +6267,7 @@ Token - Valid","Request should be processed successfully and success response sh
 Note - card_type logic:
 - If master_token_id present in payments table → fetch scheme_name from master_token table
 - If master_token_id not present → fetch from webhook_log table payload column
-- If not found in either → card_type not included in response",wallet_to_card;end_to_end;wallet_to_card_success;region_chs;currency_chf;cardstream_ch;,P1,Automated,US,NO,
+- If not found in either → card_type not included in response",wallet_to_card;end_to_end;wallet_to_card_success;region_chs;currency_chf;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_014
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC007,Wallet to card - card_type from master_token - Verify card_type fetched from master_token.scheme_name when master_token_id is present,"- Merchant configured (UK / USA / AUS)
 Customer has wallet balance available
 Wallet refund available with withdrawal_status 1
@@ -6291,7 +6291,7 @@ Token - Valid
     ""last_4"": ""0005"",
     ""card_type"": ""MASTERCARD""
 }
-5. card_type value = scheme_name fetched from master_token table (master_token_id present in payments table)",wallet_to_card;card_type;master_token;card_type_from_master_token;region_ch;region_cha;region_chs;cardstream_ch;,P1,Automated,US,NO,
+5. card_type value = scheme_name fetched from master_token table (master_token_id present in payments table)",wallet_to_card;card_type;master_token;card_type_from_master_token;region_ch;region_cha;region_chs;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC008,Wallet to card - card_type from webhook_log - Verify card_type fetched from webhook_log.payload when master_token_id not present,"- Merchant configured (UK / USA / AUS)
 Customer has wallet balance available
 Wallet refund available with withdrawal_status 1
@@ -6315,7 +6315,7 @@ Token - Valid
     ""last_4"": ""0005"",
     ""card_type"": ""[value from webhook_log.payload]""
 }
-5. card_type value = fetched from webhook_log table payload column (master_token_id not present in payments table)",wallet_to_card;card_type;webhook_log;card_type_from_webhook_log;region_ch;region_cha;region_chs;cardstream_ch;,P1,Automated,US,NO,
+5. card_type value = fetched from webhook_log table payload column (master_token_id not present in payments table)",wallet_to_card;card_type;webhook_log;card_type_from_webhook_log;region_ch;region_cha;region_chs;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_to_card,W2C-01TC,CSH-W2C-01TC009,Wallet to card - card_type not returned - Verify card_type not included in response when not found in master_token or webhook_log,"- Merchant configured (UK / USA / AUS)
 Customer has wallet balance available
 Wallet refund available with withdrawal_status 1
@@ -6338,7 +6338,7 @@ Token - Valid
     ""outcome"": ""success"",
     ""last_4"": ""0005""
 }
-5. card_type NOT present in response - not found in master_token table or webhook_log.payload",wallet_to_card;card_type;card_type_not_present;region_ch;region_cha;region_chs;cardstream_ch;,P1,Automated,US,NO,
+5. card_type NOT present in response - not found in master_token table or webhook_log.payload",wallet_to_card;card_type;card_type_not_present;region_ch;region_cha;region_chs;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_007
 WALLET,wallet_concurrent,WP-CONC-TC,CSH-WP-CONC-TC033,Concurrent Wallet Refund and Payment - Race Condition Handling,"- Customer wallet exists
 - Initial wallet balance: CHF 10.00
 - Refund in progress: CHF 50.00 (to be added)
@@ -6423,7 +6423,7 @@ Database Locking Strategy:
 
 3. Data integrity maintained ✓
 4. No double-spend scenario ✓
-5. Clear customer communication in both cases ✓",wallet;concurrent;race_condition;refund;payment;timing;negative_test;edge_case;cardstream_ch;,P1,Can't be automated,US,NO,
+5. Clear customer communication in both cases ✓",wallet;concurrent;race_condition;refund;payment;timing;negative_test;edge_case;cardstream_ch;,P1,Can't be automated,US,NA,NA
 WALLET,wallet_partner_split,WP-PARTNER-SPLIT-008,CSH-WP-PARTNER-SPLIT-008,Wallet Payment – Insufficient Balance with Valid Split Type,"- Merchant in US (<country_id>) configured
 - Customer has insufficient wallet balance
 - Wallet payment enabled
@@ -6442,4 +6442,4 @@ WALLET,wallet_partner_split,WP-PARTNER-SPLIT-008,CSH-WP-PARTNER-SPLIT-008,Wallet
 3. No payments_split_commission record created.
 4. No payment record created.
 5. Wallet balance remains unchanged: CHF 30.00.
-6. Split type validation passed but balance check failed.",wallet_partner_split;fastfood;insufficient_balance;cardstream_ch;,P1,Automated,US,NO,
+6. Split type validation passed but balance check failed.",wallet_partner_split;fastfood;insufficient_balance;cardstream_ch;,P1,Automated,US,NA,CH_WA_TC_024
